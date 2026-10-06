@@ -1,0 +1,263 @@
+m255
+K4
+z2
+!s11f vlog 2024.1 2024.02, Feb  1 2024
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dD:/Riscv_proj/smart_controlsoc
+varbiter
+Z1 2rtl/interconnect/priority_encoder.v|rtl/interconnect/arbiter.v|rtl/interconnect/axi_interconnect.v|rtl/interconnect/axi_interconnect_wrap_2x6.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/axi_uart_top.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_controller.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_receiver.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_transmitter.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_parity_bit_compute.v|rtl/smart_controlsoc_top.v
+Z2 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z3 !s110 1791313597
+!i10b 1
+!s100 zL5[6d_K^hfM]<g]cODMd2
+IzYkW2ITF2?Q33MA8TfV?O3
+S1
+R0
+Z4 w1791307465
+8rtl/interconnect/arbiter.v
+Frtl/interconnect/arbiter.v
+!i122 3
+L0 34 124
+Z5 VDg1SIo80bB@j0V0VzS_@n1
+Z6 OL;L;2024.1;79
+r1
+!s85 0
+31
+Z7 !s108 1791313597.000000
+!s107 rtl/uart_direc/axi-lite_uart-ipcore-develop/src/include/axi_uart.vh|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/include/axi_uart_defines.vh|rtl/smart_controlsoc_top.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_parity_bit_compute.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_transmitter.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_receiver.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_controller.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/axi_uart_top.v|rtl/interconnect/axi_interconnect_wrap_2x6.v|rtl/interconnect/axi_interconnect.v|rtl/interconnect/arbiter.v|rtl/interconnect/priority_encoder.v|
+Z8 !s90 -sv|-work|work|-incdir|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/include|rtl/interconnect/priority_encoder.v|rtl/interconnect/arbiter.v|rtl/interconnect/axi_interconnect.v|rtl/interconnect/axi_interconnect_wrap_2x6.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/axi_uart_top.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_controller.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_receiver.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_transmitter.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_parity_bit_compute.v|rtl/smart_controlsoc_top.v|
+!i113 0
+Z9 o-sv -work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z10 tCvgOpt 0
+vaxi_interconnect
+R1
+R2
+R3
+!i10b 1
+!s100 TkP7A:ig50i7g_KgHOZ9Q0
+I^j0W9D2@2QWSHX;X0O]C?2
+S1
+R0
+R4
+8rtl/interconnect/axi_interconnect.v
+Frtl/interconnect/axi_interconnect.v
+!i122 3
+L0 34 953
+R5
+R6
+r1
+!s85 0
+31
+R7
+Z11 !s107 rtl/uart_direc/axi-lite_uart-ipcore-develop/src/include/axi_uart.vh|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/include/axi_uart_defines.vh|rtl/smart_controlsoc_top.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_parity_bit_compute.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_transmitter.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_receiver.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_controller.v|rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/axi_uart_top.v|rtl/interconnect/axi_interconnect_wrap_2x6.v|rtl/interconnect/axi_interconnect.v|rtl/interconnect/arbiter.v|rtl/interconnect/priority_encoder.v|
+R8
+!i113 0
+R9
+R10
+vaxi_interconnect_wrap_2x6
+R1
+R2
+R3
+!i10b 1
+!s100 XZSEbFmWdG9UCCN`jn?2d3
+IIAUb1=inY`dZje^MTZA:e0
+S1
+R0
+w1791311624
+8rtl/interconnect/axi_interconnect_wrap_2x6.v
+Frtl/interconnect/axi_interconnect_wrap_2x6.v
+!i122 3
+L0 34 553
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vaxi_uart_top
+R1
+R2
+R3
+!i10b 1
+!s100 njYEM[cJmMo8K:?OkWeh32
+I`YXn;n63S6RK53VZ>_?TX3
+S1
+R0
+Z12 w1791312990
+8rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/axi_uart_top.v
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/axi_uart_top.v
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/include/axi_uart_defines.vh
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/include/axi_uart.vh
+!i122 3
+L0 28 739
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vpriority_encoder
+R1
+R2
+R3
+!i10b 1
+!s100 o;K^BC9LTBh<KWmn@bPWF2
+IlH7TUKKT5Onz@ESSOEYg51
+S1
+R0
+R4
+8rtl/interconnect/priority_encoder.v
+Frtl/interconnect/priority_encoder.v
+!i122 3
+L0 34 57
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vsmart_controlsoc_top
+R1
+R2
+R3
+!i10b 1
+!s100 j2jU=9jKkGE8:ZSY6[WP21
+I;PH8H82X>]fQ6EFNR2Qa23
+S1
+R0
+w1791313446
+8rtl/smart_controlsoc_top.v
+Frtl/smart_controlsoc_top.v
+!i122 3
+L0 3 188
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vuart_controller
+R1
+R2
+R3
+!i10b 1
+!s100 l^=G[7jz>3hjVCNCR`<fN3
+I@ocSz7l7JBmza^TUdlQL93
+S1
+R0
+R12
+8rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_controller.v
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_controller.v
+!i122 3
+L0 28 146
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vuart_parity_bit_compute
+R1
+R2
+R3
+!i10b 1
+!s100 EbLgemAHUMzTYQzN6=@K`2
+I1oa2YIIi=Lo[^Y`?<cMFJ3
+S1
+R0
+R12
+8rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_parity_bit_compute.v
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_parity_bit_compute.v
+!i122 3
+L0 27 34
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vuart_receiver
+R1
+R2
+R3
+!i10b 1
+!s100 ]VDGR:WmSoLB;jc;S?Cbm1
+I^fkUd_Zg[=EAjC?OWa;n00
+S1
+R0
+R12
+8rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_receiver.v
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_receiver.v
+!i122 3
+L0 27 187
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
+vuart_transmitter
+R1
+R2
+R3
+!i10b 1
+!s100 Lmi;7MK]Gh^QQLj7i`IRR2
+IOWW<Of6X0aY;^[1J^D]i>1
+S1
+R0
+R12
+8rtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_transmitter.v
+Frtl/uart_direc/axi-lite_uart-ipcore-develop/src/rtl/uart_transmitter.v
+!i122 3
+L0 28 207
+R5
+R6
+r1
+!s85 0
+31
+R7
+R11
+R8
+!i113 0
+R9
+R10
