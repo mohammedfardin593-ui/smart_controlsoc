@@ -11,6 +11,43 @@ module smart_controlsoc_top #(
     input  wire        sys_clk,
     input  wire        sys_rst_n,
 
+    // AXI Slave 0 Interface (for RISC-V / Testbench Master)
+    input  wire [ID_WIDTH-1:0]      s00_axi_awid,
+    input  wire [ADDR_WIDTH-1:0]    s00_axi_awaddr,
+    input  wire [7:0]               s00_axi_awlen,
+    input  wire [2:0]               s00_axi_awsize,
+    input  wire [1:0]               s00_axi_awburst,
+    input  wire                     s00_axi_awlock,
+    input  wire [3:0]               s00_axi_awcache,
+    input  wire [2:0]               s00_axi_awprot,
+    input  wire                     s00_axi_awvalid,
+    output wire                     s00_axi_awready,
+    input  wire [DATA_WIDTH-1:0]    s00_axi_wdata,
+    input  wire [STRB_WIDTH-1:0]    s00_axi_wstrb,
+    input  wire                     s00_axi_wlast,
+    input  wire                     s00_axi_wvalid,
+    output wire                     s00_axi_wready,
+    output wire [ID_WIDTH-1:0]      s00_axi_bid,
+    output wire [1:0]               s00_axi_bresp,
+    output wire                     s00_axi_bvalid,
+    input  wire                     s00_axi_bready,
+    input  wire [ID_WIDTH-1:0]      s00_axi_arid,
+    input  wire [ADDR_WIDTH-1:0]    s00_axi_araddr,
+    input  wire [7:0]               s00_axi_arlen,
+    input  wire [2:0]               s00_axi_arsize,
+    input  wire [1:0]               s00_axi_arburst,
+    input  wire                     s00_axi_arlock,
+    input  wire [3:0]               s00_axi_arcache,
+    input  wire [2:0]               s00_axi_arprot,
+    input  wire                     s00_axi_arvalid,
+    output wire                     s00_axi_arready,
+    output wire [ID_WIDTH-1:0]      s00_axi_rid,
+    output wire [DATA_WIDTH-1:0]    s00_axi_rdata,
+    output wire [1:0]               s00_axi_rresp,
+    output wire                     s00_axi_rlast,
+    output wire                     s00_axi_rvalid,
+    input  wire                     s00_axi_rready,
+
     // UART External Pins
     input  wire        uart_rx_i,
     output wire        uart_tx_o,
@@ -93,6 +130,46 @@ module smart_controlsoc_top #(
     ) system_interconnect (
         .clk(sys_clk), 
         .rst(~sys_rst_n), // Active high reset required by interconnect wrapper
+        
+        // Slave 00 Port <- RISC-V / Testbench
+        .s00_axi_awid   (s00_axi_awid),
+        .s00_axi_awaddr (s00_axi_awaddr),
+        .s00_axi_awlen  (s00_axi_awlen),
+        .s00_axi_awsize (s00_axi_awsize),
+        .s00_axi_awburst(s00_axi_awburst),
+        .s00_axi_awlock (s00_axi_awlock),
+        .s00_axi_awcache(s00_axi_awcache),
+        .s00_axi_awprot (s00_axi_awprot),
+        .s00_axi_awvalid(s00_axi_awvalid),
+        .s00_axi_awready(s00_axi_awready),
+        .s00_axi_wdata  (s00_axi_wdata),
+        .s00_axi_wstrb  (s00_axi_wstrb),
+        .s00_axi_wlast  (s00_axi_wlast),
+        .s00_axi_wvalid (s00_axi_wvalid),
+        .s00_axi_wready (s00_axi_wready),
+        .s00_axi_bid    (s00_axi_bid),
+        .s00_axi_bresp  (s00_axi_bresp),
+        .s00_axi_bvalid (s00_axi_bvalid),
+        .s00_axi_bready (s00_axi_bready),
+        .s00_axi_arid   (s00_axi_arid),
+        .s00_axi_araddr (s00_axi_araddr),
+        .s00_axi_arlen  (s00_axi_arlen),
+        .s00_axi_arsize (s00_axi_arsize),
+        .s00_axi_arburst(s00_axi_arburst),
+        .s00_axi_arlock (s00_axi_arlock),
+        .s00_axi_arcache(s00_axi_arcache),
+        .s00_axi_arprot (s00_axi_arprot),
+        .s00_axi_arvalid(s00_axi_arvalid),
+        .s00_axi_arready(s00_axi_arready),
+        .s00_axi_rid    (s00_axi_rid),
+        .s00_axi_rdata  (s00_axi_rdata),
+        .s00_axi_rresp  (s00_axi_rresp),
+        .s00_axi_rlast  (s00_axi_rlast),
+        .s00_axi_rvalid (s00_axi_rvalid),
+        .s00_axi_rready (s00_axi_rready),
+        
+        // Tie off S01 to 0
+        .s01_axi_awid(0), .s01_axi_awaddr(0), .s01_axi_awlen(0), .s01_axi_awsize(0), .s01_axi_awburst(0), .s01_axi_awlock(0), .s01_axi_awcache(0), .s01_axi_awprot(0), .s01_axi_awvalid(0), .s01_axi_wdata(0), .s01_axi_wstrb(0), .s01_axi_wlast(0), .s01_axi_wvalid(0), .s01_axi_bready(0), .s01_axi_arid(0), .s01_axi_araddr(0), .s01_axi_arlen(0), .s01_axi_arsize(0), .s01_axi_arburst(0), .s01_axi_arlock(0), .s01_axi_arcache(0), .s01_axi_arprot(0), .s01_axi_arvalid(0), .s01_axi_rready(0),
         
         // Master 00 Port -> UART
         .m00_axi_awid   (m00_axi_awid),
@@ -188,3 +265,4 @@ module smart_controlsoc_top #(
     assign m00_axi_rlast = 1'b1;
 
 endmodule
+
