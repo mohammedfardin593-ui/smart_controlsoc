@@ -11,43 +11,6 @@ module smart_controlsoc_top #(
     input  wire        sys_clk,
     input  wire        sys_rst_n,
 
-    // AXI Slave 0 Interface (for RISC-V / Testbench Master)
-    input  wire [ID_WIDTH-1:0]      s00_axi_awid,
-    input  wire [ADDR_WIDTH-1:0]    s00_axi_awaddr,
-    input  wire [7:0]               s00_axi_awlen,
-    input  wire [2:0]               s00_axi_awsize,
-    input  wire [1:0]               s00_axi_awburst,
-    input  wire                     s00_axi_awlock,
-    input  wire [3:0]               s00_axi_awcache,
-    input  wire [2:0]               s00_axi_awprot,
-    input  wire                     s00_axi_awvalid,
-    output wire                     s00_axi_awready,
-    input  wire [DATA_WIDTH-1:0]    s00_axi_wdata,
-    input  wire [STRB_WIDTH-1:0]    s00_axi_wstrb,
-    input  wire                     s00_axi_wlast,
-    input  wire                     s00_axi_wvalid,
-    output wire                     s00_axi_wready,
-    output wire [ID_WIDTH-1:0]      s00_axi_bid,
-    output wire [1:0]               s00_axi_bresp,
-    output wire                     s00_axi_bvalid,
-    input  wire                     s00_axi_bready,
-    input  wire [ID_WIDTH-1:0]      s00_axi_arid,
-    input  wire [ADDR_WIDTH-1:0]    s00_axi_araddr,
-    input  wire [7:0]               s00_axi_arlen,
-    input  wire [2:0]               s00_axi_arsize,
-    input  wire [1:0]               s00_axi_arburst,
-    input  wire                     s00_axi_arlock,
-    input  wire [3:0]               s00_axi_arcache,
-    input  wire [2:0]               s00_axi_arprot,
-    input  wire                     s00_axi_arvalid,
-    output wire                     s00_axi_arready,
-    output wire [ID_WIDTH-1:0]      s00_axi_rid,
-    output wire [DATA_WIDTH-1:0]    s00_axi_rdata,
-    output wire [1:0]               s00_axi_rresp,
-    output wire                     s00_axi_rlast,
-    output wire                     s00_axi_rvalid,
-    input  wire                     s00_axi_rready,
-
     // UART External Pins
     input  wire        uart_rx_i,
     output wire        uart_tx_o,
@@ -56,6 +19,140 @@ module smart_controlsoc_top #(
     // Other top-level ports for RISC-V, DMA, Timer, etc. will go here later
 );
 
+    // -------------------------------------------------------------------------
+    // RISC-V CPU (VeeR EL2) <-> AXI Interconnect S00 Wires
+    // -------------------------------------------------------------------------
+    wire [ID_WIDTH-1:0]      s00_axi_awid;
+    wire [ADDR_WIDTH-1:0]    s00_axi_awaddr;
+    wire [7:0]               s00_axi_awlen;
+    wire [2:0]               s00_axi_awsize;
+    wire [1:0]               s00_axi_awburst;
+    wire                     s00_axi_awlock;
+    wire [3:0]               s00_axi_awcache;
+    wire [2:0]               s00_axi_awprot;
+    wire                     s00_axi_awvalid;
+    wire                     s00_axi_awready;
+    wire [DATA_WIDTH-1:0]    s00_axi_wdata;
+    wire [STRB_WIDTH-1:0]    s00_axi_wstrb;
+    wire                     s00_axi_wlast;
+    wire                     s00_axi_wvalid;
+    wire                     s00_axi_wready;
+    wire [ID_WIDTH-1:0]      s00_axi_bid;
+    wire [1:0]               s00_axi_bresp;
+    wire                     s00_axi_bvalid;
+    wire                     s00_axi_bready;
+    wire [ID_WIDTH-1:0]      s00_axi_arid;
+    wire [ADDR_WIDTH-1:0]    s00_axi_araddr;
+    wire [7:0]               s00_axi_arlen;
+    wire [2:0]               s00_axi_arsize;
+    wire [1:0]               s00_axi_arburst;
+    wire                     s00_axi_arlock;
+    wire [3:0]               s00_axi_arcache;
+    wire [2:0]               s00_axi_arprot;
+    wire                     s00_axi_arvalid;
+    wire                     s00_axi_arready;
+    wire [ID_WIDTH-1:0]      s00_axi_rid;
+    wire [DATA_WIDTH-1:0]    s00_axi_rdata;
+    wire [1:0]               s00_axi_rresp;
+    wire                     s00_axi_rlast;
+    wire                     s00_axi_rvalid;
+    wire                     s00_axi_rready;
+
+    // CPU LSU uses 64-bit AXI data, we bridge it to 32-bit interconnect by taking the lower 32 bits
+    wire [63:0] cpu_lsu_wdata;
+    wire [7:0]  cpu_lsu_wstrb;
+    wire [63:0] cpu_lsu_rdata;
+
+    assign s00_axi_wdata = cpu_lsu_wdata[31:0];
+    assign s00_axi_wstrb = cpu_lsu_wstrb[3:0];
+    assign cpu_lsu_rdata = {32'h0, s00_axi_rdata};
+
+    // -------------------------------------------------------------------------
+    // RISC-V CPU (VeeR EL2) Instantiation
+    // -------------------------------------------------------------------------
+    el2_veer_wrapper cpu_inst (
+        .clk             (sys_clk),
+        .rst_l           (sys_rst_n),
+        .dbg_rst_l       (sys_rst_n),
+        .rst_vec         (31'h0000_0000), // Boot address
+        .nmi_int         (1'b0),
+        .nmi_vec         (31'h0000_0000),
+        .jtag_id         (31'h0000_0000),
+
+        // LSU AXI Interface -> Interconnect S00
+        .lsu_axi_awvalid (s00_axi_awvalid),
+        .lsu_axi_awready (s00_axi_awready),
+        .lsu_axi_awid    (s00_axi_awid),
+        .lsu_axi_awaddr  (s00_axi_awaddr),
+        .lsu_axi_awlen   (s00_axi_awlen),
+        .lsu_axi_awsize  (s00_axi_awsize),
+        .lsu_axi_awburst (s00_axi_awburst),
+        .lsu_axi_awlock  (s00_axi_awlock),
+        .lsu_axi_awcache (s00_axi_awcache),
+        .lsu_axi_awprot  (s00_axi_awprot),
+        
+        .lsu_axi_wvalid  (s00_axi_wvalid),
+        .lsu_axi_wready  (s00_axi_wready),
+        .lsu_axi_wdata   (cpu_lsu_wdata),
+        .lsu_axi_wstrb   (cpu_lsu_wstrb),
+        .lsu_axi_wlast   (s00_axi_wlast),
+        
+        .lsu_axi_bvalid  (s00_axi_bvalid),
+        .lsu_axi_bready  (s00_axi_bready),
+        .lsu_axi_bresp   (s00_axi_bresp),
+        .lsu_axi_bid     (s00_axi_bid),
+        
+        .lsu_axi_arvalid (s00_axi_arvalid),
+        .lsu_axi_arready (s00_axi_arready),
+        .lsu_axi_arid    (s00_axi_arid),
+        .lsu_axi_araddr  (s00_axi_araddr),
+        .lsu_axi_arlen   (s00_axi_arlen),
+        .lsu_axi_arsize  (s00_axi_arsize),
+        .lsu_axi_arburst (s00_axi_arburst),
+        .lsu_axi_arlock  (s00_axi_arlock),
+        .lsu_axi_arcache (s00_axi_arcache),
+        .lsu_axi_arprot  (s00_axi_arprot),
+        
+        .lsu_axi_rvalid  (s00_axi_rvalid),
+        .lsu_axi_rready  (s00_axi_rready),
+        .lsu_axi_rid     (s00_axi_rid),
+        .lsu_axi_rdata   (cpu_lsu_rdata),
+        .lsu_axi_rresp   (s00_axi_rresp),
+        .lsu_axi_rlast   (s00_axi_rlast),
+        
+        // Tie off IFU AXI (Instruction Fetch Unit - assuming internal ICCM)
+        .ifu_axi_awready (1'b1),
+        .ifu_axi_wready  (1'b1),
+        .ifu_axi_bvalid  (1'b0),
+        .ifu_axi_arready (1'b1),
+        .ifu_axi_rvalid  (1'b0),
+        
+        // Tie off SB AXI (System Bus / Debug)
+        .sb_axi_awready  (1'b1),
+        .sb_axi_wready   (1'b1),
+        .sb_axi_bvalid   (1'b0),
+        .sb_axi_arready  (1'b1),
+        .sb_axi_rvalid   (1'b0),
+        
+        // Tie off DMA AXI Slave
+        .dma_axi_awvalid (1'b0),
+        .dma_axi_wvalid  (1'b0),
+        .dma_axi_arvalid (1'b0),
+        .dma_axi_bready  (1'b1),
+        .dma_axi_rready  (1'b1),
+
+        // Clock enables and Interrupts
+        .lsu_bus_clk_en  (1'b1),
+        .ifu_bus_clk_en  (1'b1),
+        .dbg_bus_clk_en  (1'b1),
+        .dma_bus_clk_en  (1'b1),
+        .timer_int       (1'b0),
+        .soft_int        (1'b0),
+        .extintsrc_req   (1'b0) // Will connect to actual interrupt controller later
+    );
+
+    // -------------------------------------------------------------------------
+    // AXI Interconnect Master 0 (M00) <-> UART Slave Wires
     // -------------------------------------------------------------------------
     // AXI Interconnect Master 0 (M00) <-> UART Slave Wires
     // -------------------------------------------------------------------------
@@ -265,4 +362,5 @@ module smart_controlsoc_top #(
     assign m00_axi_rlast = 1'b1;
 
 endmodule
+
 
