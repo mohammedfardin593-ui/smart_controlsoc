@@ -1,0 +1,9 @@
+./Makefile
+./scripts/filelist
+./scripts/config.mk
+./scripts/copy_files
+./scripts/update-submodules
+./scripts/funct.mk
+./scripts/spyglass_lint
+./scripts/misc.mk
+./scripts/parse_config
