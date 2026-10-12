@@ -227,10 +227,11 @@ This section details the remaining engineering phases, pending hardware integrat
 |  Phase 3: Remaining Peripheral Integration (Timer & GPIO)    | [--------            ]  25% | IN PROGRESS|
 |  Phase 4: Interrupt Aggregation & PIC Routing               | [                    ]   0% | PENDING    |
 |  Phase 5: DMA Bus Master Integration                        | [                    ]   0% | PENDING    |
-|  Phase 6: Bare-Metal C Drivers & Firmware Verification      | [                    ]   0% | PENDING    |
-|  Phase 7: Synthesis & Static Timing Analysis (STA)          | [                    ]   0% | PENDING    |
+|  Phase 6: Bare-Metal C Drivers & Full System Verification   | [                    ]   0% | PENDING    |
 +--------------------------------------------------------------------------------------------------------+
 ```
+
+> **Project Scope Definition:** The primary objective of this work is **Front-End Architecture Design, RTL IP Integration, and System-Level Verification**. Physical implementation (ASIC Synthesis, Place & Route, and Physical Signoff) is deliberately excluded, allowing complete focus on functional verification, bus protocol compliance, and software driver development.
 
 ---
 
@@ -300,16 +301,7 @@ This section details the remaining engineering phases, pending hardware integrat
 
 ---
 
-### 8.4 Physical Synthesis, STA & Backend Goals
-
-#### Synopsys Design Compiler (DC) & FPGA Implementation
-* **Synthesis:** Perform gate-level logic synthesis using Synopsys DC (targeting 28nm/45nm technology libraries) or Vivado (targeting Xilinx Zynq/PYNQ FPGA).
-* **Static Timing Analysis (STA):** Perform setup/hold timing verification at target system clock frequency (100 MHz).
-* **Reporting:** Generate power, cell area, critical path delay, and resource utilization reports.
-
----
-
-### 8.5 Action Items & Traceability Matrix
+### 8.4 Action Items & Verification Traceability Matrix
 
 | # | Task Description | Target File / Module | Phase | Category | Priority | Status |
 | :-: | :--- | :--- | :-: | :-: | :-: | :-: |
@@ -321,5 +313,4 @@ This section details the remaining engineering phases, pending hardware integrat
 | **T6** | Develop C Memory Map (`soc_memory_map.h`) & Drivers | `sw/drivers/` | Phase 6 | Software | High | ⏳ Pending |
 | **T7** | Create Linker Script (`link.ld`) and Startup (`crt0.s`) | `sw/bsp/` | Phase 6 | Software | High | ⏳ Pending |
 | **T8** | Run End-to-End Firmware Simulation with RISC-V GCC | `tb/tb_smart_controlsoc_top.sv` | Phase 6 | Verification | High | ⏳ Pending |
-| **T9** | Synthesis, Area/Power Reports & Timing Closure | Synopsys DC / Vivado | Phase 7 | Physical | Medium | ⏳ Pending |
 
