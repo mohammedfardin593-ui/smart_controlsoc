@@ -51,6 +51,14 @@ module tb_smart_controlsoc_top;
     localparam SPI_DRR          = SPI_BASE + 32'h6C; // Data Receive Register
     localparam SPI_SSR          = SPI_BASE + 32'h70; // Slave Select Register
 
+    // I2C Memory-Mapped Register Base & Offsets (Port M04: 0x2000_4000)
+    localparam I2C_BASE         = 32'h2000_4000;
+    localparam I2C_PRER_LO      = I2C_BASE + 32'h00; // Clock Prescale register Low byte
+    localparam I2C_PRER_HI      = I2C_BASE + 32'h04; // Clock Prescale register High byte
+    localparam I2C_CTR          = I2C_BASE + 32'h08; // Control register
+    localparam I2C_TXR_RXR      = I2C_BASE + 32'h0C; // Transmit/Receive register
+    localparam I2C_CR_SR        = I2C_BASE + 32'h10; // Command/Status register
+
     // PWM Memory-Mapped Register Base & Offsets (Port M05: 0x2000_5000)
     localparam PWM_BASE         = 32'h2000_5000;
     localparam PWM_DUTY_REG     = PWM_BASE + 32'h00; // Duty Cycle Register (slv_reg0)
@@ -75,6 +83,15 @@ module tb_smart_controlsoc_top;
 
     // PWM Signals
     wire pwm_out_o;
+
+    // I2C Signals
+    wire i2c_scl_io;
+    wire i2c_sda_io;
+    wire i2c_interrupt_o;
+
+    // Pull-up resistors for I2C open-drain lines
+    pullup(i2c_scl_io);
+    pullup(i2c_sda_io);
 
     // Error Tracking
     integer error_count = 0;
@@ -113,6 +130,9 @@ module tb_smart_controlsoc_top;
         .spi_cs_n_o      (spi_cs_n_o),
         .spi_mosi_o      (spi_mosi_o),
         .spi_miso_i      (spi_miso_i),
+        .i2c_scl_io      (i2c_scl_io),
+        .i2c_sda_io      (i2c_sda_io),
+        .i2c_interrupt_o (i2c_interrupt_o),
         .pwm_out_o       (pwm_out_o)
     );
 
@@ -553,13 +573,58 @@ module tb_smart_controlsoc_top;
         $display("PASS: PWM Generator running cleanly over interconnect!");
 
         // ---------------------------------------------------------------------
+        // TEST 9: I2C Controller MMIO Access & Prescaler Configuration
+        // ---------------------------------------------------------------------
+        test_count = test_count + 1;
+        $display("\n[TEST 9] Testing I2C Controller MMIO Access (0x2000_4000)...");
+
+        // Step 1: Read default Clock Prescale Register Low byte (0x2000_4000)
+        cpu_read(I2C_PRER_LO, read_val);
+        $display("[%0t ns] I2C PRER_LO Read = 0x%08h", $time, read_val);
+        if (read_val[7:0] === 8'hFF) begin
+            $display("PASS: I2C Clock Prescaler correctly initialized to 0xFF after reset!");
+        end else begin
+            $error("FAIL: I2C PRER_LO unexpected reset value: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 2: Configure Clock Prescaler to 0x64 (100)
+        cpu_write(I2C_PRER_LO, 32'h0000_0064);
+        cpu_read(I2C_PRER_LO, read_val);
+        if (read_val[7:0] === 8'h64) begin
+            $display("PASS: I2C Clock Prescaler successfully programmed to 0x64 (100)!");
+        end else begin
+            $error("FAIL: I2C PRER_LO readback mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 3: Enable I2C Core by writing to CTR register (0x2000_4008)
+        cpu_write(I2C_CTR, 32'h0000_0080); // bit 7: EN = 1
+        cpu_read(I2C_CTR, read_val);
+        if (read_val[7] === 1'b1) begin
+            $display("PASS: I2C Core successfully enabled (CTR[7] = 1)!");
+        end else begin
+            $error("FAIL: I2C CTR enable readback mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 4: Verify default bus lines are pulled HIGH (open-drain idling)
+        #(CLK_PERIOD * 50);
+        if (i2c_scl_io === 1'b1 && i2c_sda_io === 1'b1) begin
+            $display("PASS: I2C SCL & SDA lines correctly idling HIGH!");
+        end else begin
+            $error("FAIL: I2C bus lines not pulled high: SCL=%b, SDA=%b", i2c_scl_io, i2c_sda_io);
+            error_count = error_count + 1;
+        end
+
+        // ---------------------------------------------------------------------
         // Final Summary
         // ---------------------------------------------------------------------
         #(CLK_PERIOD * 50);
         $display("\n==================================================================");
         if (error_count == 0) begin
             $display("   *** ALL %0d SYSTEM-LEVEL TESTS PASSED SUCCESSFULLY! ***", test_count);
-            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, SPI & PWM INTEGRATION VERIFIED");
+            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, SPI, I2C & PWM VERIFIED");
         end else begin
             $display("   *** VERIFICATION FAILED WITH %0d ERRORS! ***", error_count);
         end

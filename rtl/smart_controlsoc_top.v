@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module smart_controlsoc_top #(
-    // AXI4-Lite Parameters (Matching UART, SPI, PWM & Interconnect)
+    // AXI4-Lite Parameters (Matching UART, SPI, I2C, PWM & Interconnect)
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
     parameter STRB_WIDTH = (DATA_WIDTH/8),
@@ -21,6 +21,11 @@ module smart_controlsoc_top #(
     output wire        spi_cs_n_o,
     output wire        spi_mosi_o,
     input  wire        spi_miso_i,
+
+    // I2C External Pins
+    inout  wire        i2c_scl_io,
+    inout  wire        i2c_sda_io,
+    output wire        i2c_interrupt_o,
 
     // PWM External Pin
     output wire        pwm_out_o
@@ -237,6 +242,45 @@ module smart_controlsoc_top #(
     wire                     m03_axi_rready;
 
     // -------------------------------------------------------------------------
+    // AXI Interconnect Master 4 (M04) <-> I2C Slave Wires
+    // -------------------------------------------------------------------------
+    wire [ID_WIDTH-1:0]      m04_axi_awid;
+    wire [ADDR_WIDTH-1:0]    m04_axi_awaddr;
+    wire [7:0]               m04_axi_awlen;
+    wire [2:0]               m04_axi_awsize;
+    wire [1:0]               m04_axi_awburst;
+    wire                     m04_axi_awlock;
+    wire [3:0]               m04_axi_awcache;
+    wire [2:0]               m04_axi_awprot;
+    wire                     m04_axi_awvalid;
+    wire                     m04_axi_awready;
+    wire [DATA_WIDTH-1:0]    m04_axi_wdata;
+    wire [STRB_WIDTH-1:0]    m04_axi_wstrb;
+    wire                     m04_axi_wlast;
+    wire                     m04_axi_wvalid;
+    wire                     m04_axi_wready;
+    wire [ID_WIDTH-1:0]      m04_axi_bid;
+    wire [1:0]               m04_axi_bresp;
+    wire                     m04_axi_bvalid;
+    wire                     m04_axi_bready;
+    wire [ID_WIDTH-1:0]      m04_axi_arid;
+    wire [ADDR_WIDTH-1:0]    m04_axi_araddr;
+    wire [7:0]               m04_axi_arlen;
+    wire [2:0]               m04_axi_arsize;
+    wire [1:0]               m04_axi_arburst;
+    wire                     m04_axi_arlock;
+    wire [3:0]               m04_axi_arcache;
+    wire [2:0]               m04_axi_arprot;
+    wire                     m04_axi_arvalid;
+    wire                     m04_axi_arready;
+    wire [ID_WIDTH-1:0]      m04_axi_rid;
+    wire [DATA_WIDTH-1:0]    m04_axi_rdata;
+    wire [1:0]               m04_axi_rresp;
+    wire                     m04_axi_rlast;
+    wire                     m04_axi_rvalid;
+    wire                     m04_axi_rready;
+
+    // -------------------------------------------------------------------------
     // AXI Interconnect Master 5 (M05) <-> PWM Slave Wires
     // -------------------------------------------------------------------------
     wire [ID_WIDTH-1:0]      m05_axi_awid;
@@ -427,9 +471,42 @@ module smart_controlsoc_top #(
         .m03_axi_rvalid (m03_axi_rvalid),
         .m03_axi_rready (m03_axi_rready),
 
-        // Master 04 Port (I2C - Reserved tie-offs)
-        .m04_axi_awready(1'b0), .m04_axi_wready(1'b0), .m04_axi_bid(12'd0), .m04_axi_bresp(2'd0), .m04_axi_bvalid(1'b0),
-        .m04_axi_arready(1'b0), .m04_axi_rid(12'd0), .m04_axi_rdata(32'd0), .m04_axi_rresp(2'd0), .m04_axi_rlast(1'b0), .m04_axi_rvalid(1'b0),
+        // Master 04 Port -> I2C Controller (0x2000_4000)
+        .m04_axi_awid   (m04_axi_awid),
+        .m04_axi_awaddr (m04_axi_awaddr),
+        .m04_axi_awlen  (m04_axi_awlen),
+        .m04_axi_awsize (m04_axi_awsize),
+        .m04_axi_awburst(m04_axi_awburst),
+        .m04_axi_awlock (m04_axi_awlock),
+        .m04_axi_awcache(m04_axi_awcache),
+        .m04_axi_awprot (m04_axi_awprot),
+        .m04_axi_awvalid(m04_axi_awvalid),
+        .m04_axi_awready(m04_axi_awready),
+        .m04_axi_wdata  (m04_axi_wdata),
+        .m04_axi_wstrb  (m04_axi_wstrb),
+        .m04_axi_wlast  (m04_axi_wlast),
+        .m04_axi_wvalid (m04_axi_wvalid),
+        .m04_axi_wready (m04_axi_wready),
+        .m04_axi_bid    (m04_axi_bid),
+        .m04_axi_bresp  (m04_axi_bresp),
+        .m04_axi_bvalid (m04_axi_bvalid),
+        .m04_axi_bready (m04_axi_bready),
+        .m04_axi_arid   (m04_axi_arid),
+        .m04_axi_araddr (m04_axi_araddr),
+        .m04_axi_arlen  (m04_axi_arlen),
+        .m04_axi_arsize (m04_axi_arsize),
+        .m04_axi_arburst(m04_axi_arburst),
+        .m04_axi_arlock (m04_axi_arlock),
+        .m04_axi_arcache(m04_axi_arcache),
+        .m04_axi_arprot (m04_axi_arprot),
+        .m04_axi_arvalid(m04_axi_arvalid),
+        .m04_axi_arready(m04_axi_arready),
+        .m04_axi_rid    (m04_axi_rid),
+        .m04_axi_rdata  (m04_axi_rdata),
+        .m04_axi_rresp  (m04_axi_rresp),
+        .m04_axi_rlast  (m04_axi_rlast),
+        .m04_axi_rvalid (m04_axi_rvalid),
+        .m04_axi_rready (m04_axi_rready),
 
         // Master 05 Port -> PWM Generator (0x2000_5000)
         .m05_axi_awid   (m05_axi_awid),
@@ -470,7 +547,7 @@ module smart_controlsoc_top #(
     );
 
     // -------------------------------------------------------------------------
-    // UART IP Instantiation
+    // UART IP Instantiation (0x2000_0000)
     // -------------------------------------------------------------------------
     axi_uart_top uart_ip_inst (
         .fixed_clk_i      (sys_clk),
@@ -479,7 +556,7 @@ module smart_controlsoc_top #(
         
         // AR Channel
         .axi_arid_i       (m00_axi_arid),
-        .axi_araddr_i     (m00_axi_araddr[4:0]), // UART uses lower 5 bits of address
+        .axi_araddr_i     (m00_axi_araddr[4:0]),
         .axi_arvalid_i    (m00_axi_arvalid),
         .axi_arready_o    (m00_axi_arready),
         
@@ -514,11 +591,10 @@ module smart_controlsoc_top #(
         .uart_tx_o        (uart_tx_o)
     );
 
-    // Tie off unused interconnect outputs from AXI to AXI-Lite
     assign m00_axi_rlast = 1'b1;
 
     // -------------------------------------------------------------------------
-    // SPI Controller IP Instantiation
+    // SPI Controller IP Instantiation (0x2000_3000)
     // -------------------------------------------------------------------------
     axi_spi_top spi_ip_inst (
         .fixed_clk_i      (sys_clk),
@@ -527,7 +603,7 @@ module smart_controlsoc_top #(
         
         // AR Channel
         .axi_arid_i       (m03_axi_arid),
-        .axi_araddr_i     (m03_axi_araddr[6:0]), // SPI uses lower 7 bits of address
+        .axi_araddr_i     (m03_axi_araddr[6:0]),
         .axi_arvalid_i    (m03_axi_arvalid),
         .axi_arready_o    (m03_axi_arready),
         
@@ -563,8 +639,57 @@ module smart_controlsoc_top #(
         .spi_miso_i       (spi_miso_i)
     );
 
-    // Tie off unused interconnect outputs from AXI to AXI-Lite
     assign m03_axi_rlast = 1'b1;
+
+    // -------------------------------------------------------------------------
+    // I2C Controller IP Instantiation (0x2000_4000)
+    // -------------------------------------------------------------------------
+    axi_i2c_top #(
+        .DATA_WIDTH (DATA_WIDTH),
+        .ADDR_WIDTH (ADDR_WIDTH),
+        .ID_WIDTH   (ID_WIDTH)
+    ) i2c_ip_inst (
+        .axi_aclk    (sys_clk),
+        .axi_aresetn (sys_rst_n),
+        
+        // AW Channel
+        .axi_awid    (m04_axi_awid),
+        .axi_awaddr  (m04_axi_awaddr),
+        .axi_awvalid (m04_axi_awvalid),
+        .axi_awready (m04_axi_awready),
+        
+        // W Channel
+        .axi_wdata   (m04_axi_wdata),
+        .axi_wstrb   (m04_axi_wstrb),
+        .axi_wvalid  (m04_axi_wvalid),
+        .axi_wready  (m04_axi_wready),
+        
+        // B Channel
+        .axi_bid     (m04_axi_bid),
+        .axi_bresp   (m04_axi_bresp),
+        .axi_bvalid  (m04_axi_bvalid),
+        .axi_bready  (m04_axi_bready),
+        
+        // AR Channel
+        .axi_arid    (m04_axi_arid),
+        .axi_araddr  (m04_axi_araddr),
+        .axi_arvalid (m04_axi_arvalid),
+        .axi_arready (m04_axi_arready),
+        
+        // R Channel
+        .axi_rid     (m04_axi_rid),
+        .axi_rdata   (m04_axi_rdata),
+        .axi_rresp   (m04_axi_rresp),
+        .axi_rvalid  (m04_axi_rvalid),
+        .axi_rready  (m04_axi_rready),
+        
+        // External Interfaces
+        .i2c_scl_io  (i2c_scl_io),
+        .i2c_sda_io  (i2c_sda_io),
+        .i2c_irq_o   (i2c_interrupt_o)
+    );
+
+    assign m04_axi_rlast = 1'b1;
 
     // -------------------------------------------------------------------------
     // PWM Generator IP Instantiation (0x2000_5000)
@@ -609,7 +734,6 @@ module smart_controlsoc_top #(
         .PWM_OUT         (pwm_out_o)
     );
 
-    // Tie off unused interconnect outputs from AXI to AXI-Lite
     assign m05_axi_bid   = {ID_WIDTH{1'b0}};
     assign m05_axi_rid   = {ID_WIDTH{1'b0}};
     assign m05_axi_rlast = 1'b1;
