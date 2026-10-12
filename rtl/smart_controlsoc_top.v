@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module smart_controlsoc_top #(
-    // AXI4-Lite Parameters (Matching UART, SPI & Interconnect)
+    // AXI4-Lite Parameters (Matching UART, SPI, PWM & Interconnect)
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
     parameter STRB_WIDTH = (DATA_WIDTH/8),
@@ -20,7 +20,10 @@ module smart_controlsoc_top #(
     output wire        spi_clk_o,
     output wire        spi_cs_n_o,
     output wire        spi_mosi_o,
-    input  wire        spi_miso_i
+    input  wire        spi_miso_i,
+
+    // PWM External Pin
+    output wire        pwm_out_o
 );
 
     // -------------------------------------------------------------------------
@@ -234,6 +237,45 @@ module smart_controlsoc_top #(
     wire                     m03_axi_rready;
 
     // -------------------------------------------------------------------------
+    // AXI Interconnect Master 5 (M05) <-> PWM Slave Wires
+    // -------------------------------------------------------------------------
+    wire [ID_WIDTH-1:0]      m05_axi_awid;
+    wire [ADDR_WIDTH-1:0]    m05_axi_awaddr;
+    wire [7:0]               m05_axi_awlen;
+    wire [2:0]               m05_axi_awsize;
+    wire [1:0]               m05_axi_awburst;
+    wire                     m05_axi_awlock;
+    wire [3:0]               m05_axi_awcache;
+    wire [2:0]               m05_axi_awprot;
+    wire                     m05_axi_awvalid;
+    wire                     m05_axi_awready;
+    wire [DATA_WIDTH-1:0]    m05_axi_wdata;
+    wire [STRB_WIDTH-1:0]    m05_axi_wstrb;
+    wire                     m05_axi_wlast;
+    wire                     m05_axi_wvalid;
+    wire                     m05_axi_wready;
+    wire [ID_WIDTH-1:0]      m05_axi_bid;
+    wire [1:0]               m05_axi_bresp;
+    wire                     m05_axi_bvalid;
+    wire                     m05_axi_bready;
+    wire [ID_WIDTH-1:0]      m05_axi_arid;
+    wire [ADDR_WIDTH-1:0]    m05_axi_araddr;
+    wire [7:0]               m05_axi_arlen;
+    wire [2:0]               m05_axi_arsize;
+    wire [1:0]               m05_axi_arburst;
+    wire                     m05_axi_arlock;
+    wire [3:0]               m05_axi_arcache;
+    wire [2:0]               m05_axi_arprot;
+    wire                     m05_axi_arvalid;
+    wire                     m05_axi_arready;
+    wire [ID_WIDTH-1:0]      m05_axi_rid;
+    wire [DATA_WIDTH-1:0]    m05_axi_rdata;
+    wire [1:0]               m05_axi_rresp;
+    wire                     m05_axi_rlast;
+    wire                     m05_axi_rvalid;
+    wire                     m05_axi_rready;
+
+    // -------------------------------------------------------------------------
     // AXI Interconnect 2x6 Instantiation
     // -------------------------------------------------------------------------
     axi_interconnect_wrap_2x6 #(
@@ -389,9 +431,42 @@ module smart_controlsoc_top #(
         .m04_axi_awready(1'b0), .m04_axi_wready(1'b0), .m04_axi_bid(12'd0), .m04_axi_bresp(2'd0), .m04_axi_bvalid(1'b0),
         .m04_axi_arready(1'b0), .m04_axi_rid(12'd0), .m04_axi_rdata(32'd0), .m04_axi_rresp(2'd0), .m04_axi_rlast(1'b0), .m04_axi_rvalid(1'b0),
 
-        // Master 05 Port (PWM - Reserved tie-offs)
-        .m05_axi_awready(1'b0), .m05_axi_wready(1'b0), .m05_axi_bid(12'd0), .m05_axi_bresp(2'd0), .m05_axi_bvalid(1'b0),
-        .m05_axi_arready(1'b0), .m05_axi_rid(12'd0), .m05_axi_rdata(32'd0), .m05_axi_rresp(2'd0), .m05_axi_rlast(1'b0), .m05_axi_rvalid(1'b0)
+        // Master 05 Port -> PWM Generator (0x2000_5000)
+        .m05_axi_awid   (m05_axi_awid),
+        .m05_axi_awaddr (m05_axi_awaddr),
+        .m05_axi_awlen  (m05_axi_awlen),
+        .m05_axi_awsize (m05_axi_awsize),
+        .m05_axi_awburst(m05_axi_awburst),
+        .m05_axi_awlock (m05_axi_awlock),
+        .m05_axi_awcache(m05_axi_awcache),
+        .m05_axi_awprot (m05_axi_awprot),
+        .m05_axi_awvalid(m05_axi_awvalid),
+        .m05_axi_awready(m05_axi_awready),
+        .m05_axi_wdata  (m05_axi_wdata),
+        .m05_axi_wstrb  (m05_axi_wstrb),
+        .m05_axi_wlast  (m05_axi_wlast),
+        .m05_axi_wvalid (m05_axi_wvalid),
+        .m05_axi_wready (m05_axi_wready),
+        .m05_axi_bid    (m05_axi_bid),
+        .m05_axi_bresp  (m05_axi_bresp),
+        .m05_axi_bvalid (m05_axi_bvalid),
+        .m05_axi_bready (m05_axi_bready),
+        .m05_axi_arid   (m05_axi_arid),
+        .m05_axi_araddr (m05_axi_araddr),
+        .m05_axi_arlen  (m05_axi_arlen),
+        .m05_axi_arsize (m05_axi_arsize),
+        .m05_axi_arburst(m05_axi_arburst),
+        .m05_axi_arlock (m05_axi_arlock),
+        .m05_axi_arcache(m05_axi_arcache),
+        .m05_axi_arprot (m05_axi_arprot),
+        .m05_axi_arvalid(m05_axi_arvalid),
+        .m05_axi_arready(m05_axi_arready),
+        .m05_axi_rid    (m05_axi_rid),
+        .m05_axi_rdata  (m05_axi_rdata),
+        .m05_axi_rresp  (m05_axi_rresp),
+        .m05_axi_rlast  (m05_axi_rlast),
+        .m05_axi_rvalid (m05_axi_rvalid),
+        .m05_axi_rready (m05_axi_rready)
     );
 
     // -------------------------------------------------------------------------
@@ -490,5 +565,53 @@ module smart_controlsoc_top #(
 
     // Tie off unused interconnect outputs from AXI to AXI-Lite
     assign m03_axi_rlast = 1'b1;
+
+    // -------------------------------------------------------------------------
+    // PWM Generator IP Instantiation (0x2000_5000)
+    // -------------------------------------------------------------------------
+    myip_v1_0 #(
+        .C_S00_AXI_DATA_WIDTH (DATA_WIDTH),
+        .C_S00_AXI_ADDR_WIDTH (4)
+    ) pwm_ip_inst (
+        .s00_axi_aclk    (sys_clk),
+        .s00_axi_aresetn (sys_rst_n),
+        
+        // AW Channel
+        .s00_axi_awaddr  (m05_axi_awaddr[3:0]),
+        .s00_axi_awprot  (m05_axi_awprot),
+        .s00_axi_awvalid (m05_axi_awvalid),
+        .s00_axi_awready (m05_axi_awready),
+        
+        // W Channel
+        .s00_axi_wdata   (m05_axi_wdata),
+        .s00_axi_wstrb   (m05_axi_wstrb),
+        .s00_axi_wvalid  (m05_axi_wvalid),
+        .s00_axi_wready  (m05_axi_wready),
+        
+        // B Channel
+        .s00_axi_bresp   (m05_axi_bresp),
+        .s00_axi_bvalid  (m05_axi_bvalid),
+        .s00_axi_bready  (m05_axi_bready),
+        
+        // AR Channel
+        .s00_axi_araddr  (m05_axi_araddr[3:0]),
+        .s00_axi_arprot  (m05_axi_arprot),
+        .s00_axi_arvalid (m05_axi_arvalid),
+        .s00_axi_arready (m05_axi_arready),
+        
+        // R Channel
+        .s00_axi_rdata   (m05_axi_rdata),
+        .s00_axi_rresp   (m05_axi_rresp),
+        .s00_axi_rvalid  (m05_axi_rvalid),
+        .s00_axi_rready  (m05_axi_rready),
+        
+        // External PWM Output Pin
+        .PWM_OUT         (pwm_out_o)
+    );
+
+    // Tie off unused interconnect outputs from AXI to AXI-Lite
+    assign m05_axi_bid   = {ID_WIDTH{1'b0}};
+    assign m05_axi_rid   = {ID_WIDTH{1'b0}};
+    assign m05_axi_rlast = 1'b1;
 
 endmodule

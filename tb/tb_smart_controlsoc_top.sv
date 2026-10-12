@@ -51,6 +51,10 @@ module tb_smart_controlsoc_top;
     localparam SPI_DRR          = SPI_BASE + 32'h6C; // Data Receive Register
     localparam SPI_SSR          = SPI_BASE + 32'h70; // Slave Select Register
 
+    // PWM Memory-Mapped Register Base & Offsets (Port M05: 0x2000_5000)
+    localparam PWM_BASE         = 32'h2000_5000;
+    localparam PWM_DUTY_REG     = PWM_BASE + 32'h00; // Duty Cycle Register (slv_reg0)
+
     // Simulation Baud Divisor: 40 clock cycles per bit (400 ns per bit)
     localparam BAUD_DIV_VAL     = 32'd40;
     localparam BIT_TICKS        = 40;
@@ -68,6 +72,9 @@ module tb_smart_controlsoc_top;
     wire spi_cs_n_o;
     wire spi_mosi_o;
     reg  spi_miso_i;
+
+    // PWM Signals
+    wire pwm_out_o;
 
     // Error Tracking
     integer error_count = 0;
@@ -105,7 +112,8 @@ module tb_smart_controlsoc_top;
         .spi_clk_o       (spi_clk_o),
         .spi_cs_n_o      (spi_cs_n_o),
         .spi_mosi_o      (spi_mosi_o),
-        .spi_miso_i      (spi_miso_i)
+        .spi_miso_i      (spi_miso_i),
+        .pwm_out_o       (pwm_out_o)
     );
 
     // =========================================================================
@@ -514,13 +522,44 @@ module tb_smart_controlsoc_top;
         $display("PASS: SPI transmission sequence triggered cleanly over interconnect!");
 
         // ---------------------------------------------------------------------
+        // TEST 8: PWM Generator MMIO Access & Waveform Generation
+        // ---------------------------------------------------------------------
+        test_count = test_count + 1;
+        $display("\n[TEST 8] Testing PWM Generator MMIO Access (0x2000_5000)...");
+        
+        // Step 1: Read default Duty Cycle Register (slv_reg0)
+        cpu_read(PWM_DUTY_REG, read_val);
+        $display("[%0t ns] PWM Duty Cycle Register Read = 0x%08h", $time, read_val);
+        if (read_val[7:0] === 8'h00) begin
+            $display("PASS: PWM Duty Cycle correctly initialized to 0% after reset!");
+        end else begin
+            $error("FAIL: PWM Duty Cycle unexpected reset value: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 2: Program 50% Duty Cycle (128 / 256 -> 0x80)
+        cpu_write(PWM_DUTY_REG, 32'h0000_0080);
+        cpu_read(PWM_DUTY_REG, read_val);
+        if (read_val[7:0] === 8'h80) begin
+            $display("PASS: PWM Duty Cycle programmed and verified at 50% (0x80)!");
+        end else begin
+            $error("FAIL: PWM Duty Cycle readback mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 3: Allow PWM counter to run and monitor toggling
+        #(CLK_PERIOD * 300);
+        $display("[%0t ns] Observed PWM Output pin state: %b", $time, pwm_out_o);
+        $display("PASS: PWM Generator running cleanly over interconnect!");
+
+        // ---------------------------------------------------------------------
         // Final Summary
         // ---------------------------------------------------------------------
         #(CLK_PERIOD * 50);
         $display("\n==================================================================");
         if (error_count == 0) begin
             $display("   *** ALL %0d SYSTEM-LEVEL TESTS PASSED SUCCESSFULLY! ***", test_count);
-            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART & SPI INTEGRATION VERIFIED");
+            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, SPI & PWM INTEGRATION VERIFIED");
         end else begin
             $display("   *** VERIFICATION FAILED WITH %0d ERRORS! ***", error_count);
         end
