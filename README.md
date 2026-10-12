@@ -214,13 +214,112 @@ vsim -c -do "run -all; quit" work.tb_smart_controlsoc_top
 
 ---
 
-## 8. Next Milestones
+## 8. Project Roadmap & Pending Deliverables
 
-1. **Phase 4: Remaining Peripheral Integration**
-   * Integrate 32-bit hardware **Timer IP** into Master Port 1 (`m01` at `0x2000_1000`).
-   * Integrate bidirectional **GPIO Controller** into Master Port 2 (`m02` at `0x2000_2000`).
-2. **Phase 5: Centralized Interrupt Routing**
-   * Connect interrupt request outputs (`uart_interrupt_o`, `spi_irq`, `i2c_interrupt_o`, `timer_irq`, `gpio_irq`) into the VeeR EL2 Programmable Interrupt Controller (PIC).
-3. **Phase 6: Software Firmware & Drivers**
-   * Compile bare-metal C device drivers using `riscv64-unknown-elf-gcc`.
-   * Load software `.hex` directly into the CPU Instruction Memory (ICCM) for end-to-end firmware-driven SoC verification.
+This section details the remaining engineering phases, pending hardware integrations, software deliverables, and physical implementation goals required to achieve complete project closure.
+
+```
++--------------------------------------------------------------------------------------------------------+
+|                                  SoC DEVELOPMENT PROGRESS TRACKER                                       |
++--------------------------------------------------------------------------------------------------------+
+|  Phase 1: Architecture Design & AXI Interconnect Setup      | [####################] 100% | COMPLETED  |
+|  Phase 2: Communication & Control IP Integration (4 of 6)    | [####################] 100% | COMPLETED  |
+|  Phase 3: Remaining Peripheral Integration (Timer & GPIO)    | [--------            ]  25% | IN PROGRESS|
+|  Phase 4: Interrupt Aggregation & PIC Routing               | [                    ]   0% | PENDING    |
+|  Phase 5: DMA Bus Master Integration                        | [                    ]   0% | PENDING    |
+|  Phase 6: Bare-Metal C Drivers & Firmware Verification      | [                    ]   0% | PENDING    |
+|  Phase 7: Synthesis & Static Timing Analysis (STA)          | [                    ]   0% | PENDING    |
++--------------------------------------------------------------------------------------------------------+
+```
+
+---
+
+### 8.1 Remaining Hardware & RTL Integration Tasks
+
+#### 1. Hardware Timer IP Integration (Priority: HIGH)
+* **Target Interface:** Interconnect Master Port 1 (`m01`), Base Address: `0x2000_1000` (4 KB space).
+* **Engineering Scope:**
+  * Clean up and structure the Timer RTL in `rtl/timer_directory/`.
+  * Instantiate the module within `smart_controlsoc_top.v` and connect to the `m01_axi_*` channel.
+  * Implement programmable 32-bit prescaler, counter reload value, and auto-restart modes.
+  * Route the timer timeout output signal (`timer_irq`) for interrupt generation.
+  * Add automated timer counting and overflow testcases to `tb/tb_smart_controlsoc_top.sv`.
+
+#### 2. General-Purpose I/O (GPIO) Controller Integration (Priority: HIGH)
+* **Target Interface:** Interconnect Master Port 2 (`m02`), Base Address: `0x2000_2000` (4 KB space).
+* **Engineering Scope:**
+  * Clean up and structure the GPIO RTL in `rtl/gpio_directory/`.
+  * Instantiate the module within `smart_controlsoc_top.v` and connect to the `m02_axi_*` channel.
+  * Configure bidirectional tri-state IO pins (`gpio_io`), output data register (`DATA_OUT`), input data register (`DATA_IN`), and direction control register (`DIR`).
+  * Implement interrupt-on-change (rising/falling edge detection) for external event capture.
+  * Add GPIO loopback and directional read/write verification tests in the system testbench.
+
+#### 3. Direct Memory Access (DMA) Controller Integration (Priority: MEDIUM)
+* **Target Interface:** Interconnect Slave Port 1 (`s01`) acting as second Bus Master.
+* **Engineering Scope:**
+  * Connect the autonomous DMA engine to slave port `s01_axi_*` on the interconnect.
+  * Enable high-throughput memory-to-peripheral and peripheral-to-memory data transfers without CPU pipeline intervention.
+  * Implement source address, destination address, transfer length registers, and transfer-complete interrupt generation.
+
+---
+
+### 8.2 Subsystem Interfacing & Interrupt Aggregation
+
+#### Centralized PIC Interrupt Routing (Priority: HIGH)
+* **Engineering Scope:**
+  * Currently, peripheral interrupt lines are exposed as top-level signals (`uart_interrupt_o`, `i2c_interrupt_o`).
+  * In the next phase, these lines—along with `spi_irq`, `timer_irq`, and `gpio_irq`—will be routed directly into the **VeeR EL2 Programmable Interrupt Controller (PIC)**.
+  * Configure interrupt priority levels, enable masks, and test end-to-end CPU exception handling and ISR (Interrupt Service Routine) dispatching.
+
+---
+
+### 8.3 Software Stack, Firmware & Simulation Automation
+
+#### 1. Hardware Abstraction Layer (HAL) & Device Drivers
+* **Target Location:** `sw/drivers/`
+* **Deliverables:**
+  * `soc_memory_map.h`: Unified C header containing all base addresses and bitfield definitions.
+  * `uart.h` / `uart.c`: Polling and interrupt-driven string transmission and reception drivers.
+  * `spi.h` / `spi.c`: SPI transfer and slave-select drivers.
+  * `i2c.h` / `i2c.c`: I²C byte read/write and bus addressing drivers.
+  * `timer.h` / `timer.c`: Millisecond/microsecond delay and periodic timer interrupt drivers.
+  * `pwm.h` / `pwm.c`: Duty cycle and frequency configuration drivers.
+  * `gpio.h` / `gpio.c`: Pin direction, read, write, and pin interrupt configuration drivers.
+
+#### 2. Bare-Metal Linker & Startup Architecture
+* **Target Location:** `sw/bsp/`
+* **Deliverables:**
+  * `link.ld`: Custom linker script mapping `.text` sections into ICCM (`0xEE00_0000`) and `.data`/`.bss`/stack into DCCM (`0xF004_0000`).
+  * `crt0.s`: Startup assembly code initializing the stack pointer (`sp`), global pointer (`gp`), zeroing `.bss`, and jumping to `main()`.
+
+#### 3. GNU Toolchain Automated Compilation Pipeline
+* **Target Location:** `sw/Makefile`
+* **Deliverables:**
+  * Bare-metal compilation script using `riscv64-unknown-elf-gcc`.
+  * Automatic generation of memory initialization files (`firmware.hex` / `firmware.bin`) for direct loading into the CPU ICCM via `$readmemh` during RTL simulation.
+
+---
+
+### 8.4 Physical Synthesis, STA & Backend Goals
+
+#### Synopsys Design Compiler (DC) & FPGA Implementation
+* **Synthesis:** Perform gate-level logic synthesis using Synopsys DC (targeting 28nm/45nm technology libraries) or Vivado (targeting Xilinx Zynq/PYNQ FPGA).
+* **Static Timing Analysis (STA):** Perform setup/hold timing verification at target system clock frequency (100 MHz).
+* **Reporting:** Generate power, cell area, critical path delay, and resource utilization reports.
+
+---
+
+### 8.5 Action Items & Traceability Matrix
+
+| # | Task Description | Target File / Module | Phase | Category | Priority | Status |
+| :-: | :--- | :--- | :-: | :-: | :-: | :-: |
+| **T1** | Integrate 32-bit Timer into Interconnect Port M01 | `rtl/smart_controlsoc_top.v` | Phase 3 | RTL | High | ⏳ Pending |
+| **T2** | Integrate Bidirectional GPIO into Interconnect Port M02 | `rtl/smart_controlsoc_top.v` | Phase 3 | RTL | High | ⏳ Pending |
+| **T3** | Extend Testbench to cover Timer and GPIO verification | `tb/tb_smart_controlsoc_top.sv` | Phase 3 | Verification | High | ⏳ Pending |
+| **T4** | Route peripheral interrupts to VeeR EL2 PIC | `rtl/smart_controlsoc_top.v` | Phase 4 | RTL | High | ⏳ Pending |
+| **T5** | Integrate DMA Master into Interconnect Port S01 | `rtl/smart_controlsoc_top.v` | Phase 5 | RTL | Medium | ⏳ Pending |
+| **T6** | Develop C Memory Map (`soc_memory_map.h`) & Drivers | `sw/drivers/` | Phase 6 | Software | High | ⏳ Pending |
+| **T7** | Create Linker Script (`link.ld`) and Startup (`crt0.s`) | `sw/bsp/` | Phase 6 | Software | High | ⏳ Pending |
+| **T8** | Run End-to-End Firmware Simulation with RISC-V GCC | `tb/tb_smart_controlsoc_top.sv` | Phase 6 | Verification | High | ⏳ Pending |
+| **T9** | Synthesis, Area/Power Reports & Timing Closure | Synopsys DC / Vivado | Phase 7 | Physical | Medium | ⏳ Pending |
+
