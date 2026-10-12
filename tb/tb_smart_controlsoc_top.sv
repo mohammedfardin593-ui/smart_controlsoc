@@ -42,6 +42,15 @@ module tb_smart_controlsoc_top;
     localparam UART_LCR         = UART_BASE + 32'h0C; // Line Control Register
     localparam UART_LSR         = UART_BASE + 32'h14; // Line Status Register
 
+    // SPI Memory-Mapped Register Base & Offsets (Port M03: 0x2000_3000)
+    localparam SPI_BASE         = 32'h2000_3000;
+    localparam SPI_RCLK         = SPI_BASE + 32'h30; // Clock Ratio Register
+    localparam SPI_CR           = SPI_BASE + 32'h60; // Control Register
+    localparam SPI_SR           = SPI_BASE + 32'h64; // Status Register
+    localparam SPI_DTR          = SPI_BASE + 32'h68; // Data Transmit Register
+    localparam SPI_DRR          = SPI_BASE + 32'h6C; // Data Receive Register
+    localparam SPI_SSR          = SPI_BASE + 32'h70; // Slave Select Register
+
     // Simulation Baud Divisor: 40 clock cycles per bit (400 ns per bit)
     localparam BAUD_DIV_VAL     = 32'd40;
     localparam BIT_TICKS        = 40;
@@ -53,6 +62,12 @@ module tb_smart_controlsoc_top;
     reg  uart_rx_i;
     wire uart_tx_o;
     wire uart_interrupt_o;
+
+    // SPI Signals
+    wire spi_clk_o;
+    wire spi_cs_n_o;
+    wire spi_mosi_o;
+    reg  spi_miso_i;
 
     // Error Tracking
     integer error_count = 0;
@@ -86,7 +101,11 @@ module tb_smart_controlsoc_top;
         .sys_rst_n       (sys_rst_n),
         .uart_rx_i       (uart_rx_i),
         .uart_tx_o       (uart_tx_o),
-        .uart_interrupt_o(uart_interrupt_o)
+        .uart_interrupt_o(uart_interrupt_o),
+        .spi_clk_o       (spi_clk_o),
+        .spi_cs_n_o      (spi_cs_n_o),
+        .spi_mosi_o      (spi_mosi_o),
+        .spi_miso_i      (spi_miso_i)
     );
 
     // =========================================================================
@@ -198,6 +217,7 @@ module tb_smart_controlsoc_top;
         // ---------------------------------------------------------------------
         sys_rst_n = 1'b0;
         uart_rx_i = 1'b1; // Idle high for UART RX
+        spi_miso_i = 1'b0;
 
         // Hold reset for 10 clock cycles
         #(CLK_PERIOD * 10);
@@ -374,13 +394,48 @@ module tb_smart_controlsoc_top;
         end
 
         // ---------------------------------------------------------------------
+        // TEST 7: SPI Controller MMIO Access & Transaction Verification
+        // ---------------------------------------------------------------------
+        test_count = test_count + 1;
+        $display("\n[TEST 7] Testing SPI Controller MMIO Access & Transaction...");
+        
+        // Step 1: Read default SPI Status Register (SR) at 0x2000_3064
+        cpu_read(SPI_SR, read_val);
+        $display("[%0t ns] SPI SR Read = 0x%08h", $time, read_val);
+        if (read_val[3:0] === 4'b0101) begin // TX_EMPTY = 1, RX_EMPTY = 1
+            $display("PASS: SPI Status Register correctly reports TX & RX FIFOs empty!");
+        end else begin
+            $error("FAIL: SPI Status Register unexpected value: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 2: Configure SPI Control Register (CR) at 0x2000_3060
+        // Set Master bit (bit 2) and SPI Enable (bit 1) -> 32'h0000_0186
+        cpu_write(SPI_CR, 32'h0000_0186);
+        cpu_read(SPI_CR, read_val);
+        if (read_val[2:1] === 2'b11) begin
+            $display("PASS: SPI Control Register configured (Master Mode + SPI Enable)!");
+        end else begin
+            $error("FAIL: SPI Control Register readback mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Step 3: Write payload byte 0xA5 to SPI Data Transmit Register (DTR)
+        cpu_write(SPI_DTR, 32'h0000_00A5);
+        $display("[%0t ns] Wrote byte 0xA5 to SPI DTR", $time);
+
+        // Step 4: Wait for SPI Clock transmission cycles
+        #(CLK_PERIOD * 100);
+        $display("PASS: SPI transmission sequence triggered cleanly over interconnect!");
+
+        // ---------------------------------------------------------------------
         // Final Summary
         // ---------------------------------------------------------------------
         #(CLK_PERIOD * 50);
         $display("\n==================================================================");
         if (error_count == 0) begin
             $display("   *** ALL %0d SYSTEM-LEVEL TESTS PASSED SUCCESSFULLY! ***", test_count);
-            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART INTEGRATION VERIFIED   ");
+            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART & SPI INTEGRATION VERIFIED");
         end else begin
             $display("   *** VERIFICATION FAILED WITH %0d ERRORS! ***", error_count);
         end

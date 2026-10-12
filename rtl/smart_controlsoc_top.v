@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module smart_controlsoc_top #(
-    // AXI4-Lite Parameters (Matching UART & Interconnect)
+    // AXI4-Lite Parameters (Matching UART, SPI & Interconnect)
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
     parameter STRB_WIDTH = (DATA_WIDTH/8),
@@ -14,9 +14,13 @@ module smart_controlsoc_top #(
     // UART External Pins
     input  wire        uart_rx_i,
     output wire        uart_tx_o,
-    output wire        uart_interrupt_o
+    output wire        uart_interrupt_o,
 
-    // Other top-level ports for RISC-V, DMA, Timer, etc. will go here later
+    // SPI External Pins
+    output wire        spi_clk_o,
+    output wire        spi_cs_n_o,
+    output wire        spi_mosi_o,
+    input  wire        spi_miso_i
 );
 
     // -------------------------------------------------------------------------
@@ -58,7 +62,7 @@ module smart_controlsoc_top #(
     wire                     s00_axi_rvalid;
     wire                     s00_axi_rready;
 
-    // CPU LSU uses 64-bit AXI data, we bridge it to 32-bit interconnect by taking the lower 32 bits
+    // CPU LSU uses 64-bit AXI data, bridge to 32-bit interconnect
     wire [63:0] cpu_lsu_wdata;
     wire [7:0]  cpu_lsu_wstrb;
     wire [63:0] cpu_lsu_rdata;
@@ -120,14 +124,14 @@ module smart_controlsoc_top #(
         .lsu_axi_rresp   (s00_axi_rresp),
         .lsu_axi_rlast   (s00_axi_rlast),
         
-        // Tie off IFU AXI (Instruction Fetch Unit - assuming internal ICCM)
+        // Tie off IFU AXI
         .ifu_axi_awready (1'b1),
         .ifu_axi_wready  (1'b1),
         .ifu_axi_bvalid  (1'b0),
         .ifu_axi_arready (1'b1),
         .ifu_axi_rvalid  (1'b0),
         
-        // Tie off SB AXI (System Bus / Debug)
+        // Tie off SB AXI
         .sb_axi_awready  (1'b1),
         .sb_axi_wready   (1'b1),
         .sb_axi_bvalid   (1'b0),
@@ -148,11 +152,9 @@ module smart_controlsoc_top #(
         .dma_bus_clk_en  (1'b1),
         .timer_int       (1'b0),
         .soft_int        (1'b0),
-        .extintsrc_req   (1'b0) // Will connect to actual interrupt controller later
+        .extintsrc_req   (1'b0)
     );
 
-    // -------------------------------------------------------------------------
-    // AXI Interconnect Master 0 (M00) <-> UART Slave Wires
     // -------------------------------------------------------------------------
     // AXI Interconnect Master 0 (M00) <-> UART Slave Wires
     // -------------------------------------------------------------------------
@@ -166,18 +168,15 @@ module smart_controlsoc_top #(
     wire [2:0]               m00_axi_awprot;
     wire                     m00_axi_awvalid;
     wire                     m00_axi_awready;
-    
     wire [DATA_WIDTH-1:0]    m00_axi_wdata;
     wire [STRB_WIDTH-1:0]    m00_axi_wstrb;
     wire                     m00_axi_wlast;
     wire                     m00_axi_wvalid;
     wire                     m00_axi_wready;
-    
     wire [ID_WIDTH-1:0]      m00_axi_bid;
     wire [1:0]               m00_axi_bresp;
     wire                     m00_axi_bvalid;
     wire                     m00_axi_bready;
-    
     wire [ID_WIDTH-1:0]      m00_axi_arid;
     wire [ADDR_WIDTH-1:0]    m00_axi_araddr;
     wire [7:0]               m00_axi_arlen;
@@ -188,7 +187,6 @@ module smart_controlsoc_top #(
     wire [2:0]               m00_axi_arprot;
     wire                     m00_axi_arvalid;
     wire                     m00_axi_arready;
-    
     wire [ID_WIDTH-1:0]      m00_axi_rid;
     wire [DATA_WIDTH-1:0]    m00_axi_rdata;
     wire [1:0]               m00_axi_rresp;
@@ -196,7 +194,44 @@ module smart_controlsoc_top #(
     wire                     m00_axi_rvalid;
     wire                     m00_axi_rready;
 
-    // (Wires for S00, S01, M01, M02, M03, M04, M05 to be defined as you add the RISC-V, DMA, and other IPs)
+    // -------------------------------------------------------------------------
+    // AXI Interconnect Master 3 (M03) <-> SPI Slave Wires
+    // -------------------------------------------------------------------------
+    wire [ID_WIDTH-1:0]      m03_axi_awid;
+    wire [ADDR_WIDTH-1:0]    m03_axi_awaddr;
+    wire [7:0]               m03_axi_awlen;
+    wire [2:0]               m03_axi_awsize;
+    wire [1:0]               m03_axi_awburst;
+    wire                     m03_axi_awlock;
+    wire [3:0]               m03_axi_awcache;
+    wire [2:0]               m03_axi_awprot;
+    wire                     m03_axi_awvalid;
+    wire                     m03_axi_awready;
+    wire [DATA_WIDTH-1:0]    m03_axi_wdata;
+    wire [STRB_WIDTH-1:0]    m03_axi_wstrb;
+    wire                     m03_axi_wlast;
+    wire                     m03_axi_wvalid;
+    wire                     m03_axi_wready;
+    wire [ID_WIDTH-1:0]      m03_axi_bid;
+    wire [1:0]               m03_axi_bresp;
+    wire                     m03_axi_bvalid;
+    wire                     m03_axi_bready;
+    wire [ID_WIDTH-1:0]      m03_axi_arid;
+    wire [ADDR_WIDTH-1:0]    m03_axi_araddr;
+    wire [7:0]               m03_axi_arlen;
+    wire [2:0]               m03_axi_arsize;
+    wire [1:0]               m03_axi_arburst;
+    wire                     m03_axi_arlock;
+    wire [3:0]               m03_axi_arcache;
+    wire [2:0]               m03_axi_arprot;
+    wire                     m03_axi_arvalid;
+    wire                     m03_axi_arready;
+    wire [ID_WIDTH-1:0]      m03_axi_rid;
+    wire [DATA_WIDTH-1:0]    m03_axi_rdata;
+    wire [1:0]               m03_axi_rresp;
+    wire                     m03_axi_rlast;
+    wire                     m03_axi_rvalid;
+    wire                     m03_axi_rready;
 
     // -------------------------------------------------------------------------
     // AXI Interconnect 2x6 Instantiation
@@ -206,29 +241,29 @@ module smart_controlsoc_top #(
         .ADDR_WIDTH(ADDR_WIDTH),
         .ID_WIDTH(ID_WIDTH),
         
-        // Memory Map Override (Based on documentation)
-        .M00_BASE_ADDR  (32'h2000_0000), // UART Base Address
-        .M00_ADDR_WIDTH (32'd12),        // 4KB address space for UART
+        // Memory Map Override (Based on system specifications)
+        .M00_BASE_ADDR  (32'h2000_0000), // UART Base Address (4KB)
+        .M00_ADDR_WIDTH (32'd12),
         
-        .M01_BASE_ADDR  (32'h2000_1000), // Timer Base Address
+        .M01_BASE_ADDR  (32'h2000_1000), // Timer Base Address (4KB)
         .M01_ADDR_WIDTH (32'd12),
         
-        .M02_BASE_ADDR  (32'h2000_2000), // GPIO Base Address
+        .M02_BASE_ADDR  (32'h2000_2000), // GPIO Base Address (4KB)
         .M02_ADDR_WIDTH (32'd12),
         
-        .M03_BASE_ADDR  (32'h2000_3000), // SPI Controller Base Address
+        .M03_BASE_ADDR  (32'h2000_3000), // SPI Controller Base Address (4KB)
         .M03_ADDR_WIDTH (32'd12),
         
-        .M04_BASE_ADDR  (32'h2000_4000), // I2C Controller Base Address
+        .M04_BASE_ADDR  (32'h2000_4000), // I2C Controller Base Address (4KB)
         .M04_ADDR_WIDTH (32'd12),
         
-        .M05_BASE_ADDR  (32'h2000_5000), // PWM Generator Base Address
+        .M05_BASE_ADDR  (32'h2000_5000), // PWM Generator Base Address (4KB)
         .M05_ADDR_WIDTH (32'd12)
     ) system_interconnect (
         .clk(sys_clk), 
         .rst(~sys_rst_n), // Active high reset required by interconnect wrapper
         
-        // Slave 00 Port <- RISC-V / Testbench
+        // Slave 00 Port <- RISC-V CPU
         .s00_axi_awid   (s00_axi_awid),
         .s00_axi_awaddr (s00_axi_awaddr),
         .s00_axi_awlen  (s00_axi_awlen),
@@ -265,10 +300,10 @@ module smart_controlsoc_top #(
         .s00_axi_rvalid (s00_axi_rvalid),
         .s00_axi_rready (s00_axi_rready),
         
-        // Tie off S01 to 0
-        .s01_axi_awid(0), .s01_axi_awaddr(0), .s01_axi_awlen(0), .s01_axi_awsize(0), .s01_axi_awburst(0), .s01_axi_awlock(0), .s01_axi_awcache(0), .s01_axi_awprot(0), .s01_axi_awvalid(0), .s01_axi_wdata(0), .s01_axi_wstrb(0), .s01_axi_wlast(0), .s01_axi_wvalid(0), .s01_axi_bready(0), .s01_axi_arid(0), .s01_axi_araddr(0), .s01_axi_arlen(0), .s01_axi_arsize(0), .s01_axi_arburst(0), .s01_axi_arlock(0), .s01_axi_arcache(0), .s01_axi_arprot(0), .s01_axi_arvalid(0), .s01_axi_rready(0),
+        // Slave 01 Port (DMA - Reserved, tied off to 0)
+        .s01_axi_awid(12'd0), .s01_axi_awaddr(32'd0), .s01_axi_awlen(8'd0), .s01_axi_awsize(3'd0), .s01_axi_awburst(2'd0), .s01_axi_awlock(1'b0), .s01_axi_awcache(4'd0), .s01_axi_awprot(3'd0), .s01_axi_awvalid(1'b0), .s01_axi_wdata(32'd0), .s01_axi_wstrb(4'd0), .s01_axi_wlast(1'b0), .s01_axi_wvalid(1'b0), .s01_axi_bready(1'b0), .s01_axi_arid(12'd0), .s01_axi_araddr(32'd0), .s01_axi_arlen(8'd0), .s01_axi_arsize(3'd0), .s01_axi_arburst(2'd0), .s01_axi_arlock(1'b0), .s01_axi_arcache(4'd0), .s01_axi_arprot(3'd0), .s01_axi_arvalid(1'b0), .s01_axi_rready(1'b0),
         
-        // Master 00 Port -> UART
+        // Master 00 Port -> UART (0x2000_0000)
         .m00_axi_awid   (m00_axi_awid),
         .m00_axi_awaddr (m00_axi_awaddr),
         .m00_axi_awlen  (m00_axi_awlen),
@@ -279,18 +314,15 @@ module smart_controlsoc_top #(
         .m00_axi_awprot (m00_axi_awprot),
         .m00_axi_awvalid(m00_axi_awvalid),
         .m00_axi_awready(m00_axi_awready),
-        
         .m00_axi_wdata  (m00_axi_wdata),
         .m00_axi_wstrb  (m00_axi_wstrb),
         .m00_axi_wlast  (m00_axi_wlast),
         .m00_axi_wvalid (m00_axi_wvalid),
         .m00_axi_wready (m00_axi_wready),
-        
         .m00_axi_bid    (m00_axi_bid),
         .m00_axi_bresp  (m00_axi_bresp),
         .m00_axi_bvalid (m00_axi_bvalid),
         .m00_axi_bready (m00_axi_bready),
-        
         .m00_axi_arid   (m00_axi_arid),
         .m00_axi_araddr (m00_axi_araddr),
         .m00_axi_arlen  (m00_axi_arlen),
@@ -301,21 +333,70 @@ module smart_controlsoc_top #(
         .m00_axi_arprot (m00_axi_arprot),
         .m00_axi_arvalid(m00_axi_arvalid),
         .m00_axi_arready(m00_axi_arready),
-        
         .m00_axi_rid    (m00_axi_rid),
         .m00_axi_rdata  (m00_axi_rdata),
         .m00_axi_rresp  (m00_axi_rresp),
         .m00_axi_rlast  (m00_axi_rlast),
         .m00_axi_rvalid (m00_axi_rvalid),
-        .m00_axi_rready (m00_axi_rready)
+        .m00_axi_rready (m00_axi_rready),
         
-        // M01-M05 and S00-S01 tie-offs omitted for brevity until other IPs are added
+        // Master 01 Port (Timer - Reserved tie-offs)
+        .m01_axi_awready(1'b0), .m01_axi_wready(1'b0), .m01_axi_bid(12'd0), .m01_axi_bresp(2'd0), .m01_axi_bvalid(1'b0),
+        .m01_axi_arready(1'b0), .m01_axi_rid(12'd0), .m01_axi_rdata(32'd0), .m01_axi_rresp(2'd0), .m01_axi_rlast(1'b0), .m01_axi_rvalid(1'b0),
+
+        // Master 02 Port (GPIO - Reserved tie-offs)
+        .m02_axi_awready(1'b0), .m02_axi_wready(1'b0), .m02_axi_bid(12'd0), .m02_axi_bresp(2'd0), .m02_axi_bvalid(1'b0),
+        .m02_axi_arready(1'b0), .m02_axi_rid(12'd0), .m02_axi_rdata(32'd0), .m02_axi_rresp(2'd0), .m02_axi_rlast(1'b0), .m02_axi_rvalid(1'b0),
+
+        // Master 03 Port -> SPI Controller (0x2000_3000)
+        .m03_axi_awid   (m03_axi_awid),
+        .m03_axi_awaddr (m03_axi_awaddr),
+        .m03_axi_awlen  (m03_axi_awlen),
+        .m03_axi_awsize (m03_axi_awsize),
+        .m03_axi_awburst(m03_axi_awburst),
+        .m03_axi_awlock (m03_axi_awlock),
+        .m03_axi_awcache(m03_axi_awcache),
+        .m03_axi_awprot (m03_axi_awprot),
+        .m03_axi_awvalid(m03_axi_awvalid),
+        .m03_axi_awready(m03_axi_awready),
+        .m03_axi_wdata  (m03_axi_wdata),
+        .m03_axi_wstrb  (m03_axi_wstrb),
+        .m03_axi_wlast  (m03_axi_wlast),
+        .m03_axi_wvalid (m03_axi_wvalid),
+        .m03_axi_wready (m03_axi_wready),
+        .m03_axi_bid    (m03_axi_bid),
+        .m03_axi_bresp  (m03_axi_bresp),
+        .m03_axi_bvalid (m03_axi_bvalid),
+        .m03_axi_bready (m03_axi_bready),
+        .m03_axi_arid   (m03_axi_arid),
+        .m03_axi_araddr (m03_axi_araddr),
+        .m03_axi_arlen  (m03_axi_arlen),
+        .m03_axi_arsize (m03_axi_arsize),
+        .m03_axi_arburst(m03_axi_arburst),
+        .m03_axi_arlock (m03_axi_arlock),
+        .m03_axi_arcache(m03_axi_arcache),
+        .m03_axi_arprot (m03_axi_arprot),
+        .m03_axi_arvalid(m03_axi_arvalid),
+        .m03_axi_arready(m03_axi_arready),
+        .m03_axi_rid    (m03_axi_rid),
+        .m03_axi_rdata  (m03_axi_rdata),
+        .m03_axi_rresp  (m03_axi_rresp),
+        .m03_axi_rlast  (m03_axi_rlast),
+        .m03_axi_rvalid (m03_axi_rvalid),
+        .m03_axi_rready (m03_axi_rready),
+
+        // Master 04 Port (I2C - Reserved tie-offs)
+        .m04_axi_awready(1'b0), .m04_axi_wready(1'b0), .m04_axi_bid(12'd0), .m04_axi_bresp(2'd0), .m04_axi_bvalid(1'b0),
+        .m04_axi_arready(1'b0), .m04_axi_rid(12'd0), .m04_axi_rdata(32'd0), .m04_axi_rresp(2'd0), .m04_axi_rlast(1'b0), .m04_axi_rvalid(1'b0),
+
+        // Master 05 Port (PWM - Reserved tie-offs)
+        .m05_axi_awready(1'b0), .m05_axi_wready(1'b0), .m05_axi_bid(12'd0), .m05_axi_bresp(2'd0), .m05_axi_bvalid(1'b0),
+        .m05_axi_arready(1'b0), .m05_axi_rid(12'd0), .m05_axi_rdata(32'd0), .m05_axi_rresp(2'd0), .m05_axi_rlast(1'b0), .m05_axi_rvalid(1'b0)
     );
 
     // -------------------------------------------------------------------------
     // UART IP Instantiation
     // -------------------------------------------------------------------------
-    // Note: The UART IP is configured for AXI-Lite, so we only connect the relevant AXI signals.
     axi_uart_top uart_ip_inst (
         .fixed_clk_i      (sys_clk),
         .axi_aclk_i       (sys_clk),
@@ -323,7 +404,7 @@ module smart_controlsoc_top #(
         
         // AR Channel
         .axi_arid_i       (m00_axi_arid),
-        .axi_araddr_i     (m00_axi_araddr[4:0]), // UART only uses lower 5 bits of address
+        .axi_araddr_i     (m00_axi_araddr[4:0]), // UART uses lower 5 bits of address
         .axi_arvalid_i    (m00_axi_arvalid),
         .axi_arready_o    (m00_axi_arready),
         
@@ -361,6 +442,53 @@ module smart_controlsoc_top #(
     // Tie off unused interconnect outputs from AXI to AXI-Lite
     assign m00_axi_rlast = 1'b1;
 
+    // -------------------------------------------------------------------------
+    // SPI Controller IP Instantiation
+    // -------------------------------------------------------------------------
+    axi_spi_top spi_ip_inst (
+        .fixed_clk_i      (sys_clk),
+        .axi_aclk_i       (sys_clk),
+        .axi_aresetn_i    (sys_rst_n),
+        
+        // AR Channel
+        .axi_arid_i       (m03_axi_arid),
+        .axi_araddr_i     (m03_axi_araddr[6:0]), // SPI uses lower 7 bits of address
+        .axi_arvalid_i    (m03_axi_arvalid),
+        .axi_arready_o    (m03_axi_arready),
+        
+        // R Channel
+        .axi_rid_o        (m03_axi_rid),
+        .axi_rdata_o      (m03_axi_rdata),
+        .axi_rresp_o      (m03_axi_rresp),
+        .axi_rvalid_o     (m03_axi_rvalid),
+        .axi_rready_i     (m03_axi_rready),
+        
+        // AW Channel
+        .axi_awid_i       (m03_axi_awid),
+        .axi_awaddr_i     (m03_axi_awaddr[6:0]),
+        .axi_awvalid_i    (m03_axi_awvalid),
+        .axi_awready_o    (m03_axi_awready),
+        
+        // W Channel
+        .axi_wdata_i      (m03_axi_wdata),
+        .axi_wstrb_i      (m03_axi_wstrb),
+        .axi_wvalid_i     (m03_axi_wvalid),
+        .axi_wready_o     (m03_axi_wready),
+        
+        // B Channel
+        .axi_bid_o        (m03_axi_bid),
+        .axi_bresp_o      (m03_axi_bresp),
+        .axi_bvalid_o     (m03_axi_bvalid),
+        .axi_bready_i     (m03_axi_bready),
+        
+        // External SPI Interface Pins
+        .spi_clk_o        (spi_clk_o),
+        .spi_cs_n_o       (spi_cs_n_o),
+        .spi_mosi_o       (spi_mosi_o),
+        .spi_miso_i       (spi_miso_i)
+    );
+
+    // Tie off unused interconnect outputs from AXI to AXI-Lite
+    assign m03_axi_rlast = 1'b1;
+
 endmodule
-
-
