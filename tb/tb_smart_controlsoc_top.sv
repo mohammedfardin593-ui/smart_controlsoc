@@ -132,24 +132,109 @@ module tb_smart_controlsoc_top;
     // Verification Tasks
     // =========================================================================
 
-    // CPU MMIO Write Task (Simulates RISC-V SW instruction)
+    // CPU MMIO Write Task (Simulates RISC-V SW instruction over AXI)
     task cpu_write(
         input [ADDR_WIDTH-1:0] addr,
         input [DATA_WIDTH-1:0] data
     );
         begin
-            dut.cpu_inst.cpu_write(addr, data, 4'hF);
+            @(negedge sys_clk);
+            force dut.s00_axi_awid    = 12'd1;
+            force dut.s00_axi_awaddr  = addr;
+            force dut.s00_axi_awlen   = 8'd0;
+            force dut.s00_axi_awsize  = 3'd2; // 4 bytes (32-bit)
+            force dut.s00_axi_awburst = 2'd1; // INCR
+            force dut.s00_axi_awlock  = 1'b0;
+            force dut.s00_axi_awcache = 4'd0;
+            force dut.s00_axi_awprot  = 3'd0;
+            force dut.s00_axi_awvalid = 1'b1;
+            
+            force dut.s00_axi_wdata   = data;
+            force dut.s00_axi_wstrb   = 4'hF;
+            force dut.s00_axi_wlast   = 1'b1;
+            force dut.s00_axi_wvalid  = 1'b1;
+            force dut.s00_axi_bready  = 1'b1;
+
+            // Wait for address and data write acknowledge
+            fork
+                begin
+                    while (!dut.s00_axi_awready) @(posedge sys_clk);
+                    @(negedge sys_clk);
+                    force dut.s00_axi_awvalid = 1'b0;
+                end
+                begin
+                    while (!dut.s00_axi_wready) @(posedge sys_clk);
+                    @(negedge sys_clk);
+                    force dut.s00_axi_wvalid = 1'b0;
+                end
+            join
+
+            // Wait for write response
+            while (!dut.s00_axi_bvalid) @(posedge sys_clk);
+            @(negedge sys_clk);
+            force dut.s00_axi_bready = 1'b0;
+
+            // Release bus forces
+            release dut.s00_axi_awid;
+            release dut.s00_axi_awaddr;
+            release dut.s00_axi_awlen;
+            release dut.s00_axi_awsize;
+            release dut.s00_axi_awburst;
+            release dut.s00_axi_awlock;
+            release dut.s00_axi_awcache;
+            release dut.s00_axi_awprot;
+            release dut.s00_axi_awvalid;
+            release dut.s00_axi_wdata;
+            release dut.s00_axi_wstrb;
+            release dut.s00_axi_wlast;
+            release dut.s00_axi_wvalid;
+            release dut.s00_axi_bready;
+
             $display("[%0t ns] [CPU -> AXI] STORE 0x%08h = 0x%08h", $time, addr, data);
         end
     endtask
 
-    // CPU MMIO Read Task (Simulates RISC-V LW instruction)
+    // CPU MMIO Read Task (Simulates RISC-V LW instruction over AXI)
     task cpu_read(
         input  [ADDR_WIDTH-1:0] addr,
         output [DATA_WIDTH-1:0] data
     );
         begin
-            dut.cpu_inst.cpu_read(addr, data);
+            @(negedge sys_clk);
+            force dut.s00_axi_arid    = 12'd1;
+            force dut.s00_axi_araddr  = addr;
+            force dut.s00_axi_arlen   = 8'd0;
+            force dut.s00_axi_arsize  = 3'd2; // 4 bytes
+            force dut.s00_axi_arburst = 2'd1; // INCR
+            force dut.s00_axi_arlock  = 1'b0;
+            force dut.s00_axi_arcache = 4'd0;
+            force dut.s00_axi_arprot  = 3'd0;
+            force dut.s00_axi_arvalid = 1'b1;
+            force dut.s00_axi_rready  = 1'b1;
+
+            // Wait for read address handshake
+            while (!dut.s00_axi_arready) @(posedge sys_clk);
+            @(negedge sys_clk);
+            force dut.s00_axi_arvalid = 1'b0;
+
+            // Wait for read data valid
+            while (!dut.s00_axi_rvalid) @(posedge sys_clk);
+            data = dut.s00_axi_rdata;
+            @(negedge sys_clk);
+            force dut.s00_axi_rready = 1'b0;
+
+            // Release bus forces
+            release dut.s00_axi_arid;
+            release dut.s00_axi_araddr;
+            release dut.s00_axi_arlen;
+            release dut.s00_axi_arsize;
+            release dut.s00_axi_arburst;
+            release dut.s00_axi_arlock;
+            release dut.s00_axi_arcache;
+            release dut.s00_axi_arprot;
+            release dut.s00_axi_arvalid;
+            release dut.s00_axi_rready;
+
             $display("[%0t ns] [CPU <- AXI] LOAD  0x%08h -> 0x%08h", $time, addr, data);
         end
     endtask
