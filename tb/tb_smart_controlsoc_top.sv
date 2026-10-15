@@ -63,6 +63,22 @@ module tb_smart_controlsoc_top;
     localparam PWM_BASE         = 32'h2000_5000;
     localparam PWM_DUTY_REG     = PWM_BASE + 32'h00; // Duty Cycle Register (slv_reg0)
 
+    // GPIO Memory-Mapped Register Base & Offsets (Port M02: 0x2000_2000)
+    localparam GPIO_BASE            = 32'h2000_2000;
+    localparam GPIO_INFO            = GPIO_BASE + 32'h000; // Info / version register (RO: 0x0000_0820)
+    localparam GPIO_CFG             = GPIO_BASE + 32'h004; // Configuration register
+    localparam GPIO_MODE_0          = GPIO_BASE + 32'h008; // Pin 0-15 IO Mode (2 bits per pin)
+    localparam GPIO_MODE_1          = GPIO_BASE + 32'h00C; // Pin 16-31 IO Mode
+    localparam GPIO_EN              = GPIO_BASE + 32'h080; // Input sampling enable mask
+    localparam GPIO_IN              = GPIO_BASE + 32'h100; // Input data read register
+    localparam GPIO_OUT             = GPIO_BASE + 32'h180; // Output data register
+    localparam GPIO_SET             = GPIO_BASE + 32'h200; // Set output bits (write 1 to set)
+    localparam GPIO_CLEAR           = GPIO_BASE + 32'h280; // Clear output bits (write 1 to clear)
+    localparam GPIO_TOGGLE          = GPIO_BASE + 32'h300; // Toggle output bits (write 1 to toggle)
+    localparam GPIO_INTRPT_RISE_EN  = GPIO_BASE + 32'h380; // Rising edge interrupt enable
+    localparam GPIO_INTRPT_FALL_EN  = GPIO_BASE + 32'h400; // Falling edge interrupt enable
+    localparam GPIO_INTRPT_STATUS   = GPIO_BASE + 32'h580; // Aggregated interrupt status (W1C)
+
     // Simulation Baud Divisor: 40 clock cycles per bit (400 ns per bit)
     localparam BAUD_DIV_VAL     = 32'd40;
     localparam BIT_TICKS        = 40;
@@ -92,6 +108,19 @@ module tb_smart_controlsoc_top;
     // Pull-up resistors for I2C open-drain lines
     pullup(i2c_scl_io);
     pullup(i2c_sda_io);
+
+    // GPIO Signals
+    wire [31:0] gpio_io;
+    wire        gpio_interrupt_o;
+    reg  [31:0] gpio_tb_drive_val;
+    reg  [31:0] gpio_tb_drive_en;
+
+    genvar g;
+    generate
+        for (g = 0; g < 32; g = g + 1) begin : gen_tb_gpio
+            assign gpio_io[g] = gpio_tb_drive_en[g] ? gpio_tb_drive_val[g] : 1'bz;
+        end
+    endgenerate
 
     // Error Tracking
     integer error_count = 0;
@@ -133,7 +162,9 @@ module tb_smart_controlsoc_top;
         .i2c_scl_io      (i2c_scl_io),
         .i2c_sda_io      (i2c_sda_io),
         .i2c_interrupt_o (i2c_interrupt_o),
-        .pwm_out_o       (pwm_out_o)
+        .pwm_out_o       (pwm_out_o),
+        .gpio_io         (gpio_io),
+        .gpio_interrupt_o(gpio_interrupt_o)
     );
 
     // =========================================================================
@@ -331,6 +362,8 @@ module tb_smart_controlsoc_top;
         sys_rst_n = 1'b0;
         uart_rx_i = 1'b1; // Idle high for UART RX
         spi_miso_i = 1'b0;
+        gpio_tb_drive_val = 32'd0;
+        gpio_tb_drive_en  = 32'd0;
 
         // Hold reset for 10 clock cycles
         #(CLK_PERIOD * 10);
@@ -618,13 +651,159 @@ module tb_smart_controlsoc_top;
         end
 
         // ---------------------------------------------------------------------
+        // TEST 10: GPIO Controller Integration, MMIO, IO Control & Interrupts
+        // ---------------------------------------------------------------------
+        test_count = test_count + 1;
+        $display("\n[TEST 10] Testing GPIO Controller MMIO Access (0x2000_2000)...");
+
+        // Subtest 10.1: Read INFO Register (Hardware Version 2, 32 GPIO pins)
+        cpu_read(GPIO_INFO, read_val);
+        $display("[%0t ns] GPIO INFO Register Read = 0x%08h", $time, read_val);
+        if (read_val === 32'h0000_0820) begin
+            $display("PASS: GPIO INFO register correctly reports Version 2, 32 GPIO pins (0x0000_0820)!");
+        end else begin
+            $error("FAIL: GPIO INFO register mismatch. Expected 0x0000_0820, Got 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.2: Configure Pin 0 as Push-Pull Output (MODE=01)
+        // GPIO_MODE_0: 2 bits per pin. Bits [1:0] = 2'b01 (OUTPUT_ACTIVE)
+        cpu_write(GPIO_MODE_0, 32'h0000_0001);
+        cpu_read(GPIO_MODE_0, read_val);
+        if (read_val[1:0] === 2'b01) begin
+            $display("PASS: GPIO Pin 0 configured as Push-Pull Output (GPIO_MODE_0 = 0x%08h)!", read_val);
+        end else begin
+            $error("FAIL: GPIO_MODE_0 readback mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.3: Output Data Register Write (Drive Pin 0 HIGH)
+        cpu_write(GPIO_OUT, 32'h0000_0001);
+        cpu_read(GPIO_OUT, read_val);
+        #(CLK_PERIOD * 2);
+        if (read_val[0] === 1'b1 && gpio_io[0] === 1'b1) begin
+            $display("PASS: GPIO Pin 0 driven HIGH via GPIO_OUT (gpio_io[0] = 1'b1)!");
+        end else begin
+            $error("FAIL: GPIO Pin 0 drive HIGH failed: reg=0x%08h, pad=%b", read_val, gpio_io[0]);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.4: Atomic Clear Register (Drive Pin 0 LOW)
+        cpu_write(GPIO_CLEAR, 32'h0000_0001);
+        cpu_read(GPIO_OUT, read_val);
+        #(CLK_PERIOD * 2);
+        if (read_val[0] === 1'b0 && gpio_io[0] === 1'b0) begin
+            $display("PASS: GPIO Pin 0 cleared LOW via GPIO_CLEAR (gpio_io[0] = 1'b0)!");
+        end else begin
+            $error("FAIL: GPIO Pin 0 clear LOW failed: reg=0x%08h, pad=%b", read_val, gpio_io[0]);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.5: Atomic Set Register (Drive Pin 0 HIGH)
+        cpu_write(GPIO_SET, 32'h0000_0001);
+        cpu_read(GPIO_OUT, read_val);
+        #(CLK_PERIOD * 2);
+        if (read_val[0] === 1'b1 && gpio_io[0] === 1'b1) begin
+            $display("PASS: GPIO Pin 0 set HIGH via GPIO_SET (gpio_io[0] = 1'b1)!");
+        end else begin
+            $error("FAIL: GPIO Pin 0 set HIGH failed: reg=0x%08h, pad=%b", read_val, gpio_io[0]);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.6: Atomic Toggle Register (Toggle Pin 0 LOW then HIGH)
+        cpu_write(GPIO_TOGGLE, 32'h0000_0001); // 1 -> 0
+        #(CLK_PERIOD * 2);
+        if (gpio_io[0] === 1'b0) begin
+            $display("PASS: GPIO Pin 0 toggled to LOW via GPIO_TOGGLE!");
+        end else begin
+            $error("FAIL: GPIO Pin 0 toggle LOW failed: pad=%b", gpio_io[0]);
+            error_count = error_count + 1;
+        end
+
+        cpu_write(GPIO_TOGGLE, 32'h0000_0001); // 0 -> 1
+        #(CLK_PERIOD * 2);
+        if (gpio_io[0] === 1'b1) begin
+            $display("PASS: GPIO Pin 0 toggled to HIGH via GPIO_TOGGLE!");
+        end else begin
+            $error("FAIL: GPIO Pin 0 toggle HIGH failed: pad=%b", gpio_io[0]);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.7: Input Sampling on Pin 1
+        // Pin 1 mode is INPUT_ONLY (bits [3:2] = 2'b00)
+        // Enable sampling for Pin 1 via GPIO_EN (bit 1 = 1)
+        cpu_write(GPIO_EN, 32'h0000_0002);
+        
+        // Drive Pin 1 HIGH from testbench
+        gpio_tb_drive_val[1] = 1'b1;
+        gpio_tb_drive_en[1]  = 1'b1;
+        #(CLK_PERIOD * 5); // Allow synchronizer chain to settle
+        cpu_read(GPIO_IN, read_val);
+        if (read_val[1] === 1'b1) begin
+            $display("PASS: GPIO Pin 1 external input HIGH correctly sampled in GPIO_IN!");
+        end else begin
+            $error("FAIL: GPIO Pin 1 input HIGH sampling failed: read_val = 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Drive Pin 1 LOW from testbench
+        gpio_tb_drive_val[1] = 1'b0;
+        #(CLK_PERIOD * 5);
+        cpu_read(GPIO_IN, read_val);
+        if (read_val[1] === 1'b0) begin
+            $display("PASS: GPIO Pin 1 external input LOW correctly sampled in GPIO_IN!");
+        end else begin
+            $error("FAIL: GPIO Pin 1 input LOW sampling failed: read_val = 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 10.8: Interrupt Generation on Rising Edge & W1C Clearing
+        // Configure CFG for sticky global interrupt (bit 0 = 1)
+        cpu_write(GPIO_CFG, 32'h0000_0001);
+        // Enable Rising-Edge Interrupt on Pin 1
+        cpu_write(GPIO_INTRPT_RISE_EN, 32'h0000_0002);
+
+        // Generate rising edge on Pin 1 from testbench
+        gpio_tb_drive_val[1] = 1'b1;
+        #(CLK_PERIOD * 6); // Allow synchronizer and edge detector to assert interrupt
+
+        if (gpio_interrupt_o === 1'b1) begin
+            $display("PASS: GPIO global interrupt asserted on Pin 1 rising edge!");
+        end else begin
+            $error("FAIL: GPIO interrupt failed to assert: gpio_interrupt_o = %b", gpio_interrupt_o);
+            error_count = error_count + 1;
+        end
+
+        cpu_read(GPIO_INTRPT_STATUS, read_val);
+        if (read_val[1] === 1'b1) begin
+            $display("PASS: GPIO INTRPT_STATUS register shows pending interrupt on Pin 1 (0x%08h)!", read_val);
+        end else begin
+            $error("FAIL: GPIO INTRPT_STATUS mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Clear interrupt by writing 1 to bit 1 in INTRPT_STATUS (W1C)
+        cpu_write(GPIO_INTRPT_STATUS, 32'h0000_0002);
+        #(CLK_PERIOD * 4);
+        cpu_read(GPIO_INTRPT_STATUS, read_val);
+        if (read_val[1] === 1'b0 && gpio_interrupt_o === 1'b0) begin
+            $display("PASS: GPIO interrupt successfully cleared via W1C and de-asserted!");
+        end else begin
+            $error("FAIL: GPIO interrupt clear failed: status=0x%08h, irq=%b", read_val, gpio_interrupt_o);
+            error_count = error_count + 1;
+        end
+
+        // Release testbench drive on Pin 1
+        gpio_tb_drive_en[1] = 1'b0;
+
+        // ---------------------------------------------------------------------
         // Final Summary
         // ---------------------------------------------------------------------
         #(CLK_PERIOD * 50);
         $display("\n==================================================================");
         if (error_count == 0) begin
             $display("   *** ALL %0d SYSTEM-LEVEL TESTS PASSED SUCCESSFULLY! ***", test_count);
-            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, SPI, I2C & PWM VERIFIED");
+            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, SPI, I2C, PWM & GPIO VERIFIED");
         end else begin
             $display("   *** VERIFICATION FAILED WITH %0d ERRORS! ***", error_count);
         end

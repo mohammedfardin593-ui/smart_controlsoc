@@ -28,7 +28,11 @@ module smart_controlsoc_top #(
     output wire        i2c_interrupt_o,
 
     // PWM External Pin
-    output wire        pwm_out_o
+    output wire        pwm_out_o,
+
+    // GPIO External Pins
+    inout  wire [31:0] gpio_io,
+    output wire        gpio_interrupt_o
 );
 
     // -------------------------------------------------------------------------
@@ -201,6 +205,45 @@ module smart_controlsoc_top #(
     wire                     m00_axi_rlast;
     wire                     m00_axi_rvalid;
     wire                     m00_axi_rready;
+
+    // -------------------------------------------------------------------------
+    // AXI Interconnect Master 2 (M02) <-> GPIO Slave Wires
+    // -------------------------------------------------------------------------
+    wire [ID_WIDTH-1:0]      m02_axi_awid;
+    wire [ADDR_WIDTH-1:0]    m02_axi_awaddr;
+    wire [7:0]               m02_axi_awlen;
+    wire [2:0]               m02_axi_awsize;
+    wire [1:0]               m02_axi_awburst;
+    wire                     m02_axi_awlock;
+    wire [3:0]               m02_axi_awcache;
+    wire [2:0]               m02_axi_awprot;
+    wire                     m02_axi_awvalid;
+    wire                     m02_axi_awready;
+    wire [DATA_WIDTH-1:0]    m02_axi_wdata;
+    wire [STRB_WIDTH-1:0]    m02_axi_wstrb;
+    wire                     m02_axi_wlast;
+    wire                     m02_axi_wvalid;
+    wire                     m02_axi_wready;
+    wire [ID_WIDTH-1:0]      m02_axi_bid;
+    wire [1:0]               m02_axi_bresp;
+    wire                     m02_axi_bvalid;
+    wire                     m02_axi_bready;
+    wire [ID_WIDTH-1:0]      m02_axi_arid;
+    wire [ADDR_WIDTH-1:0]    m02_axi_araddr;
+    wire [7:0]               m02_axi_arlen;
+    wire [2:0]               m02_axi_arsize;
+    wire [1:0]               m02_axi_arburst;
+    wire                     m02_axi_arlock;
+    wire [3:0]               m02_axi_arcache;
+    wire [2:0]               m02_axi_arprot;
+    wire                     m02_axi_arvalid;
+    wire                     m02_axi_arready;
+    wire [ID_WIDTH-1:0]      m02_axi_rid;
+    wire [DATA_WIDTH-1:0]    m02_axi_rdata;
+    wire [1:0]               m02_axi_rresp;
+    wire                     m02_axi_rlast;
+    wire                     m02_axi_rvalid;
+    wire                     m02_axi_rready;
 
     // -------------------------------------------------------------------------
     // AXI Interconnect Master 3 (M03) <-> SPI Slave Wires
@@ -430,9 +473,42 @@ module smart_controlsoc_top #(
         .m01_axi_awready(1'b0), .m01_axi_wready(1'b0), .m01_axi_bid(12'd0), .m01_axi_bresp(2'd0), .m01_axi_bvalid(1'b0),
         .m01_axi_arready(1'b0), .m01_axi_rid(12'd0), .m01_axi_rdata(32'd0), .m01_axi_rresp(2'd0), .m01_axi_rlast(1'b0), .m01_axi_rvalid(1'b0),
 
-        // Master 02 Port (GPIO - Reserved tie-offs)
-        .m02_axi_awready(1'b0), .m02_axi_wready(1'b0), .m02_axi_bid(12'd0), .m02_axi_bresp(2'd0), .m02_axi_bvalid(1'b0),
-        .m02_axi_arready(1'b0), .m02_axi_rid(12'd0), .m02_axi_rdata(32'd0), .m02_axi_rresp(2'd0), .m02_axi_rlast(1'b0), .m02_axi_rvalid(1'b0),
+        // Master 02 Port -> GPIO Controller (0x2000_2000)
+        .m02_axi_awid   (m02_axi_awid),
+        .m02_axi_awaddr (m02_axi_awaddr),
+        .m02_axi_awlen  (m02_axi_awlen),
+        .m02_axi_awsize (m02_axi_awsize),
+        .m02_axi_awburst(m02_axi_awburst),
+        .m02_axi_awlock (m02_axi_awlock),
+        .m02_axi_awcache(m02_axi_awcache),
+        .m02_axi_awprot (m02_axi_awprot),
+        .m02_axi_awvalid(m02_axi_awvalid),
+        .m02_axi_awready(m02_axi_awready),
+        .m02_axi_wdata  (m02_axi_wdata),
+        .m02_axi_wstrb  (m02_axi_wstrb),
+        .m02_axi_wlast  (m02_axi_wlast),
+        .m02_axi_wvalid (m02_axi_wvalid),
+        .m02_axi_wready (m02_axi_wready),
+        .m02_axi_bid    (m02_axi_bid),
+        .m02_axi_bresp  (m02_axi_bresp),
+        .m02_axi_bvalid (m02_axi_bvalid),
+        .m02_axi_bready (m02_axi_bready),
+        .m02_axi_arid   (m02_axi_arid),
+        .m02_axi_araddr (m02_axi_araddr),
+        .m02_axi_arlen  (m02_axi_arlen),
+        .m02_axi_arsize (m02_axi_arsize),
+        .m02_axi_arburst(m02_axi_arburst),
+        .m02_axi_arlock (m02_axi_arlock),
+        .m02_axi_arcache(m02_axi_arcache),
+        .m02_axi_arprot (m02_axi_arprot),
+        .m02_axi_arvalid(m02_axi_arvalid),
+        .m02_axi_arready(m02_axi_arready),
+        .m02_axi_rid    (m02_axi_rid),
+        .m02_axi_rdata  (m02_axi_rdata),
+        .m02_axi_rresp  (m02_axi_rresp),
+        .m02_axi_rlast  (m02_axi_rlast),
+        .m02_axi_rvalid (m02_axi_rvalid),
+        .m02_axi_rready (m02_axi_rready),
 
         // Master 03 Port -> SPI Controller (0x2000_3000)
         .m03_axi_awid   (m03_axi_awid),
@@ -737,5 +813,55 @@ module smart_controlsoc_top #(
     assign m05_axi_bid   = {ID_WIDTH{1'b0}};
     assign m05_axi_rid   = {ID_WIDTH{1'b0}};
     assign m05_axi_rlast = 1'b1;
+
+    // -------------------------------------------------------------------------
+    // GPIO Peripheral IP Instantiation (0x2000_2000)
+    // -------------------------------------------------------------------------
+    axi_gpio_top #(
+        .DATA_WIDTH (DATA_WIDTH),
+        .ADDR_WIDTH (ADDR_WIDTH),
+        .STRB_WIDTH (STRB_WIDTH),
+        .ID_WIDTH   (ID_WIDTH)
+    ) gpio_ip_inst (
+        .axi_aclk    (sys_clk),
+        .axi_aresetn (sys_rst_n),
+
+        // AW Channel
+        .axi_awid    (m02_axi_awid),
+        .axi_awaddr  (m02_axi_awaddr),
+        .axi_awvalid (m02_axi_awvalid),
+        .axi_awready (m02_axi_awready),
+
+        // W Channel
+        .axi_wdata   (m02_axi_wdata),
+        .axi_wstrb   (m02_axi_wstrb),
+        .axi_wvalid  (m02_axi_wvalid),
+        .axi_wready  (m02_axi_wready),
+
+        // B Channel
+        .axi_bid     (m02_axi_bid),
+        .axi_bresp   (m02_axi_bresp),
+        .axi_bvalid  (m02_axi_bvalid),
+        .axi_bready  (m02_axi_bready),
+
+        // AR Channel
+        .axi_arid    (m02_axi_arid),
+        .axi_araddr  (m02_axi_araddr),
+        .axi_arvalid (m02_axi_arvalid),
+        .axi_arready (m02_axi_arready),
+
+        // R Channel
+        .axi_rid     (m02_axi_rid),
+        .axi_rdata   (m02_axi_rdata),
+        .axi_rresp   (m02_axi_rresp),
+        .axi_rvalid  (m02_axi_rvalid),
+        .axi_rready  (m02_axi_rready),
+
+        // External GPIO Interface
+        .gpio_io     (gpio_io),
+        .gpio_irq_o  (gpio_interrupt_o)
+    );
+
+    assign m02_axi_rlast = 1'b1;
 
 endmodule
