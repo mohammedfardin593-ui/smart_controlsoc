@@ -23,6 +23,10 @@ rtl/uart_directory/rtl/uart_transmitter.v
 rtl/uart_directory/rtl/uart_controller.v
 rtl/uart_directory/rtl/axi_uart_top.v
 
+// Hardware Timer Peripheral (Port M01: 0x2000_1000)
+rtl/timer_directory/rtl/timer_core.sv
+rtl/timer_directory/rtl/axi_timer_top.sv
+
 // SPI Controller Peripheral (Port M03: 0x2000_3000)
 rtl/spi_directory/rtl/ratio_clk.v
 rtl/spi_directory/rtl/spi_clk_gen.v

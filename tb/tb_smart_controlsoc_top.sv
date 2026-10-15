@@ -63,6 +63,19 @@ module tb_smart_controlsoc_top;
     localparam PWM_BASE         = 32'h2000_5000;
     localparam PWM_DUTY_REG     = PWM_BASE + 32'h00; // Duty Cycle Register (slv_reg0)
 
+    // Timer Memory-Mapped Register Base & Offsets (Port M01: 0x2000_1000)
+    localparam TIMER_BASE            = 32'h2000_1000;
+    localparam TIMER_ALERT_TEST      = TIMER_BASE + 32'h000; // Alert test register
+    localparam TIMER_CTRL            = TIMER_BASE + 32'h004; // Control register (bit 0: active)
+    localparam TIMER_INTR_ENABLE0    = TIMER_BASE + 32'h100; // Interrupt enable (bit 0: timer0)
+    localparam TIMER_INTR_STATE0     = TIMER_BASE + 32'h104; // Interrupt status / W1C
+    localparam TIMER_INTR_TEST0      = TIMER_BASE + 32'h108; // Interrupt test force
+    localparam TIMER_CFG0            = TIMER_BASE + 32'h10C; // Prescaler [11:0] and Step [23:16]
+    localparam TIMER_V_LOWER0        = TIMER_BASE + 32'h110; // mtime counter bits [31:0]
+    localparam TIMER_V_UPPER0        = TIMER_BASE + 32'h114; // mtime counter bits [63:32]
+    localparam TIMER_COMPARE_LOWER0  = TIMER_BASE + 32'h118; // mtimecmp threshold bits [31:0]
+    localparam TIMER_COMPARE_UPPER0  = TIMER_BASE + 32'h11C; // mtimecmp threshold bits [63:32]
+
     // GPIO Memory-Mapped Register Base & Offsets (Port M02: 0x2000_2000)
     localparam GPIO_BASE            = 32'h2000_2000;
     localparam GPIO_INFO            = GPIO_BASE + 32'h000; // Info / version register (RO: 0x0000_0820)
@@ -99,6 +112,9 @@ module tb_smart_controlsoc_top;
 
     // PWM Signals
     wire pwm_out_o;
+
+    // Timer Signals
+    wire timer_interrupt_o;
 
     // I2C Signals
     wire i2c_scl_io;
@@ -150,21 +166,22 @@ module tb_smart_controlsoc_top;
         .STRB_WIDTH(STRB_WIDTH),
         .ID_WIDTH(ID_WIDTH)
     ) dut (
-        .sys_clk         (sys_clk),
-        .sys_rst_n       (sys_rst_n),
-        .uart_rx_i       (uart_rx_i),
-        .uart_tx_o       (uart_tx_o),
-        .uart_interrupt_o(uart_interrupt_o),
-        .spi_clk_o       (spi_clk_o),
-        .spi_cs_n_o      (spi_cs_n_o),
-        .spi_mosi_o      (spi_mosi_o),
-        .spi_miso_i      (spi_miso_i),
-        .i2c_scl_io      (i2c_scl_io),
-        .i2c_sda_io      (i2c_sda_io),
-        .i2c_interrupt_o (i2c_interrupt_o),
-        .pwm_out_o       (pwm_out_o),
-        .gpio_io         (gpio_io),
-        .gpio_interrupt_o(gpio_interrupt_o)
+        .sys_clk          (sys_clk),
+        .sys_rst_n        (sys_rst_n),
+        .uart_rx_i        (uart_rx_i),
+        .uart_tx_o        (uart_tx_o),
+        .uart_interrupt_o (uart_interrupt_o),
+        .spi_clk_o        (spi_clk_o),
+        .spi_cs_n_o       (spi_cs_n_o),
+        .spi_mosi_o       (spi_mosi_o),
+        .spi_miso_i       (spi_miso_i),
+        .i2c_scl_io       (i2c_scl_io),
+        .i2c_sda_io       (i2c_sda_io),
+        .i2c_interrupt_o  (i2c_interrupt_o),
+        .pwm_out_o        (pwm_out_o),
+        .gpio_io          (gpio_io),
+        .gpio_interrupt_o (gpio_interrupt_o),
+        .timer_interrupt_o(timer_interrupt_o)
     );
 
     // =========================================================================
@@ -797,13 +814,122 @@ module tb_smart_controlsoc_top;
         gpio_tb_drive_en[1] = 1'b0;
 
         // ---------------------------------------------------------------------
+        // TEST 11: Hardware Timer Integration, 64-bit Counter & Interrupt
+        // ---------------------------------------------------------------------
+        test_count = test_count + 1;
+        $display("\n[TEST 11] Testing Hardware Timer MMIO Access (0x2000_1000)...");
+
+        // Subtest 11.1: Default Reset State Verification
+        cpu_read(TIMER_CTRL, read_val);
+        $display("[%0t ns] Timer CTRL Register Read = 0x%08h", $time, read_val);
+        if (read_val[0] === 1'b0) begin
+            $display("PASS: Timer correctly disabled (active=0) after reset!");
+        end else begin
+            $error("FAIL: Timer CTRL unexpected reset value: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        cpu_read(TIMER_V_LOWER0, read_val);
+        $display("[%0t ns] Timer mtime_lower Register Read = 0x%08h", $time, read_val);
+        if (read_val === 32'h0000_0000) begin
+            $display("PASS: Timer counter initialized to 0 after reset!");
+        end else begin
+            $error("FAIL: Timer counter unexpected reset value: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 11.2: Program Prescaler and Step (CFG0 at 0x10C)
+        // Set prescaler = 0 (increment every cycle), step = 1 (CFG0 = 0x0001_0000)
+        cpu_write(TIMER_CFG0, 32'h0001_0000);
+        cpu_read(TIMER_CFG0, read_val);
+        if (read_val[23:16] === 8'd1 && read_val[11:0] === 12'd0) begin
+            $display("PASS: Timer CFG0 configured with Step=1 and Prescaler=0!");
+        end else begin
+            $error("FAIL: Timer CFG0 readback mismatch: 0x%08h", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 11.3: Enable Timer & Verify Continuous Counting
+        cpu_write(TIMER_CTRL, 32'h0000_0001); // active = 1
+        #(CLK_PERIOD * 20); // Allow timer to count
+        cpu_read(TIMER_V_LOWER0, read_val);
+        $display("[%0t ns] Timer mtime_lower after 20 cycles = %0d", $time, read_val);
+        if (read_val >= 32'd15) begin
+            $display("PASS: Timer counter is actively advancing (mtime = %0d)!", read_val);
+        end else begin
+            $error("FAIL: Timer counter failed to advance: mtime = %0d", read_val);
+            error_count = error_count + 1;
+        end
+
+        // Subtest 11.4: Compare Match & Interrupt Generation
+        begin : test_timer_compare
+            reg [31:0] cur_time;
+            cpu_read(TIMER_V_LOWER0, cur_time);
+            cpu_write(TIMER_COMPARE_LOWER0, cur_time + 32'd25);
+            cpu_write(TIMER_COMPARE_UPPER0, 32'd0);
+            
+            // Enable Timer Interrupt (INTR_ENABLE0 = 1)
+            cpu_write(TIMER_INTR_ENABLE0, 32'h0000_0001);
+
+            // Wait for counter to cross threshold
+            #(CLK_PERIOD * 35);
+            if (timer_interrupt_o === 1'b1) begin
+                $display("PASS: Timer interrupt asserted upon mtime >= mtimecmp!");
+            end else begin
+                $error("FAIL: Timer interrupt failed to assert: timer_interrupt_o = %b", timer_interrupt_o);
+                error_count = error_count + 1;
+            end
+
+            cpu_read(TIMER_INTR_STATE0, read_val);
+            if (read_val[0] === 1'b1) begin
+                $display("PASS: Timer INTR_STATE0 correctly reports pending interrupt (0x%08h)!", read_val);
+            end else begin
+                $error("FAIL: Timer INTR_STATE0 readback mismatch: 0x%08h", read_val);
+                error_count = error_count + 1;
+            end
+
+            // Subtest 11.5: Clear Interrupt via W1C
+            // Set compare threshold far into future so match condition clears
+            cpu_write(TIMER_COMPARE_LOWER0, 32'hFFFF_FFFF);
+            cpu_write(TIMER_INTR_STATE0, 32'h0000_0001); // Write-1-to-Clear
+            #(CLK_PERIOD * 4);
+            cpu_read(TIMER_INTR_STATE0, read_val);
+            if (read_val[0] === 1'b0 && timer_interrupt_o === 1'b0) begin
+                $display("PASS: Timer interrupt successfully cleared via W1C and de-asserted!");
+            end else begin
+                $error("FAIL: Timer interrupt clear failed: status=0x%08h, irq=%b", read_val, timer_interrupt_o);
+                error_count = error_count + 1;
+            end
+
+            // Subtest 11.6: Software Force Interrupt (INTR_TEST0)
+            cpu_write(TIMER_INTR_TEST0, 32'h0000_0001);
+            #(CLK_PERIOD * 4);
+            if (timer_interrupt_o === 1'b1) begin
+                $display("PASS: Timer interrupt successfully triggered via INTR_TEST0!");
+            end else begin
+                $error("FAIL: INTR_TEST0 failed to trigger interrupt: timer_interrupt_o = %b", timer_interrupt_o);
+                error_count = error_count + 1;
+            end
+
+            // Clear again
+            cpu_write(TIMER_INTR_STATE0, 32'h0000_0001);
+            #(CLK_PERIOD * 4);
+            if (timer_interrupt_o === 1'b0) begin
+                $display("PASS: Forced interrupt successfully cleared via W1C!");
+            end else begin
+                $error("FAIL: Forced interrupt clear failed: timer_interrupt_o = %b", timer_interrupt_o);
+                error_count = error_count + 1;
+            end
+        end
+
+        // ---------------------------------------------------------------------
         // Final Summary
         // ---------------------------------------------------------------------
         #(CLK_PERIOD * 50);
         $display("\n==================================================================");
         if (error_count == 0) begin
             $display("   *** ALL %0d SYSTEM-LEVEL TESTS PASSED SUCCESSFULLY! ***", test_count);
-            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, SPI, I2C, PWM & GPIO VERIFIED");
+            $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, TIMER, GPIO, SPI, I2C & PWM VERIFIED");
         end else begin
             $display("   *** VERIFICATION FAILED WITH %0d ERRORS! ***", error_count);
         end
