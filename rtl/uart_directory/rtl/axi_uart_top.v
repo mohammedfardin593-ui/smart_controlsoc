@@ -273,7 +273,7 @@ module axi_uart_top (/*AUTOARG*/
         axi_rresp_d         = 2'b0;
         axi_rvalid_d        = 1'b0;
         axi_rid_d           = {AXI_ID_WIDTH{1'b0}};
-        rx_fifo_reset_int_d = 1'b1;
+        rx_fifo_reset_int_d = 1'b0;
         read_state_d        = IdleReadState;
       end
       IdleReadState: begin

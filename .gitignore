@@ -1,3 +1,19 @@
+# Simulation binaries and waveform dumps
+*.vcd
+simv*
+*.daidir/
+*.key
+*.log
+
+# Compiled binaries
+main1
+hello
+
+# Editor backups
+*.save
+*.save.*
+*~
+
+# VCS / ModelSim work directories
 work/
-*.py
 docs_output.txt

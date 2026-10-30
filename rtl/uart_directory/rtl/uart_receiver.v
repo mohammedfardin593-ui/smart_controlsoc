@@ -102,16 +102,13 @@ module uart_receiver
         state_d             = IdleState;
       end
       IdleState: begin      // "idle" fsm state
+        rx_valid_d          = 1'b0; // Single-cycle strobe for RX FIFO push
         if(~rx & en_i) begin  // uart enabled and incoming data (start bit)
           counter_int_d = baud_div_i>>1;  // freq_div / 2
           state_d       = StartBitState;  // go to receive start bit
-          rx_valid_d    = 1'b0;           // clear valid when new frame starts
         end
         bitcount_int_d      = 4'b0; // reset bitcount_int
         rx_stop_bits_int_d  = 1'b0; // reset checked fist stop bit flag
-        // Note: rx_valid_d is NOT cleared here unconditionally;
-        // it was already set by the default at the top of the comb block
-        // and will be cleared only when a new start bit is detected above.
       end
       StartBitState: begin  // "receive start bit" fsm state
         if(counter_int >= baud_div_i-1) begin // freq_div reached //How does this part work???

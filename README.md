@@ -29,7 +29,7 @@ At the core of the SoC is the Western Digital / CHIPS Alliance **VeeR EL2**, a d
 
 The SoC employs a decoupled memory and control path topology:
 1. **Core-Local Execution Path:** Instruction fetching (IFU) and local stack/data accesses (LSU) are handled via internal ICCM and DCCM, eliminating bus contention during normal code execution.
-2. **Peripheral MMIO Path:** When the CPU performs loads or stores targeting peripheral memory regions (`0x2000_0000` - `0x2000_5FFF`), the LSU routes transactions across the AXI4-Lite system interconnect.
+2. **Peripheral MMIO Path:** When the CPU performs loads or stores targeting peripheral memory regions (`0x4000_0000` - `0x4000_CFFF`), the LSU routes transactions across the AXI4-Lite system interconnect.
 3. **Interrupt Feedback:** Asynchronous and synchronous peripheral events trigger dedicated interrupt lines aggregated by the interrupt controller.
 
 ```
@@ -42,8 +42,8 @@ The SoC employs a decoupled memory and control path topology:
 |  +--------------------+         +--------------------------------------------------------------------------+  |
 |                                        ||          ||          ||          ||          ||          ||         |
 |  +--------------------+  (S01)         || (M00)    || (M01)    || (M02)    || (M03)    || (M04)    || (M05)   |
-|  |   DMA Controller   | - - - - >      \/          \/          \/          \/          \/          \/         |
-|  |     (Reserved)     |         +----------++----------++----------++----------++----------++----------+      |
+|  |   DMA Controller   | =======>       \/          \/          \/          \/          \/          \/         |
+|  |     Bus Master     |         +----------++----------++----------++----------++----------++----------+      |
 |  +--------------------+         | AXI UART || AXI Timer|| AXI GPIO || AXI SPI  || AXI I2C  || AXI PWM  |      |
 |                                 +----------++----------++----------++----------++----------++----------+      |
 |                                      ||          ||          ||          ||          ||          ||           |
@@ -59,21 +59,24 @@ The SoC employs a decoupled memory and control path topology:
 | Subsystem / IP Core | Type | Interconnect Port | Memory Base Address | Address Range | Status | Testbench Coverage |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **VeeR EL2 Core** | Master | Port `S00` | — | Internal | **Integrated** | LSU Master Driven |
-| **DMA Controller** | Master | Port `S01` | — | Internal | *Reserved* | Cleanly Tied Off |
-| **UART IP Core** | Slave | Port `M00` | `0x2000_0000` | 4 KB (`0x2000_0FFF`) | **Integrated** | Tests 1 – 6 (Pass) |
-| **Timer IP** | Slave | Port `M01` | `0x2000_1000` | 4 KB (`0x2000_1FFF`) | **Integrated** | Test 11 (Pass) |
-| **GPIO Controller** | Slave | Port `M02` | `0x2000_2000` | 4 KB (`0x2000_2FFF`) | **Integrated** | Test 10 (Pass) |
-| **SPI Controller** | Slave | Port `M03` | `0x2000_3000` | 4 KB (`0x2000_3FFF`) | **Integrated** | Test 7 (Pass) |
-| **I²C Controller** | Slave | Port `M04` | `0x2000_4000` | 4 KB (`0x2000_4FFF`) | **Integrated** | Test 9 (Pass) |
-| **PWM Generator** | Slave | Port `M05` | `0x2000_5000` | 4 KB (`0x2000_5FFF`) | **Integrated** | Test 8 (Pass) |
+| **DMA Controller** | Master | Port `S01` | — | Interconnect Master | **Integrated** | Test 12 (Pass) |
+| **DMA CSR Port** | Slave | Dedicated Port | `0x4000_C000` | 4 KB (`0x4000_C000` – `0x4000_CFFF`) | **Integrated** | Test 12 (Pass) |
+| **UART IP Core** | Slave | Port `M00` | `0x4000_0000` | 4 KB (`0x4000_0000` – `0x4000_0FFF`) | **Integrated** | Tests 1 – 6 (Pass) |
+| **Timer IP** | Slave | Port `M01` | `0x4000_4000` | 4 KB (`0x4000_4000` – `0x4000_4FFF`) | **Integrated** | Test 11 (Pass) |
+| **GPIO Controller** | Slave | Port `M02` | `0x4000_2000` | 4 KB (`0x4000_2000` – `0x4000_2FFF`) | **Integrated** | Test 10 (Pass) |
+| **SPI Controller** | Slave | Port `M03` | `0x4000_6000` | 4 KB (`0x4000_6000` – `0x4000_6FFF`) | **Integrated** | Test 7 (Pass) |
+| **I²C Controller** | Slave | Port `M04` | `0x4000_8000` | 4 KB (`0x4000_8000` – `0x4000_8FFF`) | **Integrated** | Test 9 (Pass) |
+| **PWM Generator** | Slave | Port `M05` | `0x4000_A000` | 4 KB (`0x4000_A000` – `0x4000_AFFF`) | **Integrated** | Test 8 (Pass) |
+
+> **Note on Team Memory Mapping:** Each peripheral occupies a 4 KB window with 4 KB reserved buffer zones interleaved between them, fully matching `/home/student/Documents/153/Address_mapping.ods`.
 
 ---
 
 ## 4. Memory Map & Peripheral Register Definitions
 
-Each peripheral occupies an aligned 4 KB address window within the system peripheral space (`0x2000_0000` – `0x2000_5FFF`):
+Each peripheral occupies an aligned 4 KB address window within the system peripheral space (`0x4000_0000` – `0x4000_CFFF`):
 
-### 4.1 UART (Base: `0x2000_0000`)
+### 4.1 UART (Base: `0x4000_0000`)
 | Offset | Register Name | Access | Description |
 | :---: | :--- | :---: | :--- |
 | `0x00` | `UART_RBR` / `UART_THR` | R / W | Receiver Buffer Register / Transmitter Holding Register |
@@ -82,7 +85,7 @@ Each peripheral occupies an aligned 4 KB address window within the system periph
 | `0x0C` | `UART_LCR` | R/W | Line Control Register (DLAB, Parity, Stop Bits, Word Length) |
 | `0x14` | `UART_LSR` | R | Line Status Register (TX Empty, RX Data Ready) |
 
-### 4.2 Hardware Timer (Base: `0x2000_1000`)
+### 4.2 Hardware Timer (Base: `0x4000_4000`)
 | Offset | Register Name | Access | Description |
 | :---: | :--- | :---: | :--- |
 | `0x000` | `ALERT_TEST` | WO | Alert test register (Write 1 to trigger alert test event) |
@@ -96,7 +99,7 @@ Each peripheral occupies an aligned 4 KB address window within the system periph
 | `0x118` | `TIMER_COMPARE_LOWER0`| R/W | 64-bit Compare Threshold `mtimecmp` [31:0] |
 | `0x11C` | `TIMER_COMPARE_UPPER0`| R/W | 64-bit Compare Threshold `mtimecmp` [63:32] |
 
-### 4.3 GPIO Controller (Base: `0x2000_2000`)
+### 4.3 GPIO Controller (Base: `0x4000_2000`)
 | Offset | Register Name | Access | Description |
 | :---: | :--- | :---: | :--- |
 | `0x000` | `GPIO_INFO` | RO | Hardware Version (Bits 19:10 = 2) & Pin Count (Bits 9:0 = 32) -> Reset: `0x0000_0820` |
@@ -115,7 +118,7 @@ Each peripheral occupies an aligned 4 KB address window within the system periph
 | `0x500` | `GPIO_INTRPT_LVL_LOW_EN` | R/W | Level-Sensitive Low Interrupt Enable Mask |
 | `0x580` | `GPIO_INTRPT_STATUS` | W1C | Aggregated Interrupt Status Register (Write 1 to clear pending interrupt) |
 
-### 4.4 SPI Controller (Base: `0x2000_3000`)
+### 4.4 SPI Controller (Base: `0x4000_6000`)
 | Offset | Register Name | Access | Description |
 | :---: | :--- | :---: | :--- |
 | `0x30` | `SPI_RCLK` | R/W | SPI Clock Ratio Register |
@@ -126,7 +129,7 @@ Each peripheral occupies an aligned 4 KB address window within the system periph
 | `0x6C` | `SPI_DRR` | R | Data Receive Register (Pops byte from RX FIFO) |
 | `0x70` | `SPI_SSR` | R/W | Slave Select Register |
 
-### 4.5 I²C Controller (Base: `0x2000_4000`)
+### 4.5 I²C Controller (Base: `0x4000_8000`)
 | Offset | Register Name | Access | Description |
 | :---: | :--- | :---: | :--- |
 | `0x00` | `I2C_PRER_LO` | R/W | Clock Prescale Register (Low byte) |
@@ -135,10 +138,25 @@ Each peripheral occupies an aligned 4 KB address window within the system periph
 | `0x0C` | `I2C_TXR_RXR` | W / R | Transmit Data Register / Receive Data Register |
 | `0x10` | `I2C_CR_SR` | W / R | Command Register / Status Register |
 
-### 4.6 PWM Generator (Base: `0x2000_5000`)
+### 4.6 PWM Generator (Base: `0x4000_A000`)
 | Offset | Register Name | Access | Description |
 | :---: | :--- | :---: | :--- |
 | `0x00` | `PWM_DUTY_REG` | R/W | 8-Bit Duty Cycle Register (`0x00` = 0%, `0x80` = 50%, `0xFF` = 100%) |
+
+### 4.7 DMA Controller CSR Port (Base: `0x4000_C000`)
+| Offset | Register Name | Access | Description |
+| :---: | :--- | :---: | :--- |
+| `0x00` | `DMA_CONTROL` | R/W | Control: [0] GO, [1] ABORT, [9:2] MAX_BURST |
+| `0x08` | `DMA_STATUS` | RO | Status: [15:0] Version (0xCAFE), [16] DONE, [17] ERROR |
+| `0x10` | `DMA_ERROR_ADDR` | RO | Error Address Register |
+| `0x18` | `DMA_ERROR_STATS`| RO | Error Statistics |
+| `0x20` | `DMA_DESC0_SRC` | R/W | Descriptor 0 Source Address |
+| `0x28` | `DMA_DESC1_SRC` | R/W | Descriptor 1 Source Address |
+| `0x30` | `DMA_DESC0_DST` | R/W | Descriptor 0 Destination Address |
+| `0x38` | `DMA_DESC1_DST` | R/W | Descriptor 1 Destination Address |
+| `0x40` | `DMA_DESC0_LEN` | R/W | Descriptor 0 Byte Count |
+| `0x48` | `DMA_DESC1_LEN` | R/W | Descriptor 1 Byte Count |
+| `0x50` | `DMA_DESC0_CFG` | R/W | Descriptor 0 Config: [0] EN, [1] RD_MODE (0:INC, 1:FIX), [2] WR_MODE |
 
 ---
 
@@ -217,21 +235,21 @@ The system is verified using **`tb/tb_smart_controlsoc_top.sv`**, a self-contain
 * **`TEST 9: I²C Controller Verification`**
   * Reads default prescaler (`0xFF`); programs prescaler to `0x64`; enables core via `I2C_CTR`; verifies open-drain pull-ups on `i2c_scl_io` and `i2c_sda_io`.
 * **`TEST 10: GPIO Controller Verification`**
-  * Reads `GPIO_INFO` register (`0x2000_2000`) and asserts HW Version 2 and 32-pin count (`0x0000_0820`).
-  * Programs `GPIO_MODE_0` (`0x2000_2008`) to set Pin 0 as active Push-Pull Output (`2'b01`).
-  * Drives Pin 0 HIGH via `GPIO_OUT` (`0x2000_2180`) and validates `gpio_io[0] == 1'b1`.
-  * Tests atomic bit clearing via `GPIO_CLEAR` (`0x2000_2280`) and validates `gpio_io[0] == 1'b0`.
-  * Tests atomic bit setting via `GPIO_SET` (`0x2000_2200`) and validates `gpio_io[0] == 1'b1`.
-  * Tests atomic bit toggling via `GPIO_TOGGLE` (`0x2000_2300`) to LOW then HIGH.
-  * Configures Pin 1 as input, enables sampling mask in `GPIO_EN` (`0x2000_2080`), drives external testbench stimulus and validates synchronized readback in `GPIO_IN` (`0x2000_2100`).
-  * Configures sticky interrupt mode via `GPIO_CFG` (`0x2000_2004`), enables rising-edge interrupt via `GPIO_INTRPT_RISE_EN` (`0x2000_2380`), verifies `gpio_interrupt_o` assertion and `GPIO_INTRPT_STATUS` (`0x2000_2580`) register update, and tests interrupt de-assertion via Write-1-to-Clear (W1C).
+  * Reads `GPIO_INFO` register (`0x4000_2000`) and asserts HW Version 2 and 32-pin count (`0x0000_0820`).
+  * Programs `GPIO_MODE_0` (`0x4000_2008`) to set Pin 0 as active Push-Pull Output (`2'b01`).
+  * Drives Pin 0 HIGH via `GPIO_OUT` (`0x4000_2180`) and validates `gpio_io[0] == 1'b1`.
+  * Tests atomic bit clearing via `GPIO_CLEAR` (`0x4000_2280`) and validates `gpio_io[0] == 1'b0`.
+  * Tests atomic bit setting via `GPIO_SET` (`0x4000_2200`) and validates `gpio_io[0] == 1'b1`.
+  * Tests atomic bit toggling via `GPIO_TOGGLE` (`0x4000_2300`) to LOW then HIGH.
+  * Configures Pin 1 as input, enables sampling mask in `GPIO_EN` (`0x4000_2080`), drives external testbench stimulus and validates synchronized readback in `GPIO_IN` (`0x4000_2100`).
+  * Configures sticky interrupt mode via `GPIO_CFG` (`0x4000_2004`), enables rising-edge interrupt via `GPIO_INTRPT_RISE_EN` (`0x4000_2380`), verifies `gpio_interrupt_o` assertion and `GPIO_INTRPT_STATUS` (`0x4000_2580`) register update, and tests interrupt de-assertion via Write-1-to-Clear (W1C).
 * **`TEST 11: Hardware Timer Verification`**
   * Reads and validates default reset state of `TIMER_CTRL` (`0x00`), `TIMER_V_LOWER0` (`0x00`), and `TIMER_CFG0` (`0x0001_0000`, step=1).
-  * Programs prescaler to 0 and step to 1 via `TIMER_CFG0` (`0x2000_110C`).
-  * Enables timer (`TIMER_CTRL` active=1) and verifies real-time counter incrementing across cycles via `TIMER_V_LOWER0` (`0x2000_1110`).
-  * Programs 64-bit compare threshold (`TIMER_COMPARE_LOWER0` = `0x2000_1118`), unmasks interrupt (`TIMER_INTR_ENABLE0` = `0x2000_1100`), and verifies comparator match triggering interrupt assertion on `timer_interrupt_o` and pending status in `TIMER_INTR_STATE0` (`0x2000_1104`).
+  * Programs prescaler to 0 and step to 1 via `TIMER_CFG0` (`0x4000_410C`).
+  * Enables timer (`TIMER_CTRL` active=1) and verifies real-time counter incrementing across cycles via `TIMER_V_LOWER0` (`0x4000_4110`).
+  * Programs 64-bit compare threshold (`TIMER_COMPARE_LOWER0` = `0x4000_4118`), unmasks interrupt (`TIMER_INTR_ENABLE0` = `0x4000_4100`), and verifies comparator match triggering interrupt assertion on `timer_interrupt_o` and pending status in `TIMER_INTR_STATE0` (`0x4000_4104`).
   * De-asserts interrupt by issuing Write-1-to-Clear (W1C) to `TIMER_INTR_STATE0` and validates `timer_interrupt_o == 1'b0`.
-  * Tests software forced interrupt triggering via `TIMER_INTR_TEST0` (`0x2000_1108`).
+  * Tests software forced interrupt triggering via `TIMER_INTR_TEST0` (`0x4000_4108`).
 
 ---
 
@@ -285,7 +303,7 @@ This section details the remaining engineering phases, pending hardware integrat
 ### 8.1 Remaining Hardware & RTL Integration Tasks
 
 #### 1. Hardware Timer IP Integration (STATUS: COMPLETED)
-* **Target Interface:** Interconnect Master Port 1 (`m01`), Base Address: `0x2000_1000` (4 KB space).
+* **Target Interface:** Interconnect Master Port 1 (`m01`), Base Address: `0x4000_4000` (4 KB space).
 * **Engineering Scope (Completed):**
   * Fully structured in `rtl/timer_directory/` with modular subdirectories (`rtl/`, `doc/`, `tb/`).
   * Engineered self-contained AXI4-Lite slave wrapper (`axi_timer_top.sv`) encapsulating `timer_core.sv` without external TileLink or OpenTitan package dependencies.
@@ -294,7 +312,7 @@ This section details the remaining engineering phases, pending hardware integrat
   * Verified under **`TEST 11`** in `tb/tb_smart_controlsoc_top.sv` (Reset values, Prescaler/step configuration, counter advancement, compare match interrupt assertion, W1C de-assertion, and SW forced interrupt testing).
 
 #### 2. General-Purpose I/O (GPIO) Controller Integration (STATUS: COMPLETED)
-* **Target Interface:** Interconnect Master Port 2 (`m02`), Base Address: `0x2000_2000` (4 KB space).
+* **Target Interface:** Interconnect Master Port 2 (`m02`), Base Address: `0x4000_2000` (4 KB space).
 * **Engineering Scope (Completed):**
   * Fully structured in `rtl/gpio_directory/` with clean subdirectories (`rtl/`, `include/`, `doc/`, `tb/`).
   * Self-contained 2-stage synchronizer flip-flop chain implemented in `gpio_input_stage.sv` (zero external technology cell dependencies).
@@ -302,12 +320,15 @@ This section details the remaining engineering phases, pending hardware integrat
   * Connected to `m02_axi_*` channels in `smart_controlsoc_top.v`.
   * Verified under **`TEST 10`** in `tb/tb_smart_controlsoc_top.sv` (INFO read, Push-Pull mode, Direct OUT, Atomic Clear, Atomic Set, Atomic Toggle, Input sampling on Pin 1, Rising-Edge interrupt assertion, and W1C de-assertion).
 
-#### 3. Direct Memory Access (DMA) Controller Integration (Priority: MEDIUM)
+#### 3. Direct Memory Access (DMA) Controller Integration (Completed)
 * **Target Interface:** Interconnect Slave Port 1 (`s01`) acting as second Bus Master.
-* **Engineering Scope:**
-  * Connect the autonomous DMA engine to slave port `s01_axi_*` on the interconnect.
-  * Enable high-throughput memory-to-peripheral and peripheral-to-memory data transfers without CPU pipeline intervention.
-  * Implement source address, destination address, transfer length registers, and transfer-complete interrupt generation.
+* **Engineering Scope & Results:**
+  * Created structured `rtl/dma_directory/` layout (`doc/`, `include/`, `rtl/`, `tb/`).
+  * Implemented `axi_dma_top.sv` providing discrete pin-level AXI4 Master and AXI4-Lite Slave CSR interfaces.
+  * Connected autonomous DMA AXI4 engine to slave port `s01_axi_*` on the 2x6 interconnect.
+  * Preserved interconnect architecture (2x6 strictly preserved, no IP slave modification).
+  * Exposed dedicated AXI4-Lite CSR slave port (`dma_csr_*`) and interrupts (`dma_done_interrupt_o`, `dma_error_interrupt_o`) at `smart_controlsoc_top`.
+  * Verified end-to-end under **`TEST 12`** in `tb/tb_smart_controlsoc_top.sv` (CSR version signature check `0xCAFE`, descriptor 0 programming, autonomous interconnect transfer from PWM to GPIO, and interrupt assertion).
 
 ---
 
@@ -315,7 +336,7 @@ This section details the remaining engineering phases, pending hardware integrat
 
 #### Centralized PIC Interrupt Routing (Priority: HIGH)
 * **Engineering Scope:**
-  * Currently, peripheral interrupt lines are exposed as top-level signals (`uart_interrupt_o`, `i2c_interrupt_o`, `gpio_interrupt_o`, `timer_interrupt_o`).
+  * Currently, peripheral interrupt lines are exposed as top-level signals (`uart_interrupt_o`, `i2c_interrupt_o`, `gpio_interrupt_o`, `timer_interrupt_o`, `dma_done_interrupt_o`, `dma_error_interrupt_o`).
   * In the next phase, these lines—along with `spi_irq`—will be routed directly into the **VeeR EL2 Programmable Interrupt Controller (PIC)**.
   * Configure interrupt priority levels, enable masks, and test end-to-end CPU exception handling and ISR (Interrupt Service Routine) dispatching.
 
@@ -333,6 +354,7 @@ This section details the remaining engineering phases, pending hardware integrat
   * `timer.h` / `timer.c`: Millisecond/microsecond delay and periodic timer interrupt drivers.
   * `pwm.h` / `pwm.c`: Duty cycle and frequency configuration drivers.
   * `gpio.h` / `gpio.c`: Pin direction, read, write, and pin interrupt configuration drivers.
+  * `dma.h` / `dma.c`: DMA descriptor setup, control, and interrupt service drivers.
 
 #### 2. Bare-Metal Linker & Startup Architecture
 * **Target Location:** `sw/bsp/`
@@ -356,7 +378,7 @@ This section details the remaining engineering phases, pending hardware integrat
 | **T2** | Integrate Bidirectional GPIO into Interconnect Port M02 | `rtl/smart_controlsoc_top.v` | Phase 3 | RTL | High | ✅ Completed |
 | **T3** | Extend Testbench to cover Timer and GPIO verification | `tb/tb_smart_controlsoc_top.sv` | Phase 3 | Verification | High | ✅ Completed (GPIO & Timer Verified) |
 | **T4** | Route peripheral interrupts to VeeR EL2 PIC | `rtl/smart_controlsoc_top.v` | Phase 4 | RTL | High | ⏳ Pending |
-| **T5** | Integrate DMA Master into Interconnect Port S01 | `rtl/smart_controlsoc_top.v` | Phase 5 | RTL | Medium | ⏳ Pending |
+| **T5** | Integrate DMA Master into Interconnect Port S01 | `rtl/smart_controlsoc_top.v` | Phase 5 | RTL | Medium | ✅ Completed (Test 12 Passed) |
 | **T6** | Develop C Memory Map (`soc_memory_map.h`) & Drivers | `sw/drivers/` | Phase 6 | Software | High | ⏳ Pending |
 | **T7** | Create Linker Script (`link.ld`) and Startup (`crt0.s`) | `sw/bsp/` | Phase 6 | Software | High | ⏳ Pending |
 | **T8** | Run End-to-End Firmware Simulation with RISC-V GCC | `tb/tb_smart_controlsoc_top.sv` | Phase 6 | Verification | High | ⏳ Pending |
