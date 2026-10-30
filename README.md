@@ -166,6 +166,7 @@ Each peripheral occupies an aligned 4 KB address window within the system periph
 smart_controlsoc/
 ├── doc/                                   # Architectural specifications & diagram assets
 │   ├── AXI4-Lite Smart Peripheral SoC Block Diagram.png
+│   ├── Smart_ControlSoC_Testplan.csv      # UVM & SystemVerilog Comprehensive Verification Test Plan
 │   ├── honours_architecture_AXI4_Lite.docx
 │   ├── honours_signal_list_AXI_path.docx
 │   └── honours_system_specifications_AXI4_Lite.docx
@@ -250,6 +251,20 @@ The system is verified using **`tb/tb_smart_controlsoc_top.sv`**, a self-contain
   * Programs 64-bit compare threshold (`TIMER_COMPARE_LOWER0` = `0x4000_4118`), unmasks interrupt (`TIMER_INTR_ENABLE0` = `0x4000_4100`), and verifies comparator match triggering interrupt assertion on `timer_interrupt_o` and pending status in `TIMER_INTR_STATE0` (`0x4000_4104`).
   * De-asserts interrupt by issuing Write-1-to-Clear (W1C) to `TIMER_INTR_STATE0` and validates `timer_interrupt_o == 1'b0`.
   * Tests software forced interrupt triggering via `TIMER_INTR_TEST0` (`0x4000_4108`).
+* **`TEST 12: DMA Autonomous Interconnect Transfer (S01 Bus Master)`**
+  * Reads DMA CSR `DMA_STATUS` (`0x4000_C008`) and validates hardware version signature `0xCAFE`.
+  * Writes test data (`0x1234_5678`) to PWM duty cycle register and clears `GPIO_OUT` (`0x4000_2180`).
+  * Programs DMA Descriptor 0 via dedicated CSR port (Source: PWM, Destination: `GPIO_OUT`, Length: 4 bytes, Mode: FIXED-to-FIXED).
+  * Triggers autonomous transfer via `DMA_CONTROL` GO bit (`0x4000_C000 = 0x05`).
+  * Asserts autonomous transaction capture on Interconnect Port S01 (`s01_axi_*`), waits for `dma_done_interrupt_o`, and verifies `GPIO_OUT == 0x1234_5678`.
+* **`TEST 13: Executing C Program Firmware Transactions (main1.hex)`**
+  * Loads and streams 74 MMIO transactions generated from `sw/main1.c`.
+  * Exercises all 6 peripherals, DMA descriptors, and multi-master cross-routing isolation tests (`0xDEADBEEF`, `0x5A5A5A5A`).
+  * Asserts 100% data readback match across all MMIO registers.
+
+### 6.1 UVM & SystemVerilog Test Plan
+For detailed verification architecture, test intent, C firmware procedures, and UVM monitor/scoreboard checkpoints, refer to the unified test plan spreadsheet:
+* 📄 **[Smart_ControlSoC_Testplan.csv](doc/Smart_ControlSoC_Testplan.csv)** (26 comprehensive testcases across Boot, UART, Timer, GPIO, SPI, I2C, PWM, DMA, Pipeline, Bus Stress, and Full Regression).
 
 ---
 
@@ -273,7 +288,7 @@ verdi -ssf smart_controlsoc.fsdb &
 ### 7.2 Using Mentor QuestaSim / ModelSim
 ```bash
 vlib work
-vlog -sv -f filelist.f tb/tb_smart_controlsoc_top.sv
+vlog -sv -mfcu -f filelist.f tb/tb_smart_controlsoc_top.sv
 vsim -c -do "run -all; quit" work.tb_smart_controlsoc_top
 ```
 
