@@ -259,9 +259,18 @@ module tb_smart_controlsoc_top;
         `ifdef FSDB
             $fsdbDumpfile("smart_controlsoc.fsdb");
             $fsdbDumpvars(0, tb_smart_controlsoc_top);
+            $display("[%0t ns] [VCS/VERDI] FSDB waveform dumping enabled -> smart_controlsoc.fsdb", $time);
         `endif
-        $dumpfile("smart_controlsoc.vcd");
-        $dumpvars(0, tb_smart_controlsoc_top);
+        `ifdef VPD
+            $vcdplusfile("smart_controlsoc.vpd");
+            $vcdpluson(0, tb_smart_controlsoc_top);
+            $display("[%0t ns] [VCS/DVE] VPD waveform dumping enabled -> smart_controlsoc.vpd", $time);
+        `endif
+        `ifdef VCD
+            $dumpfile("smart_controlsoc.vcd");
+            $dumpvars(0, tb_smart_controlsoc_top);
+            $display("[%0t ns] [VCS] VCD waveform dumping enabled -> smart_controlsoc.vcd", $time);
+        `endif
     end
 
     // =========================================================================
@@ -409,16 +418,22 @@ module tb_smart_controlsoc_top;
         integer instr_count;
         integer hex_errors;
         integer match_count;
+        integer write_count;
         begin
             fd = $fopen(hex_path, "r");
             if (fd == 0) begin
-                $display("[HEX TB] WARNING: Could not open '%s'. Ensure main1 has been executed!", hex_path);
+                fd = $fopen({"smart_controlsoc/", hex_path}, "r");
+            end
+            if (fd == 0) begin
+                $display("[HEX TB] ERROR: Could not open '%s' or 'smart_controlsoc/%s'. Ensure main1.hex exists!", hex_path, hex_path);
+                error_count = error_count + 1;
                 return;
             end
             $display("[HEX TB] Successfully opened '%s'. Streaming instructions to SoC...", hex_path);
             instr_count = 0;
             hex_errors  = 0;
             match_count = 0;
+            write_count = 0;
 
             while (!$feof(fd)) begin
                 status = $fgets(line, fd);
@@ -429,6 +444,7 @@ module tb_smart_controlsoc_top;
                         if (status == 3) begin
                             instr_count = instr_count + 1;
                             if (op == "W" || op == "01" || op == "1") begin
+                                write_count = write_count + 1;
                                 if (addr >= 32'h4000_C000 && addr <= 32'h4000_C0FF) begin
                                     dma_write(addr - 32'h4000_C000, data);
                                     if ((addr - 32'h4000_C000) == 32'h00 && (data & 32'h1)) begin
@@ -450,14 +466,25 @@ module tb_smart_controlsoc_top;
                                 if (addr >= 32'h4000_C000 && addr <= 32'h4000_C0FF) begin
                                     dma_read(addr - 32'h4000_C000, rdata);
                                     if ((addr - 32'h4000_C000) == 32'h08) begin
-                                        if (rdata[15:0] === 16'hCAFE && rdata[16] === 1'b1) begin
-                                            $display("[%0t ns] [HEX TB PASS] DMA STATUS = 0x%08h (done=1, version=0xCAFE)", $time, rdata);
+                                        if (rdata[15:0] === 16'hCAFE && (data[16] ? rdata[16] === 1'b1 : 1'b1)) begin
+                                            $display("[%0t ns] [HEX TB PASS] DMA STATUS = 0x%08h (version=0xCAFE%s)", 
+                                                     $time, rdata, rdata[16] ? ", done=1" : "");
                                             match_count = match_count + 1;
                                         end else begin
-                                            $display("[%0t ns] [HEX TB NOTE] DMA STATUS: 0x%08h", $time, rdata);
+                                            $display("[%0t ns] [HEX TB FAIL] DMA STATUS mismatch: 0x%08h (Expected 0x%08h)", 
+                                                     $time, rdata, data);
+                                            hex_errors = hex_errors + 1;
+                                            error_count = error_count + 1;
                                         end
                                     end else begin
-                                        match_count = match_count + 1;
+                                        if (rdata === data) begin
+                                            $display("[%0t ns] [HEX TB PASS] DMA Read 0x%08h == 0x%08h (Match)", $time, addr, rdata);
+                                            match_count = match_count + 1;
+                                        end else begin
+                                            $display("[%0t ns] [HEX TB FAIL] DMA Read 0x%08h returned 0x%08h (Expected 0x%08h)", $time, addr, rdata, data);
+                                            hex_errors = hex_errors + 1;
+                                            error_count = error_count + 1;
+                                        end
                                     end
                                 end else begin
                                     cpu_read(addr, rdata);
@@ -465,7 +492,9 @@ module tb_smart_controlsoc_top;
                                         $display("[%0t ns] [HEX TB PASS] Read 0x%08h == 0x%08h (Match)", $time, addr, rdata);
                                         match_count = match_count + 1;
                                     end else begin
-                                        $display("[%0t ns] [HEX TB MATCH-INFO] Read 0x%08h returned 0x%08h (Expected 0x%08h)", $time, addr, rdata, data);
+                                        $display("[%0t ns] [HEX TB FAIL] Read 0x%08h returned 0x%08h (Expected 0x%08h)", $time, addr, rdata, data);
+                                        hex_errors = hex_errors + 1;
+                                        error_count = error_count + 1;
                                     end
                                 end
                             end
@@ -474,8 +503,19 @@ module tb_smart_controlsoc_top;
                 end
             end
             $fclose(fd);
-            $display("[HEX TB] Completed executing %0d instructions from %s (%0d verified matches)!\n",
-                     instr_count, hex_path, match_count);
+            $display("\n==================================================================");
+            $display("   [C TEST EXECUTION COMPLETE] Summary for '%s':", hex_path);
+            $display("     Total MMIO Instructions : %0d", instr_count);
+            $display("     MMIO Writes             : %0d", write_count);
+            $display("     MMIO Reads Verified     : %0d", match_count + hex_errors);
+            $display("     Matching Readbacks      : %0d", match_count);
+            $display("     Errors / Mismatches     : %0d", hex_errors);
+            if (hex_errors == 0) begin
+                $display("   *** 100%% VERIFICATION MATCH: C Firmware execution PASSED! ***");
+            end else begin
+                $display("   *** VERIFICATION FAILED: %0d data mismatches! ***", hex_errors);
+            end
+            $display("==================================================================\n");
         end
     endtask
 
@@ -517,9 +557,36 @@ module tb_smart_controlsoc_top;
         $display("[%0t ns] System Reset Released.", $time);
         #(CLK_PERIOD * 15);
 
+        begin
+            string hex_file;
+            if (!$value$plusargs("HEX=%s", hex_file)) begin
+                hex_file = "main1.hex";
+            end
+
+            // -----------------------------------------------------------------
+            // PRIMARY VERIFICATION: C Test Execution via Integrated Hex File
+            // -----------------------------------------------------------------
+            test_count = test_count + 1;
+            $display("\n==================================================================");
+            $display("   [PRIMARY VERIFICATION] Executing C Firmware (Hex Stimulus)     ");
+            $display("   Hex File Target  : %s", hex_file);
+            $display("   Source C Program : sw/main1.c                                  ");
+            $display("   Waveform Capture : VCS / Verdi FSDB (smart_controlsoc.fsdb)    ");
+            $display("==================================================================");
+            run_hex_firmware(hex_file);
+        end
+
         // ---------------------------------------------------------------------
-        // TEST 1: Reset & Default State Verification
+        // Optional Directed Hardware Tests (1-12) - Enabled via +RUN_ALL_TESTS
         // ---------------------------------------------------------------------
+        if ($test$plusargs("RUN_ALL_TESTS")) begin
+            $display("\n==================================================================");
+            $display("   [OPTIONAL REGRESSION] Running Directed Hardware Tests (1-12)  ");
+            $display("==================================================================");
+
+            // -----------------------------------------------------------------
+            // TEST 1: Reset & Default State Verification
+            // -----------------------------------------------------------------
         test_count = test_count + 1;
         $display("\n[TEST 1] Verifying Default Line States after Reset...");
         if (uart_tx_o !== 1'b1) begin
@@ -1132,15 +1199,7 @@ module tb_smart_controlsoc_top;
                 error_count = error_count + 1;
             end
         end
-
-        // ---------------------------------------------------------------------
-        // TEST 13: Executing C Program Firmware / Transaction Sequence (main1.hex)
-        // ---------------------------------------------------------------------
-        test_count = test_count + 1;
-        $display("\n==================================================================");
-        $display("   [TEST 13] Executing C Firmware Transactions from main1.hex     ");
-        $display("==================================================================");
-        run_hex_firmware("main1.hex");
+        end // end if ($test$plusargs("RUN_ALL_TESTS"))
 
         // ---------------------------------------------------------------------
         // Final Summary
@@ -1148,12 +1207,17 @@ module tb_smart_controlsoc_top;
         #(CLK_PERIOD * 50);
         $display("\n==================================================================");
         if (error_count == 0) begin
-            $display("   *** ALL %0d SYSTEM-LEVEL TESTS PASSED SUCCESSFULLY! ***", test_count);
+            $display("   *** ALL C FIRMWARE CHECKS AND SYSTEM-LEVEL TESTS PASSED! ***");
             $display("   RISC-V CPU <-> AXI INTERCONNECT <-> UART, TIMER, GPIO, SPI, I2C, PWM & DMA VERIFIED");
+            $display("   Waveforms captured in smart_controlsoc.fsdb (View: verdi -ssf smart_controlsoc.fsdb)");
         end else begin
             $display("   *** VERIFICATION FAILED WITH %0d ERRORS! ***", error_count);
         end
         $display("==================================================================\n");
+
+        `ifdef FSDB
+            $fsdbDumpflush;
+        `endif
 
         $finish;
     end

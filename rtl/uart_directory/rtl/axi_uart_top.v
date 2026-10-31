@@ -294,6 +294,27 @@ module axi_uart_top (/*AUTOARG*/
                 read_state_d        = AckReadState;
               end
             end
+            UART_IER: begin
+              axi_arready_d   = 1'b1;
+              axi_rdata_d     = {{(AXI_DATA_WIDTH-1){1'b0}}, uart_irq_en_int};
+              axi_rresp_d     = 2'b0;
+              axi_rvalid_d    = 1'b1;
+              read_state_d    = AckReadState;
+            end
+            UART_BAUD_DIVISOR: begin
+              axi_arready_d   = 1'b1;
+              axi_rdata_d     = {{(AXI_DATA_WIDTH-AXI_DIV_WIDTH){1'b0}}, baudrate_divisor_int};
+              axi_rresp_d     = 2'b0;
+              axi_rvalid_d    = 1'b1;
+              read_state_d    = AckReadState;
+            end
+            UART_LCR: begin
+              axi_arready_d   = 1'b1;
+              axi_rdata_d     = uart_config_reg_int;
+              axi_rresp_d     = 2'b0;
+              axi_rvalid_d    = 1'b1;
+              read_state_d    = AckReadState;
+            end
             UART_LSR: begin
               axi_arready_d   = 1'b1;
               axi_rdata_d     = uart_lsr_reg_int;
@@ -302,9 +323,10 @@ module axi_uart_top (/*AUTOARG*/
               read_state_d    = AckReadState;
             end
             default: begin
-              axi_arready_d   = 1'b0;
+              axi_arready_d   = 1'b1;
+              axi_rdata_d     = {AXI_DATA_WIDTH{1'b0}};
               axi_rresp_d     = 2'b0;
-              axi_rvalid_d    = 1'b0;
+              axi_rvalid_d    = 1'b1;
               read_state_d    = AckReadState;
             end
           endcase

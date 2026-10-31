@@ -1,9 +1,15 @@
 # Simulation binaries and waveform dumps
 *.vcd
+*.fsdb*
 simv*
 *.daidir/
+csrc/
 *.key
 *.log
+vc_hdrs.h
+verdiLog/
+novas.conf
+novas.rc
 
 # Compiled binaries
 main1
@@ -13,7 +19,10 @@ hello
 *.save
 *.save.*
 *~
+*.swp
+.~lock*
 
 # VCS / ModelSim work directories
 work/
 docs_output.txt
+

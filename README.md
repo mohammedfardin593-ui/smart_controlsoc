@@ -272,13 +272,19 @@ For detailed verification architecture, test intent, C firmware procedures, and 
 
 ### 7.1 Using Synopsys VCS & Verdi (Recommended)
 ```bash
-# Compile and simulate with SystemVerilog and FSDB dumping enabled
-vcs -sverilog -timescale=1ns/1ps \
+# Option A: Execute the automated compilation & simulation runner
+./run_vcs_sim.sh
+
+# Option B: Manual compilation and simulation
+vcs -full64 -sverilog -timescale=1ns/1ps \
+    -top tb_smart_controlsoc_top \
+    -P $VERDI_HOME/share/PLI/VCS/LINUX64/novas.tab $VERDI_HOME/share/PLI/VCS/LINUX64/pli.a \
     +define+FSDB \
+    -debug_access+all \
     -f filelist.f \
     tb/tb_smart_controlsoc_top.sv -o simv
 
-# Run the simulation executable
+# Run the simulation executable (executes C test from main1.hex)
 ./simv
 
 # View waveforms in Verdi
