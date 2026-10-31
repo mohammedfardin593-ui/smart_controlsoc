@@ -3,11 +3,11 @@
 *.fsdb*
 simv*
 *.daidir/
-csrc/
+/csrc/
 *.key
 *.log
 vc_hdrs.h
-verdiLog/
+/verdiLog/
 novas.conf
 novas.rc
 
@@ -25,4 +25,10 @@ hello
 # VCS / ModelSim work directories
 work/
 docs_output.txt
+
+# Verification log directories tracked under log/
+!log/fsdbreportLog/**
+!log/fsdbsanitycheckLog/**
+!log/verdiLog/**
+log/csrc/
 
