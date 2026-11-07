@@ -1,0 +1,41 @@
+; Verdi Signal Configuration File for UART End-to-End Verification
+; Loads all relevant signals for tb_soc_uvm_top.fsdb
+
+addSignal -group "1. Clock & Reset"
+addSignal -h 15 tb_soc_uvm_top/sys_clk
+addSignal -h 15 tb_soc_uvm_top/sys_rst_n
+
+addSignal -group "2. External UART Pins (Chip Boundary)"
+addSignal -h 15 tb_soc_uvm_top/uart_vif/uart_rx_i
+addSignal -h 15 tb_soc_uvm_top/uart_vif/uart_tx_o
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_interrupt_o
+
+addSignal -group "3. UART Receiver FSM & Bit Sampler"
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/uart_controller_inst/uart_receiver_inst/state[5:0]
+addSignal -h 15 -UNSIGNED -DEC tb_soc_uvm_top/soc_dut/uart_ip_inst/uart_controller_inst/uart_receiver_inst/bitcount_int[3:0]
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/uart_controller_inst/uart_receiver_inst/rx_data_int[7:0]
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/uart_controller_inst/uart_receiver_inst/rx_data[7:0]
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/uart_controller_inst/uart_receiver_inst/rx_valid
+
+addSignal -group "4. UART Internal RX FIFO"
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/push_controller_rx_fifo
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/data_rx_controller_fifo[7:0]
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/rx_fifo_data_out_int[7:0]
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/rx_fifo_pull_int
+addSignal -h 15 -UNSIGNED -BIN tb_soc_uvm_top/soc_dut/uart_ip_inst/rx_fifo_space_int[3:0]
+
+addSignal -group "5. Interconnect & UART Peripheral AXI4-Lite (Port M00)"
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/axi_araddr_i[4:0]
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/axi_arvalid_i
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/axi_arready_o
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/uart_ip_inst/axi_rdata_o[31:0]
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/axi_rvalid_o
+addSignal -h 15 tb_soc_uvm_top/soc_dut/uart_ip_inst/axi_rready_i
+
+addSignal -group "6. CPU LSU AXI Master Port (Port S00)"
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/cpu_inst/lsu_axi_araddr[31:0]
+addSignal -h 15 tb_soc_uvm_top/soc_dut/cpu_inst/lsu_axi_arvalid
+addSignal -h 15 tb_soc_uvm_top/soc_dut/cpu_inst/lsu_axi_arready
+addSignal -h 15 -UNSIGNED -HEX tb_soc_uvm_top/soc_dut/cpu_inst/lsu_axi_rdata[63:0]
+addSignal -h 15 tb_soc_uvm_top/soc_dut/cpu_inst/lsu_axi_rvalid
+addSignal -h 15 tb_soc_uvm_top/soc_dut/cpu_inst/lsu_axi_rready
