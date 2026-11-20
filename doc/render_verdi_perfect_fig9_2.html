@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  body {
+    width: 1600px;
+    height: 780px;
+    background: #000000;
+    font-family: Tahoma, Arial, "Segoe UI", sans-serif;
+    color: #000000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Verdi Top Menu Bar */
+  .menu-bar {
+    height: 25px;
+    background: linear-gradient(180deg, #e4effa 0%, #c5dcf2 100%);
+    border-bottom: 1px solid #9bb7d4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    font-size: 11px;
+    color: #1e293b;
+  }
+  .menu-items {
+    display: flex;
+    gap: 14px;
+    font-weight: 500;
+  }
+  .menu-items span { cursor: pointer; }
+  .menu-items span u { text-decoration: underline; }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #ffffff;
+    border: 1px solid #8ca6c3;
+    border-radius: 2px;
+    padding: 1px 6px;
+    font-size: 11px;
+    color: #64748b;
+    width: 170px;
+    height: 18px;
+  }
+
+  /* Verdi Toolbar */
+  .toolbar {
+    height: 28px;
+    background: linear-gradient(180deg, #f1f6fc 0%, #d8e6f5 100%);
+    border-bottom: 1px solid #8ba4be;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 6px;
+    font-size: 11px;
+  }
+  .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 20px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .tool-btn:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+  }
+  .toolbar-sep {
+    width: 1px;
+    height: 18px;
+    background: #a8bed4;
+    margin: 0 3px;
+  }
+  .tb-input {
+    background: #ffffff;
+    border: 1px solid #7c98b6;
+    height: 19px;
+    padding: 0 4px;
+    font-family: "Consolas", monospace;
+    font-size: 11px;
+    color: #000000;
+    text-align: right;
+  }
+  .tb-label {
+    font-size: 11px;
+    color: #1e293b;
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  /* Workspace */
+  .workspace {
+    flex: 1;
+    display: flex;
+    background: #000000;
+    overflow: hidden;
+  }
+
+  /* Left Signal Pane (MINIMIZED - 200px wide) */
+  .signal-pane {
+    width: 200px;
+    background: #000000;
+    border-right: 1px solid #475569;
+    display: flex;
+    flex-direction: column;
+  }
+  .group-header {
+    height: 20px;
+    background: #000000;
+    color: #00ff00;
+    font-family: "Consolas", monospace;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    border-bottom: 1px solid #222222;
+  }
+  .signal-row {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px 0 8px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 11px;
+    color: #ffffff;
+    background: #000000;
+    border-bottom: 1px solid #111111;
+  }
+  .signal-row.selected {
+    background: #374151;
+  }
+  .sig-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .badge-ver {
+    display: inline-block;
+    padding: 0 2px;
+    font-size: 8px;
+    font-weight: bold;
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid #0284c7;
+    border-radius: 1px;
+    line-height: 10px;
+  }
+  .badge-net {
+    display: inline-block;
+    padding: 0 2px;
+    font-size: 8px;
+    font-weight: bold;
+    background: #0284c7;
+    color: #ffffff;
+    border-radius: 1px;
+    line-height: 10px;
+  }
+  .sig-name-text {
+    font-size: 11px;
+    color: #f1f5f9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sig-val-text {
+    font-size: 11px;
+    color: #00ffff;
+    text-align: right;
+    min-width: 42px;
+    white-space: nowrap;
+  }
+  .group-footer {
+    padding: 4px 6px;
+    color: #00ff00;
+    font-family: "Consolas", monospace;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  /* Right Canvas Pane */
+  .canvas-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+    position: relative;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Menu Bar -->
+  <div class="menu-bar">
+    <div class="menu-items">
+      <span><u>F</u>ile</span>
+      <span><u>S</u>ignal</span>
+      <span><u>V</u>iew</span>
+      <span><u>W</u>aveform</span>
+      <span><u>A</u>nalog</span>
+      <span><u>T</u>ools</span>
+      <span>Wi<u>n</u>dow</span>
+    </div>
+    <div class="search-box">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>String/Signal</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <span class="tool-btn" title="Open">
+      <svg width="15" height="13" viewBox="0 0 20 16" fill="#eab308" stroke="#a16207" stroke-width="1"><path d="M1 2a1 1 0 0 1 1-1h4l2 2h10a1 1 0 0 1 1 1v2H1V2z"/><path d="M1 6h18l-2 9H3L1 6z" fill="#facc15"/></svg>
+    </span>
+    <span class="tool-btn" title="Save">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="#2563eb"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707l-2.414-2.414A1 1 0 0 0 11.586 1H2zm2 1h7v3H4V2zm-1 5h10v7H3V7zm3 2v3h4V9H6z" fill="#1e40af"/></svg>
+    </span>
+    <span class="tool-btn" title="Print">
+      <svg width="14" height="13" viewBox="0 0 16 16" fill="#475569"><path d="M4 1h8v3H4V1zM2 5h12a1 1 0 0 1 1 1v5h-2v4H3v-4H1V6a1 1 0 0 1 1-1zm2 7v2h8v-2H4zm8-5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+    </span>
+    <span class="toolbar-sep"></span>
+    <span class="tool-btn" title="Undo">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#334155" stroke-width="2"><path d="M4 6h7a3 3 0 1 1 0 6H6"/><polyline points="6 3 3 6 6 9"/></svg>
+    </span>
+    <span class="tool-btn" title="Cut">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#334155" stroke-width="1.8"><circle cx="4" cy="4" r="2.5"/><circle cx="4" cy="12" r="2.5"/><line x1="6" y1="5.5" x2="14" y2="13.5"/><line x1="6" y1="10.5" x2="14" y2="2.5"/></svg>
+    </span>
+    <span class="tool-btn" title="Copy">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#334155" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>
+    </span>
+    <span class="toolbar-sep"></span>
+    <span class="tool-btn" title="Zoom In">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#1e293b" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"/><line x1="10" y1="10" x2="15" y2="15"/><line x1="6.5" y1="4" x2="6.5" y2="9"/><line x1="4" y1="6.5" x2="9" y2="6.5"/></svg>
+    </span>
+    <span class="tool-btn" title="Zoom Out">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#1e293b" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"/><line x1="10" y1="10" x2="15" y2="15"/><line x1="4" y1="6.5" x2="9" y2="6.5"/></svg>
+    </span>
+    <span class="tool-btn" title="Zoom 100%">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#1e293b" stroke-width="1.6"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><text x="4" y="11" font-size="8" font-family="Arial" fill="#1e293b" stroke="none" font-weight="bold">1:1</text></svg>
+    </span>
+    <span class="toolbar-sep"></span>
+    <input type="text" class="tb-input" value="300" style="width: 45px;" readonly>
+    <input type="text" class="tb-input" value="0" style="width: 35px;" readonly>
+    <span class="tb-label">&Delta;</span>
+    <input type="text" class="tb-input" value="-300" style="width: 55px;" readonly>
+    <span class="tb-label">x 1s</span>
+    <span class="toolbar-sep"></span>
+    <span class="tb-label">By:</span>
+    <span class="tb-label">Go to: <b>G1</b> &#9660;</span>
+    <span class="tb-label" style="background:#cbd5e1; padding: 1px 4px; border:1px solid #94a3b8; font-weight:bold;">P</span>
+  </div>
+
+  <!-- Main Workspace -->
+  <div class="workspace">
+    <!-- Left Signal Hierarchy Pane (MINIMIZED - 200px) -->
+    <div class="signal-pane">
+      <div class="group-header">= G1</div>
+      
+      <!-- Signals for Figure 9.2 (64-to-32 bit Conversion) -->
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">sys_clk</span>
+        </div>
+        <div class="sig-val-text">0 -&gt; 1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">sys_rst_n</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_awaddr[31:0]</span>
+        </div>
+        <div class="sig-val-text">40000000</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_awsize[2:0]</span>
+        </div>
+        <div class="sig-val-text">3</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_awvalid</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-net">NET</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_awready</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row selected">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_wdata[63:0]</span>
+        </div>
+        <div class="sig-val-text">dead_beef</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_wstrb[7:0]</span>
+        </div>
+        <div class="sig-val-text">0f</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_wvalid</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-net">NET</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_wready</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_bresp[1:0]</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-net">NET</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_bvalid</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">s00_awsize[2:0]</span>
+        </div>
+        <div class="sig-val-text">2</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">s00_wdata[31:0]</span>
+        </div>
+        <div class="sig-val-text">dead_beef</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">s00_wstrb[3:0]</span>
+        </div>
+        <div class="sig-val-text">f</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">m00_awaddr[31:0]</span>
+        </div>
+        <div class="sig-val-text">40000000</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">m00_wdata[31:0]</span>
+        </div>
+        <div class="sig-val-text">dead_beef</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">m00_wvalid</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-net">NET</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">m00_wready</span>
+        </div>
+        <div class="sig-val-text">1</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_araddr[31:0]</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_arvalid</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">m00_rdata[31:0]</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-ver">Ver</span>
+          <svg width="10" height="8"><polygon points="1,4 3,1 7,1 9,4 7,7 3,7" fill="none" stroke="#38bdf8" stroke-width="1.2"/></svg>
+          <span class="sig-name-text">lsu_rdata[63:0]</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="signal-row">
+        <div class="sig-left">
+          <span class="badge-net">NET</span>
+          <svg width="10" height="8"><line x1="0" y1="4" x2="10" y2="4" stroke="#22c55e" stroke-width="1.8"/></svg>
+          <span class="sig-name-text">lsu_rvalid</span>
+        </div>
+        <div class="sig-val-text">0</div>
+      </div>
+
+      <div class="group-footer">G2</div>
+      <div class="group-footer">G3</div>
+    </div>
+
+    <!-- Right Waveform Canvas Pane -->
+    <div class="canvas-pane">
+      <svg id="waveSvg" width="1400" height="726" style="background: #000000; display: block;" xmlns="http://www.w3.org/2000/svg">
+        
+        <!-- Top Time Ruler (Mustard/Olive Verdi style: y=0..20) -->
+        <rect x="0" y="0" width="1400" height="20" fill="#606020" stroke="#78782a" stroke-width="1" />
+        
+        <!-- Ruler Ticks: 0 to 2000 ns (1400px / 2000ns = 0.685 px/ns) -->
+        <line x1="10" y1="12" x2="10" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="12" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">0</text>
+
+        <line x1="181" y1="12" x2="181" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="183" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">250</text>
+
+        <line x1="352" y1="12" x2="352" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="354" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">500</text>
+
+        <line x1="524" y1="12" x2="524" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="526" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">750</text>
+
+        <line x1="695" y1="12" x2="695" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="697" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,000</text>
+
+        <line x1="866" y1="12" x2="866" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="868" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,250</text>
+
+        <line x1="1037" y1="12" x2="1037" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="1039" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,500</text>
+
+        <line x1="1209" y1="12" x2="1209" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="1211" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,750</text>
+
+        <line x1="1380" y1="12" x2="1380" y2="20" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="1382" y="14" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">2,000</text>
+
+        <!-- Minor Ticks every 50ns (34.25px) -->
+        <g stroke="#ffff00" stroke-width="0.8">
+          <line x1="44" y1="16" x2="44" y2="20"/><line x1="78" y1="16" x2="78" y2="20"/><line x1="113" y1="16" x2="113" y2="20"/><line x1="147" y1="16" x2="147" y2="20"/>
+          <line x1="215" y1="16" x2="215" y2="20"/><line x1="250" y1="16" x2="250" y2="20"/><line x1="284" y1="16" x2="284" y2="20"/><line x1="318" y1="16" x2="318" y2="20"/>
+          <line x1="387" y1="16" x2="387" y2="20"/><line x1="421" y1="16" x2="421" y2="20"/><line x1="455" y1="16" x2="455" y2="20"/><line x1="489" y1="16" x2="489" y2="20"/>
+          <line x1="558" y1="16" x2="558" y2="20"/><line x1="592" y1="16" x2="592" y2="20"/><line x1="626" y1="16" x2="626" y2="20"/><line x1="661" y1="16" x2="661" y2="20"/>
+          <line x1="729" y1="16" x2="729" y2="20"/><line x1="764" y1="16" x2="764" y2="20"/><line x1="798" y1="16" x2="798" y2="20"/><line x1="832" y1="16" x2="832" y2="20"/>
+          <line x1="901" y1="16" x2="901" y2="20"/><line x1="935" y1="16" x2="935" y2="20"/><line x1="969" y1="16" x2="969" y2="20"/><line x1="1003" y1="16" x2="1003" y2="20"/>
+          <line x1="1072" y1="16" x2="1072" y2="20"/><line x1="1106" y1="16" x2="1106" y2="20"/><line x1="1140" y1="16" x2="1140" y2="20"/><line x1="1174" y1="16" x2="1174" y2="20"/>
+          <line x1="1243" y1="16" x2="1243" y2="20"/><line x1="1277" y1="16" x2="1277" y2="20"/><line x1="1312" y1="16" x2="1312" y2="20"/><line x1="1346" y1="16" x2="1346" y2="20"/>
+        </g>
+
+        <!-- Vertical Grid Lines aligned with major ticks -->
+        <g stroke="#222831" stroke-width="1" stroke-dasharray="2,2">
+          <line x1="181" y1="20" x2="181" y2="706"/><line x1="352" y1="20" x2="352" y2="706"/><line x1="524" y1="20" x2="524" y2="706"/>
+          <line x1="695" y1="20" x2="695" y2="706"/><line x1="866" y1="20" x2="866" y2="706"/><line x1="1037" y1="20" x2="1037" y2="706"/>
+          <line x1="1209" y1="20" x2="1209" y2="706"/><line x1="1380" y1="20" x2="1380" y2="706"/>
+        </g>
+
+        <!-- Selected row background highlight for lsu_wdata[63:0] (Row 7: y=20+6*24 = 164..188) -->
+        <rect x="0" y="164" width="1400" height="24" fill="#374151" />
+
+        <!-- ================= WAVEFORM TRACES ================= -->
+        <!-- 1. sys_clk (Row 1: y=20..44) -->
+        <g stroke="#00ff00" stroke-width="1" fill="none">
+          <line x1="10" y1="40" x2="1390" y2="40" stroke="#00ff00" stroke-width="0.8"/>
+          <line x1="10" y1="24" x2="1390" y2="24" stroke="#00ff00" stroke-width="0.8"/>
+          <rect x="10" y="24" width="1380" height="16" fill="#00ff00" opacity="0.3"/>
+        </g>
+
+        <!-- 2. sys_rst_n (Row 2: y=44..68) -->
+        <path d="M 10 64 L 78 64 L 78 48 L 1390 48" stroke="#00ff00" stroke-width="1.4" fill="none"/>
+
+        <!-- 3. lsu_awaddr[31:0] (Row 3: y=68..92) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 80 L 12 72 L 200 72 L 202 80 L 200 88 L 12 88 Z"/>
+          <text x="100" y="84" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 80 L 204 72 L 260 72 L 262 80 L 260 88 L 204 88 Z"/>
+          <text x="210" y="84" fill="#ffff00" font-size="9" font-family="Consolas, monospace" font-weight="bold">40000000</text>
+          <path d="M 262 80 L 264 72 L 1388 72 L 1390 80 L 1388 88 L 264 88 Z"/>
+          <text x="800" y="84" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 4. lsu_awsize[2:0] (Row 4: y=92..116) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 104 L 12 96 L 200 96 L 202 104 L 200 112 L 12 112 Z"/>
+          <text x="100" y="108" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 104 L 204 96 L 260 96 L 262 104 L 260 112 L 204 112 Z"/>
+          <text x="228" y="108" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">3</text>
+          <path d="M 262 104 L 264 96 L 1388 96 L 1390 104 L 1388 112 L 264 112 Z"/>
+          <text x="800" y="108" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 5. lsu_awvalid (Row 5: y=116..140) -->
+        <path d="M 10 136 L 202 136 L 202 120 L 262 120 L 262 136 L 1390 136" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 6. lsu_awready (Row 6: y=140..164) -->
+        <path d="M 10 160 L 210 160 L 210 144 L 262 144 L 262 160 L 1390 160" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 7. lsu_wdata[63:0] (Row 7: y=164..188 - SELECTED ROW) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 176 L 12 168 L 200 168 L 202 176 L 200 184 L 12 184 Z"/>
+          <text x="100" y="180" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 176 L 204 168 L 260 168 L 262 176 L 260 184 L 204 184 Z"/>
+          <text x="206" y="180" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">dead_beef</text>
+          <path d="M 262 176 L 264 168 L 1388 168 L 1390 176 L 1388 184 L 264 184 Z"/>
+          <text x="800" y="180" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 8. lsu_wstrb[7:0] (Row 8: y=188..212) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 200 L 12 192 L 200 192 L 202 200 L 200 208 L 12 208 Z"/>
+          <text x="100" y="204" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 200 L 204 192 L 260 192 L 262 200 L 260 208 L 204 208 Z"/>
+          <text x="225" y="204" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0f</text>
+          <path d="M 262 200 L 264 192 L 1388 192 L 1390 200 L 1388 208 L 264 208 Z"/>
+          <text x="800" y="204" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 9. lsu_wvalid (Row 9: y=212..236) -->
+        <path d="M 10 232 L 202 232 L 202 216 L 262 216 L 262 232 L 1390 232" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 10. lsu_wready (Row 10: y=236..260) -->
+        <path d="M 10 256 L 210 256 L 210 240 L 262 240 L 262 256 L 1390 256" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 11. lsu_bresp[1:0] (Row 11: y=260..284) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 272 L 12 264 L 1388 264 L 1390 272 L 1388 280 L 12 280 Z"/>
+          <text x="700" y="276" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 12. lsu_bvalid (Row 12: y=284..308) -->
+        <path d="M 10 304 L 262 304 L 262 288 L 290 288 L 290 304 L 1390 304" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 13. s00_awsize[2:0] (Row 13: y=308..332 - Clamped to 32-bit by adapter) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 320 L 12 312 L 200 312 L 202 320 L 200 328 L 12 328 Z"/>
+          <text x="100" y="324" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 320 L 204 312 L 260 312 L 262 320 L 260 328 L 204 328 Z"/>
+          <text x="228" y="324" fill="#ffffff" font-size="10" font-family="Consolas, monospace" font-weight="bold">2</text>
+          <path d="M 262 320 L 264 312 L 1388 312 L 1390 320 L 1388 328 L 264 328 Z"/>
+          <text x="800" y="324" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 14. s00_wdata[31:0] (Row 14: y=332..356 - Steered lower 32-bit word) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 344 L 12 336 L 200 336 L 202 344 L 200 352 L 12 352 Z"/>
+          <text x="100" y="348" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 344 L 204 336 L 260 336 L 262 344 L 260 352 L 204 352 Z"/>
+          <text x="206" y="348" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">dead_beef</text>
+          <path d="M 262 344 L 264 336 L 1388 336 L 1390 344 L 1388 352 L 264 352 Z"/>
+          <text x="800" y="348" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 15. s00_wstrb[3:0] (Row 15: y=356..380) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 368 L 12 360 L 200 360 L 202 368 L 200 376 L 12 376 Z"/>
+          <text x="100" y="372" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 368 L 204 360 L 260 360 L 262 368 L 260 376 L 204 376 Z"/>
+          <text x="228" y="372" fill="#00ffff" font-size="10" font-family="Consolas, monospace">f</text>
+          <path d="M 262 368 L 264 360 L 1388 360 L 1390 368 L 1388 376 L 264 376 Z"/>
+          <text x="800" y="372" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 16. m00_awaddr[31:0] (Row 16: y=380..404 - Routed to Slave 0 UART) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 392 L 12 384 L 200 384 L 202 392 L 200 400 L 12 400 Z"/>
+          <text x="100" y="396" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 392 L 204 384 L 260 384 L 262 392 L 260 400 L 204 400 Z"/>
+          <text x="210" y="396" fill="#ffffff" font-size="9" font-family="Consolas, monospace" font-weight="bold">40000000</text>
+          <path d="M 262 392 L 264 384 L 1388 384 L 1390 392 L 1388 400 L 264 400 Z"/>
+          <text x="800" y="396" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 17. m00_wdata[31:0] (Row 17: y=404..428) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 416 L 12 408 L 200 408 L 202 416 L 200 424 L 12 424 Z"/>
+          <text x="100" y="420" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 202 416 L 204 408 L 260 408 L 262 416 L 260 424 L 204 424 Z"/>
+          <text x="206" y="420" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">dead_beef</text>
+          <path d="M 262 416 L 264 408 L 1388 408 L 1390 416 L 1388 424 L 264 424 Z"/>
+          <text x="800" y="420" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 18. m00_wvalid (Row 18: y=428..452) -->
+        <path d="M 10 448 L 202 448 L 202 432 L 262 432 L 262 448 L 1390 448" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 19. m00_wready (Row 19: y=452..476) -->
+        <path d="M 10 472 L 210 472 L 210 456 L 262 456 L 262 472 L 1390 472" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 20. lsu_araddr[31:0] (Row 20: y=476..500 - Read-back cycle at 820ns / x=572px) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 488 L 12 480 L 560 480 L 562 488 L 560 496 L 12 496 Z"/>
+          <text x="280" y="492" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 562 488 L 564 480 L 620 480 L 622 488 L 620 496 L 564 496 Z"/>
+          <text x="570" y="492" fill="#ffffff" font-size="9" font-family="Consolas, monospace" font-weight="bold">40000000</text>
+          <path d="M 622 488 L 624 480 L 1388 480 L 1390 488 L 1388 496 L 624 496 Z"/>
+          <text x="1000" y="492" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 21. lsu_arvalid (Row 21: y=500..524) -->
+        <path d="M 10 520 L 562 520 L 562 504 L 622 504 L 622 520 L 1390 520" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- 22. m00_rdata[31:0] (Row 22: y=524..548 - Peripheral Read Return) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 536 L 12 528 L 575 528 L 577 536 L 575 544 L 12 544 Z"/>
+          <text x="280" y="540" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 577 536 L 579 528 L 640 528 L 642 536 L 640 544 L 579 544 Z"/>
+          <text x="584" y="540" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">dead_beef</text>
+          <path d="M 642 536 L 644 528 L 1388 528 L 1390 536 L 1388 544 L 644 544 Z"/>
+          <text x="1000" y="540" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 23. lsu_rdata[63:0] (Row 23: y=548..572 - Widened 64-bit Read to Core LSU) -->
+        <g stroke="#ffffff" stroke-width="1" fill="none">
+          <path d="M 10 560 L 12 552 L 575 552 L 577 560 L 575 568 L 12 568 Z"/>
+          <text x="280" y="564" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+          <path d="M 577 560 L 579 552 L 640 552 L 642 560 L 640 568 L 579 568 Z"/>
+          <text x="584" y="564" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">dead_beef</text>
+          <path d="M 642 560 L 644 552 L 1388 552 L 1390 560 L 1388 568 L 644 568 Z"/>
+          <text x="1000" y="564" fill="#00ffff" font-size="10" font-family="Consolas, monospace">0</text>
+        </g>
+
+        <!-- 24. lsu_rvalid (Row 24: y=572..596) -->
+        <path d="M 10 592 L 577 592 L 577 576 L 642 576 L 642 592 L 1390 592" stroke="#00ffff" stroke-width="1.3" fill="none"/>
+
+        <!-- Yellow Dashed Cursor Line (C1 at x=215px : 300ns Write) -->
+        <line x1="215" y1="20" x2="215" y2="706" stroke="#ffff00" stroke-width="1.2" stroke-dasharray="4,3"/>
+        
+        <!-- Cyan Dashed Cursor Line (C2 at x=577px : 820ns Read) -->
+        <line x1="577" y1="20" x2="577" y2="706" stroke="#00ffff" stroke-width="1" stroke-dasharray="3,3"/>
+
+        <!-- Bottom Time Ruler (Mustard/Olive Verdi style: y=706..726) -->
+        <rect x="0" y="706" width="1400" height="20" fill="#606020" stroke="#78782a" stroke-width="1" />
+        <line x1="10" y1="706" x2="10" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="12" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">0</text>
+        <line x1="181" y1="706" x2="181" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="183" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">250</text>
+        <line x1="352" y1="706" x2="352" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="354" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">500</text>
+        <line x1="524" y1="706" x2="524" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="526" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">750</text>
+        <line x1="695" y1="706" x2="695" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="697" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,000</text>
+        <line x1="866" y1="706" x2="866" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="868" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,250</text>
+        <line x1="1037" y1="706" x2="1037" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="1039" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,500</text>
+        <line x1="1209" y1="706" x2="1209" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="1211" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">1,750</text>
+        <line x1="1380" y1="706" x2="1380" y2="714" stroke="#ffff00" stroke-width="1.2"/>
+        <text x="1382" y="720" fill="#ffff00" font-size="10" font-family="Consolas, monospace" font-weight="bold">2,000</text>
+
+      </svg>
+    </div>
+  </div>
+
+</body>
+</html>
