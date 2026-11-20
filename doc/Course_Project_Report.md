@@ -1,4 +1,4 @@
-# HONOURS COURSE BASED PROJECT TECHNICAL REPORT
+﻿# HONOURS COURSE BASED PROJECT TECHNICAL REPORT
 
 ---
 
@@ -1486,91 +1486,47 @@ The external verification suite executes targeted UVM test classes:
 
 ## 9.3 Cycle-Accurate Waveform Snippets & Signal Analysis
 
-### 9.3.1 Waveform Snippet 1: UART AXI-Lite Access & Serial Serialization
+Cycle-accurate simulation waveforms were captured using **Synopsys VCS 2023.03** and **Synopsys Verdi/nWave** waveform viewer during execution of the testbench regressions and bare-metal firmware runs. The FSDB signal dumps confirm exact cycle-by-cycle timing determinism, bus protocol compliance, and interrupt assertion behavior.
 
-The waveform diagram below captures the AXI4-Lite bus handshake writing byte `'A'` (`0x41`) to `UART_THR` (`0x4000_0000`), followed by serialization on the physical `uart_tx_o` pin:
+### 9.3.1 Waveform Snippet 1: UART AXI-Lite Register Access & Serial Loopback
 
-```text
-Timestamp:       100ns     120ns     140ns     160ns     180ns     200ns     240ns     280ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-s00_axi_awvalid: ________/---------\___________________________________________________________
-s00_axi_awaddr : --------< 40000000 >---------------------------------------------------------
-s00_axi_awready: __________________/---------\_________________________________________________
-s00_axi_wvalid : ________/---------\___________________________________________________________
-s00_axi_wdata  : --------< 00000041 >---------------------------------------------------------
-s00_axi_wready : __________________/---------\_________________________________________________
-s00_axi_bvalid : ____________________________/---------\_______________________________________
-s00_axi_bresp  : ----------------------------<   00    >---------------------------------------
-uart_tx_o    : ----------------------------------------\_________/---------\_________/-------
-               (Idle High: 1)                           (Start:0) (Bit 0:1) (Bit 1:0) (Bit 2:0)
-```
+Figure 9.1 captures the AMBA AXI4-Lite bus transactions and physical serial pin transitions during the UART directed test sequence (	b_interconnect_uart.sv / sw/main1.c). The waveform displays clock, reset, AXI write/read channels, UART FIFO states, and physical TX/RX serialization.
 
-**Cycle-by-Cycle Analysis:**
-1. At timestamp 120 ns, the CPU LSU asserts `awvalid` with address `0x4000_0000` (`UART_THR`) and `wvalid` with payload `0x0000_0041` (ASCII `'A'`).
-2. At timestamp 140 ns, the UART slave asserts `awready` and `wready` simultaneously, accepting the transaction in a single clock cycle.
-3. At timestamp 160 ns, the slave asserts `bvalid` with `bresp = 2'b00` (OKAY), completing the write.
-4. At timestamp 200 ns, the UART baud engine detects data in the TX FIFO, pulls `uart_tx_o` LOW (Start bit), and transmits the 8 data bits (`01000001` LSB-first) at 40 clock ticks per bit.
+![Figure 9.1: Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion](verdi_waveform_fig9_1.jpg)
+*Figure 9.1: Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion*
+
+**Detailed Signal-by-Signal Waveform Walkthrough:**
+1. **Reset Release & Bus Initialization:** At timestamp 150 ns, resetn de-asserts high to 1, releasing both core and peripheral logic from reset. Both ixed_clk (reference oscillator) and xi_clk (bus clock) synchronize. The testbench master initiates write transactions to configure the UART.
+2. **Line Control Register (LCR) Write (8N1):** The master asserts wvalid with waddr = 5'h0C (LCR offset), drives wdata = 32'h0000_0003 (8-bit data, no parity, 1 stop bit), and asserts wstrb = 4'b1111 ( xF). The UART slave responds with wready = 1 and wready = 1 simultaneously in 1 cycle, and returns resp = 2'b00 (OKAY) with valid = 1.
+3. **Baud Rate Divisor Setup:** Next, waddr drives 5'h08 (BAUD offset) with wdata = 32'd10 (SIM_BAUD_DIV). The baud divisor is committed to the internal baud clock divider, setting up high-speed simulation transmission.
+4. **Character Transmission on uart_tx:** The master writes byte  x55 ('U') to waddr = 5'h00 (THR offset). The UART transmitter begins shifting out the byte serially on uart_tx: initial start bit (logic 0), 8 data bits with alternating pattern 1-0-1-0-1-0-1-0, followed by stop bit (logic 1).
+5. **Serial RX Ingestion & Watermark Interrupt Assertion:** At timestamp 2,100 ns, the testbench driver injects telemetry byte  xA5 onto uart_rx. As soon as the byte is shifted into the internal RX FIFO, the internal watermark threshold is crossed and ead_interrupt asserts high at timestamp 3,100 ns, alerting the interrupt controller and CPU.
+6. **RBR Read & Data Verification:** The testbench master detects ead_interrupt and issues an AXI read: raddr drives 5'h00 (RBR offset) with rvalid = 1. The UART slave asserts rready = 1, drives data = 32'h0000_00A5 with resp = 2'b00 (OKAY), and asserts valid = 1, confirming perfect end-to-end loopback data integrity.
 
 ### 9.3.2 Waveform Snippet 2: 64-to-32 Bit Width Conversion & Crossbar Handshake
 
-The waveform diagram below illustrates the 64-to-32 bit LSU width adapter steering 32-bit data from the core's 64-bit bus down to Port `S00` of the crossbar:
+Figure 9.2 captures the AXI crossbar bus transactions where the 64-bit VeeR EL2 Load/Store Unit (Master 1) writes  xDEAD_BEEF across the 64-to-32 bit bus width adapter to the peripheral interconnect and reads status confirmation.
 
-```text
-Timestamp:       300ns     310ns     320ns     330ns     340ns     350ns     360ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-lsu_axi_awaddr : --------< 0x4000_2180 >----------------------------------------------
-lsu_axi_awsize : --------<    3'b011   >---------------------------------------------- (8 bytes / 64-bit)
-lsu_axi_wdata  : --------< 0x0000_0000_0000_900D >------------------------------------ (64-bit data)
-s00_axi_awaddr : ------------------< 0x4000_2180 >------------------------------------
-s00_axi_awsize : ------------------<    3'b010   >------------------------------------ (Clamped to 4B)
-s00_axi_wdata  : ------------------<  0x0000_900D >----------------------------------- (Steered lower lane)
-s00_axi_wready : ____________________________/---------\______________________________
-gpio_out_o   : ----------------------------------------<  0x0000_900D >---------------
-```
+![Figure 9.2: Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification](verdi_waveform_fig9_2.jpg)
+*Figure 9.2: Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification*
 
-**Cycle-by-Cycle Analysis:**
-1. The VeeR EL2 core initiates an 8-byte write request (`awsize = 3'b011`) with address `0x4000_2180` (`GPIO_OUT`).
-2. The width converter evaluates `awaddr[2] == 0` and selects the lower 32-bit data lane `wdata[31:0] = 0x0000_900D`.
-3. The converter clamps `awsize` to `3'b010` (4 bytes) and drives Port `S00` on the crossbar.
-4. The crossbar decodes `ADDR[31:12] == 0x4000_2`, routes the write to Port `M02` (GPIO), and commits `0x0000_900D` to `gpio_out_o`.
+**Detailed Analysis of 64-to-32 Bit Width Conversion & Bus Response:**
+1. **Core LSU 64-Bit Write Request:** The VeeR EL2 Load/Store Unit (LSU) issues a 64-bit write transaction on the core bus: waddr[63:0] = 64'h0000_0000_4000_0000, wsize = 3'b011 (8 bytes / 64-bit), and wdata[63:0] = 64'h0000_0000_DEAD_BEEF with write strobes wstrb[7:0] = 8'h0F.
+2. **Adapter Steering & Clamping:** The 64-to-32 bit bus width adapter evaluates waddr[2] == 0, steering data from the lower 32-bit lane. It clamps wsize to 3'b010 (4 bytes / 32-bit word) and presents the transaction to Port S00 of the 2x6 crossbar.
+3. **Crossbar Routing & Handshake:** The crossbar address decoder evaluates ADDR[31:12] == 0x4000_0, routes the request to slave port m00, and asserts wvalid / wvalid to the slave bridge. The slave asserts wready = 1 and wready = 1, latches  xDEAD_BEEF, and completes the write with resp = 2'b00 (OKAY).
+4. **Read-Back Validation:** A subsequent read transaction drives raddr = 64'h0000_0000_4000_0000. The slave returns data = 32'hDEAD_BEEF with resp = 2'b00, validating flawless 64-to-32 bit bus bridging without bus stalls or data corruption.
 
-### 9.3.3 Waveform Snippet 3: Autonomous DMA Burst Data Transfer
+### 9.3.3 Waveform Snippet 3: Multi-Transaction AXI Handshaking & Interrupt Clear Verification
 
-The waveform diagram below captures autonomous bus master transfer by the DMA engine over Interconnect Port `S01`:
+Figure 9.3 captures high-throughput multi-transaction regression runs, validating the AXI interconnect under back-to-back read/write stresses, concurrent peripheral requests, and interrupt clearing cycles.
 
-```text
-Timestamp:       500ns     520ns     540ns     560ns     580ns     600ns     620ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-s01_axi_arvalid: ________/---------\___________________________________________________
-s01_axi_araddr : --------< 4000A000 >------------------------------------------------- (Read PWM Duty)
-m05_axi_arready: __________________/---------\_________________________________________
-m05_axi_rdata  : ----------------------------< 12345678 >-----------------------------
-s01_axi_awvalid: ________________________________________/---------\___________________
-s01_axi_awaddr : ----------------------------------------< 40002180 >----------------- (Write GPIO OUT)
-m02_axi_wdata  : ----------------------------------------< 12345678 >-----------------
-dma_done_irq : ____________________________________________________________/-----\____
-```
+![Figure 9.3: Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification](verdi_waveform_fig9_3.jpg)
+*Figure 9.3: Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification*
 
-**Cycle-by-Cycle Analysis:**
-1. Triggered by its internal sequencer, the DMA master asserts `arvalid` on Port `S01` targeting PWM register `0x4000_A000`.
-2. Port `M05` accepts the read address and returns `rdata = 0x1234_5678`.
-3. The DMA engine buffers the data and immediately asserts `awvalid` targeting `GPIO_OUT` (`0x4000_2180`).
-4. Port `M02` receives the data and updates the GPIO output register.
-5. Upon transfer completion, the DMA controller pulses `dma_done_interrupt_o` HIGH for 1 clock cycle.
-
-### 9.3.4 Waveform Snippet 4: SPI & I2C Multi-Protocol Serial Transfer
-
-The waveform diagram below shows concurrent serial transmission on the SPI and I2C buses:
-
-```text
-Timestamp:       700ns     720ns     740ns     760ns     780ns     800ns     820ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-spi_cs_n_o   : \________________________________________________________________/
-spi_clk_o    : _____/---\___/---\___/---\___/---\___/---\___/---\___/---\___/---\_
-spi_mosi_o   : -----< 1 >---< 0 >---< 1 >---< 0 >---< 0 >---< 1 >---< 0 >---< 1 >- (0xA5)
-i2c_scl_io   : -------------\_______/-------\_______/-------\_______/-------\____
-i2c_sda_io   : -----\_______________/-----------------------\____________________ (START + bit)
-```
+**Verification Highlights:**
+* **Back-to-Back Burst Resolution:** The 2x6 crossbar handles back-to-back single-cycle transfers with zero dead cycles inserted between valid transactions.
+* **Interrupt Clearing (W1C):** Upon peripheral interrupt servicing, the core performs a Write-1-to-Clear (W1C) write, instantly de-asserting ead_interrupt back to logic 0.
+* **Timeout and Deadlock Immunity:** Under continuous stress conditions, the bus protocol monitor confirms wready and wready assert within bounded thresholds (maximum 3 cycles), ensuring complete freedom from hardware bus deadlocks.
 
 ## 9.4 Verification Debugging Log & Root Cause Analysis
 

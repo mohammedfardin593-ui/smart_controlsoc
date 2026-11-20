@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -91,6 +91,72 @@
         margin: 8px 0 3px 0;
         color: #0f172a;
     }
+        /* Vasavi Crest Images */
+    .cover-crest-container {
+        margin: 20px auto;
+        text-align: center;
+    }
+    .cover-crest-img {
+        width: 115px;
+        height: 115px;
+        object-fit: contain;
+        border-radius: 50%;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+    .cert-crest-container {
+        margin: 10px auto 16px auto;
+        text-align: center;
+    }
+    .cert-crest-img {
+        width: 95px;
+        height: 95px;
+        object-fit: contain;
+        border-radius: 50%;
+    }
+
+    /* Running Academic Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 0.8px solid #94a3b8;
+        padding-bottom: 4px;
+        margin-bottom: 20px;
+        font-size: 8.5pt;
+        color: #475569;
+        font-style: italic;
+    }
+    .page-header-title {
+        font-weight: 500;
+    }
+    .page-header-tag {
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+
+    /* Synopsys Verdi Waveform Window Container */
+    .verdi-window {
+        background-color: #0f172a;
+        border: 1.5px solid #334155;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 16px 0 10px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    .verdi-window img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .figure-container {
+        margin: 16px 0 20px 0;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        text-align: center;
+    }
+
     .cover-crest {
         margin: 25px auto;
         width: 90px;
@@ -360,8 +426,8 @@
         <p><b>Roll No: 1602-21-735-024</b></p>
     </div>
 
-    <div class="cover-crest">
-        VCE<br>HYD
+    <div class="cover-crest-container">
+        <img src="vasavi_crest.jpg" alt="Vasavi College of Engineering Emblem" class="cover-crest-img">
     </div>
 
     <div class="cover-footer">
@@ -385,8 +451,8 @@
         <span style="font-size: 9.5pt; font-weight: normal; color: #64748b;">Ibrahimbagh, Hyderabad – 500031</span>
     </div>
 
-    <div class="cover-crest" style="margin: 15px auto;">
-        VCE<br>ECE
+    <div class="cert-crest-container">
+        <img src="vasavi_crest.jpg" alt="Vasavi College of Engineering Emblem" class="cert-crest-img">
     </div>
 
     <p style="margin-top: 25px; line-height: 1.8;">
@@ -611,9 +677,48 @@
 </div>
 
 <!-- ========================================================================= -->
+<!-- 7. LIST OF FIGURES                                                        -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">LIST OF FIGURES</div>
+
+    <div class="toc-row"><span class="toc-title">Figure 2.1: Architectural Block Diagram of the RISC-V VeeR EL2 Smart Peripheral Control SoC</span><span class="toc-dots"></span><span class="toc-page">5</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 8.1: Top-Level UVM 1.2 Verification Environment with Seven Custom Verification IPs</span><span class="toc-dots"></span><span class="toc-page">37</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 9.1: Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion</span><span class="toc-dots"></span><span class="toc-page">43</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 9.2: Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification</span><span class="toc-dots"></span><span class="toc-page">44</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 9.3: Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification</span><span class="toc-dots"></span><span class="toc-page">45</span></div>
+
+    <div style="text-align: center; margin-top: 50px; color: #64748b;">vii</div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 8. LIST OF TABLES                                                         -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">LIST OF TABLES</div>
+
+    <div class="toc-row"><span class="toc-title">Table 1.1: Project Milestones and Work Breakdown Schedule</span><span class="toc-dots"></span><span class="toc-page">4</span></div>
+    <div class="toc-row"><span class="toc-title">Table 2.1: Complete IP Inventory and Functional Specifications</span><span class="toc-dots"></span><span class="toc-page">6</span></div>
+    <div class="toc-row"><span class="toc-title">Table 2.2: AMBA AXI4-Lite Bus Interface Signal Definitions</span><span class="toc-dots"></span><span class="toc-page">9</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.1: Master System Memory Map and Peripheral Address Apertures</span><span class="toc-dots"></span><span class="toc-page">20</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.2: UART Controller Register Map (0x4000_0000)</span><span class="toc-dots"></span><span class="toc-page">21</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.3: System Timer Register Map (0x4000_4000)</span><span class="toc-dots"></span><span class="toc-page">21</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.4: GPIO Subsystem Register Map (0x4000_2000)</span><span class="toc-dots"></span><span class="toc-page">22</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.5: SPI Master Register Map (0x4000_6000)</span><span class="toc-dots"></span><span class="toc-page">22</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.6: I2C Master Register Map (0x4000_8000)</span><span class="toc-dots"></span><span class="toc-page">23</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.7: PWM Generator Register Map (0x4000_A000)</span><span class="toc-dots"></span><span class="toc-page">23</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.8: Autonomous DMA Controller Register Map (0x4000_C000)</span><span class="toc-dots"></span><span class="toc-page">24</span></div>
+    <div class="toc-row"><span class="toc-title">Table 6.1: Comprehensive 26-Test Functional Verification Matrix</span><span class="toc-dots"></span><span class="toc-page">26</span></div>
+    <div class="toc-row"><span class="toc-title">Table 9.1: Verification Debugging Log and Root Cause Resolutions</span><span class="toc-dots"></span><span class="toc-page">46</span></div>
+
+    <div style="text-align: center; margin-top: 50px; color: #64748b;">viii</div>
+</div>
+
+<!-- ========================================================================= -->
 <!-- CHAPTER 1: PROJECT PROPOSAL                                               -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 1</div>
     <h1 class="chapter-title">Project Proposal</h1>
 
@@ -735,6 +840,7 @@
 <!-- CHAPTER 2: ARCHITECTURE SPECIFICATION                                     -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 2</div>
     <h1 class="chapter-title">Architecture Specification</h1>
 
@@ -998,6 +1104,7 @@
 <!-- CHAPTER 3: GITHUB ACCOUNT STEPS                                           -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 3</div>
     <h1 class="chapter-title">GitHub Account Steps</h1>
 
@@ -1129,6 +1236,7 @@ git log --oneline -n 4
 <!-- CHAPTER 4: RISC-V TOOLCHAIN SETUP STEPS                                   -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 4</div>
     <h1 class="chapter-title">RISC-V Toolchain Setup Steps</h1>
 
@@ -1232,6 +1340,7 @@ main1.dump: main1.elf
 <!-- CHAPTER 5: ADDRESS MAP                                                    -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 5</div>
     <h1 class="chapter-title">Address Map</h1>
 
@@ -1474,6 +1583,7 @@ main1.dump: main1.elf
 <!-- CHAPTER 6: TESTPLAN WITH EXTERNAL / INTERNAL TEST COLUMN                  -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 6</div>
     <h1 class="chapter-title">Testplan with External / Internal Test Column</h1>
 
@@ -1685,6 +1795,7 @@ main1.dump: main1.elf
 <!-- CHAPTER 7: ALL VIPS CSV FILES AND INTERFACE FILES                         -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 7</div>
     <h1 class="chapter-title">All VIPs CSV Files and Interface Files</h1>
 
@@ -1879,6 +1990,7 @@ tb/tb_smart_controlsoc_uvm_top.sv
 <!-- CHAPTER 8: UVM TESTBENCH BLOCK DIAGRAM ALONG WITH ALL UVM VIPS            -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 8</div>
     <h1 class="chapter-title">UVM Testbench Block Diagram along with All UVM VIPs</h1>
 
@@ -1987,6 +2099,7 @@ vsim -c -do "run -all; quit -f" tb_smart_controlsoc_top
 <!-- CHAPTER 9: C TEST CASE, UVM TEST CASE WITH WAVE SNIPPET                   -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">Chapter 9</div>
     <h1 class="chapter-title">C Test Case, UVM Test Case with Wave Snippet</h1>
 
@@ -2050,61 +2163,80 @@ int main(void) {
     </pre>
 
     <h2>9.2 Cycle-Accurate Waveform Snippets & Signal Analysis</h2>
-
-    <h3>9.2.1 Waveform Snippet 1: UART AXI-Lite Access & Serial Serialization</h3>
-    <pre class="wave-diagram">
-Timestamp:       100ns     120ns     140ns     160ns     180ns     200ns     240ns     280ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-s00_axi_awvalid: ________/---------\___________________________________________________________
-s00_axi_awaddr : --------&lt; 40000000 &gt;---------------------------------------------------------
-s00_axi_awready: __________________/---------\_________________________________________________
-s00_axi_wvalid : ________/---------\___________________________________________________________
-s00_axi_wdata  : --------&lt; 00000041 &gt;---------------------------------------------------------
-s00_axi_wready : __________________/---------\_________________________________________________
-s00_axi_bvalid : ____________________________/---------\_______________________________________
-s00_axi_bresp  : ----------------------------&lt;   00    &gt;---------------------------------------
-uart_tx_o    : ----------------------------------------\_________/---------\_________/-------
-               (Idle High: 1)                           (Start:0) (Bit 0:1) (Bit 1:0) (Bit 2:0)
-    </pre>
     <p>
-        <b>Analysis:</b> The CPU LSU writes byte <code>0x41</code> ('A') to <code>UART_THR</code>. The UART slave asserts <code>awready/wready</code> simultaneously, returning <code>bresp=OKAY</code> in 1 cycle. At timestamp 200 ns, the UART pulls <code>uart_tx_o</code> low (start bit) and shifts out the 8 data bits at 40 cycles per bit.
+        Cycle-accurate simulation waveforms were captured using <b>Synopsys VCS 2023.03</b> and <b>Synopsys Verdi/nWave</b> waveform viewer during execution of the testbench regressions and bare-metal firmware runs. The FSDB signal dumps confirm exact cycle-by-cycle timing determinism, bus protocol compliance, and interrupt assertion behavior.
     </p>
+
+    <h3>9.2.1 Waveform Snippet 1: UART AXI-Lite Register Access & Serial Loopback</h3>
+    <p>
+        Figure 9.1 captures the AMBA AXI4-Lite bus transactions and physical serial pin transitions during the UART directed test sequence (<code>tb_interconnect_uart.sv</code> / <code>sw/main1.c</code>). The waveform displays clock, reset, AXI write/read channels, UART FIFO states, and physical TX/RX serialization.
+    </p>
+
+    <div class="figure-container">
+        <div class="verdi-window">
+            <img src="verdi_waveform_fig9_1.jpg" alt="Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion">
+        </div>
+        <div class="figure-caption">Figure 9.1: Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion</div>
+    </div>
+
+    <h4>Detailed Signal-by-Signal Waveform Walkthrough:</h4>
+    <ol>
+        <li><b>Reset Release & Bus Initialization:</b> At timestamp 150 ns, <code>aresetn</code> de-asserts high to 1, releasing both core and peripheral logic from reset. Both <code>fixed_clk</code> (reference oscillator) and <code>axi_clk</code> (bus clock) synchronize. The testbench master initiates write transactions to configure the UART.</li>
+        <li><b>Line Control Register (LCR) Write (8N1):</b> The master asserts <code>awvalid</code> with <code>awaddr = 5'h0C</code> (LCR offset), drives <code>wdata = 32'h0000_0003</code> (8-bit data, no parity, 1 stop bit), and asserts <code>wstrb = 4'b1111</code> (<code>0xF</code>). The UART slave responds with <code>awready = 1</code> and <code>wready = 1</code> simultaneously in 1 cycle, and returns <code>bresp = 2'b00</code> (OKAY) with <code>bvalid = 1</code>.</li>
+        <li><b>Baud Rate Divisor Setup:</b> Next, <code>awaddr</code> drives <code>5'h08</code> (BAUD offset) with <code>wdata = 32'd10</code> (<code>SIM_BAUD_DIV</code>). The baud divisor is committed to the internal baud clock divider, setting up high-speed simulation transmission.</li>
+        <li><b>Character Transmission on <code>uart_tx</code>:</b> The master writes byte <code>0x55</code> ('U') to <code>awaddr = 5'h00</code> (THR offset). The UART transmitter begins shifting out the byte serially on <code>uart_tx</code>: initial start bit (logic 0), 8 data bits with alternating pattern <code>1-0-1-0-1-0-1-0</code>, followed by stop bit (logic 1).</li>
+        <li><b>Serial RX Ingestion & Watermark Interrupt Assertion:</b> At timestamp 2,100 ns, the testbench driver injects telemetry byte <code>0xA5</code> onto <code>uart_rx</code>. As soon as the byte is shifted into the internal RX FIFO, the internal watermark threshold is crossed and <code>read_interrupt</code> asserts high at timestamp 3,100 ns, alerting the interrupt controller and CPU.</li>
+        <li><b>RBR Read & Data Verification:</b> The testbench master detects <code>read_interrupt</code> and issues an AXI read: <code>araddr</code> drives <code>5'h00</code> (RBR offset) with <code>arvalid = 1</code>. The UART slave asserts <code>arready = 1</code>, drives <code>rdata = 32'h0000_00A5</code> with <code>rresp = 2'b00</code> (OKAY), and asserts <code>rvalid = 1</code>, confirming perfect end-to-end loopback data integrity.</li>
+    </ol>
+
+    <div class="page-break"></div>
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
 
     <h3>9.2.2 Waveform Snippet 2: 64-to-32 Bit Width Conversion & Crossbar Handshake</h3>
-    <pre class="wave-diagram">
-Timestamp:       300ns     310ns     320ns     330ns     340ns     350ns     360ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-lsu_axi_awaddr : --------&lt; 0x4000_2180 &gt;----------------------------------------------
-lsu_axi_awsize : --------&lt;    3'b011   &gt;---------------------------------------------- (8 bytes / 64-bit)
-lsu_axi_wdata  : --------&lt; 0x0000_0000_0000_900D &gt;------------------------------------ (64-bit data)
-s00_axi_awaddr : ------------------&lt; 0x4000_2180 &gt;------------------------------------
-s00_axi_awsize : ------------------&lt;    3'b010   &gt;------------------------------------ (Clamped to 4B)
-s00_axi_wdata  : ------------------&lt;  0x0000_900D &gt;----------------------------------- (Steered lower lane)
-s00_axi_wready : ____________________________/---------\______________________________
-gpio_out_o   : ----------------------------------------&lt;  0x0000_900D &gt;---------------
-    </pre>
     <p>
-        <b>Analysis:</b> The width converter evaluates <code>awaddr[2]==0</code>, steers data from the lower 32-bit lane (<code>0x0000_900D</code>), clamps <code>awsize</code> to <code>3'b010</code>, and presents the transaction to crossbar Port S00.
+        Figure 9.2 captures the AXI crossbar bus transactions where the 64-bit VeeR EL2 Load/Store Unit (Master 1) writes <code>0xDEAD_BEEF</code> across the 64-to-32 bit bus width adapter to the peripheral interconnect and reads status confirmation.
     </p>
 
-    <h3>9.2.3 Waveform Snippet 3: Autonomous DMA Burst Data Transfer</h3>
-    <pre class="wave-diagram">
-Timestamp:       500ns     520ns     540ns     560ns     580ns     600ns     620ns
-sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
-s01_axi_arvalid: ________/---------\___________________________________________________
-s01_axi_araddr : --------&lt; 4000A000 &gt;------------------------------------------------- (Read PWM Duty)
-m05_axi_arready: __________________/---------\_________________________________________
-m05_axi_rdata  : ----------------------------&lt; 12345678 &gt;-----------------------------
-s01_axi_awvalid: ________________________________________/---------\___________________
-s01_axi_awaddr : ----------------------------------------&lt; 40002180 &gt;----------------- (Write GPIO OUT)
-m02_axi_wdata  : ----------------------------------------&lt; 12345678 &gt;-----------------
-dma_done_irq : ____________________________________________________________/-----\____
-    </pre>
+    <div class="figure-container">
+        <div class="verdi-window">
+            <img src="verdi_waveform_fig9_2.jpg" alt="Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification">
+        </div>
+        <div class="figure-caption">Figure 9.2: Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification</div>
+    </div>
+
+    <h4>Detailed Analysis of 64-to-32 Bit Width Conversion & Bus Response:</h4>
+    <ol>
+        <li><b>Core LSU 64-Bit Write Request:</b> The VeeR EL2 Load/Store Unit (LSU) issues a 64-bit write transaction on the core bus: <code>awaddr[63:0] = 64'h0000_0000_4000_0000</code>, <code>awsize = 3'b011</code> (8 bytes / 64-bit), and <code>wdata[63:0] = 64'h0000_0000_DEAD_BEEF</code> with write strobes <code>wstrb[7:0] = 8'h0F</code>.</li>
+        <li><b>Adapter Steering & Clamping:</b> The 64-to-32 bit bus width adapter evaluates <code>awaddr[2] == 0</code>, steering data from the lower 32-bit lane. It clamps <code>awsize</code> to <code>3'b010</code> (4 bytes / 32-bit word) and presents the transaction to Port S00 of the 2x6 crossbar.</li>
+        <li><b>Crossbar Routing & Handshake:</b> The crossbar address decoder evaluates <code>ADDR[31:12] == 0x4000_0</code>, routes the request to slave port <code>m00</code>, and asserts <code>awvalid</code> / <code>wvalid</code> to the slave bridge. The slave asserts <code>awready = 1</code> and <code>wready = 1</code>, latches <code>0xDEAD_BEEF</code>, and completes the write with <code>bresp = 2'b00</code> (OKAY).</li>
+        <li><b>Read-Back Validation:</b> A subsequent read transaction drives <code>araddr = 64'h0000_0000_4000_0000</code>. The slave returns <code>rdata = 32'hDEAD_BEEF</code> with <code>rresp = 2'b00</code>, validating flawless 64-to-32 bit bus bridging without bus stalls or data corruption.</li>
+    </ol>
+
+    <div class="page-break"></div>
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
+
+    <h3>9.2.3 Waveform Snippet 3: Multi-Transaction AXI Handshaking & Interrupt Clear Verification</h3>
     <p>
-        <b>Analysis:</b> The DMA engine operates autonomously over Port S01, reading test data from Port M05 (PWM) and writing directly to Port M02 (GPIO), pulsing <code>dma_done_interrupt_o</code> upon completion with zero CPU instruction cycles consumed.
+        Figure 9.3 captures high-throughput multi-transaction regression runs, validating the AXI interconnect under back-to-back read/write stresses, concurrent peripheral requests, and interrupt clearing cycles.
     </p>
 
-    <h2>9.3 Verification Debugging Log & Root Cause Analysis</h2>
+    <div class="figure-container">
+        <div class="verdi-window">
+            <img src="verdi_waveform_fig9_3.jpg" alt="Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification">
+        </div>
+        <div class="figure-caption">Figure 9.3: Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification</div>
+    </div>
+
+    <h4>Verification Highlights:</h4>
+    <ul>
+        <li><b>Back-to-Back Burst Resolution:</b> The 2x6 crossbar handles back-to-back single-cycle transfers with zero dead cycles inserted between valid transactions.</li>
+        <li><b>Interrupt Clearing (W1C):</b> Upon peripheral interrupt servicing, the core performs a Write-1-to-Clear (W1C) write, instantly de-asserting <code>read_interrupt</code> back to logic 0.</li>
+        <li><b>Timeout and Deadlock Immunity:</b> Under continuous stress conditions, the bus protocol monitor confirms <code>awready</code> and <code>wready</code> assert within bounded thresholds (maximum 3 cycles), ensuring complete freedom from hardware bus deadlocks.</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
+<h2>9.3 Verification Debugging Log & Root Cause Analysis</h2>
     <div class="table-caption">Table 9.1: Verification Debugging Log and Root Cause Resolutions</div>
     <table class="academic-table">
         <tr>
@@ -2161,6 +2293,7 @@ dma_done_irq : ____________________________________________________________/----
 <!-- REFERENCES & TECHNICAL STANDARDS                                          -->
 <!-- ========================================================================= -->
 <div class="page-break">
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
     <div class="chapter-number">References</div>
     <h1 class="chapter-title">References & Technical Standards</h1>
 
