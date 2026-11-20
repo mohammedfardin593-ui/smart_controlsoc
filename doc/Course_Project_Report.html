@@ -136,25 +136,43 @@
     /* Synopsys Verdi Waveform Window Container */
     .verdi-window {
         background-color: #0f172a;
-        border: 1.5px solid #334155;
-        border-radius: 6px;
+        border: 1px solid #334155;
+        border-radius: 5px;
         overflow: hidden;
-        margin: 16px 0 10px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+        margin: 6px 0 4px 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
         page-break-inside: avoid;
         break-inside: avoid;
     }
     .verdi-window img {
         display: block;
         width: 100%;
-        height: auto;
+        max-height: 200px;
+        object-fit: contain;
     }
 
     .figure-container {
-        margin: 16px 0 20px 0;
+        margin: 4px 0 6px 0;
         page-break-inside: avoid;
         break-inside: avoid;
         text-align: center;
+    }
+    .figure-caption {
+        font-size: 9.5pt;
+        font-weight: 700;
+        text-align: center;
+        color: #1e3a8a;
+        margin-top: 4px;
+        margin-bottom: 6px;
+    }
+    ol.walkthrough-list {
+        margin: 3px 0 6px 18px;
+        padding: 0;
+        line-height: 1.35;
+    }
+    ol.walkthrough-list li {
+        margin-bottom: 2.5px;
+        font-size: 9.2pt;
     }
 
     .cover-crest {
@@ -270,6 +288,18 @@
         font-size: 9.5pt;
         line-height: 1.35;
     }
+    table.academic-table.compact-table {
+        margin: 8px 0 12px 0;
+        font-size: 8.5pt;
+    }
+    table.academic-table.compact-table th {
+        padding: 5px 6px;
+        font-size: 8.5pt;
+    }
+    table.academic-table.compact-table td {
+        padding: 4.5px 6px;
+        font-size: 8.5pt;
+    }
     table.academic-table th {
         background-color: #f1f5f9;
         color: #0f172a;
@@ -381,8 +411,9 @@
     .toc-row {
         display: flex;
         justify-content: space-between;
-        margin: 6px 0;
-        font-size: 10.5pt;
+        margin: 1.2px 0;
+        font-size: 8.8pt;
+        line-height: 1.22;
     }
     .toc-title {
         font-weight: 600;
@@ -390,15 +421,15 @@
     .toc-dots {
         flex-grow: 1;
         border-bottom: 1px dotted #94a3b8;
-        margin: 0 8px 4px 8px;
+        margin: 0 8px 3px 8px;
     }
     .toc-page {
         font-weight: 600;
         color: #1e3a8a;
     }
     .toc-sub {
-        margin-left: 20px;
-        font-size: 10pt;
+        margin-left: 15px;
+        font-size: 8.3pt;
     }
 </style>
 </head>
@@ -574,144 +605,136 @@
 <!-- 5. ABSTRACT                                                               -->
 <!-- ========================================================================= -->
 <div class="page-break">
-    <div class="prelim-heading">ABSTRACT</div>
+    <div class="prelim-heading" style="margin-bottom: 12px;">ABSTRACT</div>
 
-    <p style="margin-top: 25px; line-height: 1.8;">
+    <p style="margin-top: 10px; line-height: 1.5; text-align: justify; font-size: 10pt;">
         This Honours Course Based Project report presents the architectural design, synthesizable RTL integration, bare-metal RISC-V firmware development, and Universal Verification Methodology (UVM 1.2 / IEEE 1800.2) functional verification of the <b>Smart Peripheral Control System-on-Chip (<code>smart_controlsoc</code>)</b>. Engineered for high-throughput, deterministic, and distributed industrial automation systems, motor motion control, and multi-protocol sensor telemetry, the SoC eliminates software-polling bottlenecks by coupling an open-source Western Digital / CHIPS Alliance <b>VeeR EL2 RV32IMC</b> superscalar core with an autonomous, hardware-managed peripheral subsystem and Direct Memory Access (DMA) pipeline.
     </p>
 
-    <p style="line-height: 1.8;">
+    <p style="margin-top: 6px; line-height: 1.5; text-align: justify; font-size: 10pt;">
         The architecture integrates a dual-master, six-slave AMBA AXI4-Lite crossbar interconnect fabric (<code>axi_interconnect_wrap_2x6</code>) with fair-share round-robin arbitration, an asynchronous 64-to-32 bit Load/Store Unit (LSU) data bus width converter, and six memory-mapped industrial peripheral controllers:
     </p>
 
-    <ol style="line-height: 1.7; margin-bottom: 20px;">
-        <li><b>AXI4-Lite UART IP (<code>0x4000_0000</code>):</b> Full-duplex asynchronous serial transceiver with configurable baud rate division and watermark-driven interrupts.</li>
-        <li><b>64-bit Real-Time System Timer (<code>0x4000_4000</code>):</b> Dual-counter 64-bit <code>mtime</code> and <code>mtimecmp</code> architecture with 12-bit prescaler and write-1-to-clear (W1C) interrupt servicing.</li>
-        <li><b>32-bit Bidirectional GPIO Subsystem (<code>0x4000_2000</code>):</b> 32-channel I/O pad controller featuring single-cycle atomic bit manipulation (<code>SET</code>, <code>CLEAR</code>, <code>TOGGLE</code>), 2-stage input synchronizers, and edge/level interrupt generation.</li>
-        <li><b>AXI SPI Master Controller (<code>0x4000_6000</code>):</b> Full-duplex high-speed synchronous serial interface with programmable clock ratios, independent FIFOs, and automated slave select routing.</li>
-        <li><b>AXI I2C Master Controller (<code>0x4000_8000</code>):</b> Byte-level multi-master capable two-wire bus interface featuring dynamic clock prescaling and standard START/STOP framing.</li>
-        <li><b>High-Precision 8-bit PWM Generator (<code>0x4000_A000</code>):</b> Deterministic pulse-width modulation engine providing glitch-free 0% to 100% duty cycle modulation.</li>
+    <ol style="line-height: 1.4; margin: 4px 0 6px 18px; font-size: 9.5pt;">
+        <li style="margin-bottom: 2px;"><b>AXI4-Lite UART IP (<code>0x4000_0000</code>):</b> Full-duplex asynchronous serial transceiver with configurable baud rate division and watermark-driven interrupts.</li>
+        <li style="margin-bottom: 2px;"><b>64-bit Real-Time System Timer (<code>0x4000_4000</code>):</b> Dual-counter 64-bit <code>mtime</code> and <code>mtimecmp</code> architecture with 12-bit prescaler and write-1-to-clear (W1C) interrupt servicing.</li>
+        <li style="margin-bottom: 2px;"><b>32-bit Bidirectional GPIO Subsystem (<code>0x4000_2000</code>):</b> 32-channel I/O pad controller featuring single-cycle atomic bit manipulation (<code>SET</code>, <code>CLEAR</code>, <code>TOGGLE</code>), 2-stage input synchronizers, and edge/level interrupt generation.</li>
+        <li style="margin-bottom: 2px;"><b>AXI SPI Master Controller (<code>0x4000_6000</code>):</b> Full-duplex high-speed synchronous serial interface with programmable clock ratios, independent FIFOs, and automated slave select routing.</li>
+        <li style="margin-bottom: 2px;"><b>AXI I2C Master Controller (<code>0x4000_8000</code>):</b> Byte-level multi-master capable two-wire bus interface featuring dynamic clock prescaling and standard START/STOP framing.</li>
+        <li style="margin-bottom: 2px;"><b>High-Precision 8-bit PWM Generator (<code>0x4000_A000</code>):</b> Deterministic pulse-width modulation engine providing glitch-free 0% to 100% duty cycle modulation.</li>
     </ol>
 
-    <p style="line-height: 1.8;">
+    <p style="margin-top: 6px; line-height: 1.5; text-align: justify; font-size: 10pt;">
         To achieve true autonomous peripheral operation, the SoC incorporates an <b>Autonomous Bus-Mastering DMA Engine</b> (<code>0x4000_C000</code>) functioning as Master 2 (<code>S01</code>) on the AXI crossbar. The DMA controller enables zero-copy, direct hardware streaming between peripherals (e.g., streaming high-frequency PWM test patterns directly into GPIO output ports or ingesting serial telemetry into memory) completely bypassing the CPU execution pipeline.
     </p>
 
-    <p style="line-height: 1.8;">
+    <p style="margin-top: 6px; line-height: 1.5; text-align: justify; font-size: 10pt;">
         Verification was executed using a dual-faceted co-verification strategy combining bare-metal C firmware suites (<code>sw/main1.c</code>, <code>main1.hex</code>) running on the simulated core with a modular UVM 1.2 verification environment composed of seven custom Verification IPs (VIPs) for UART, Timer, GPIO, SPI, I2C, PWM, and DMA. Cycle-accurate simulations in Siemens QuestaSim and Synopsys VCS validate all 26 functional test cases, demonstrating zero bus deadlocks, fair round-robin arbitration, atomic register determinism, and flawless multi-peripheral firmware regression terminating with the <code>0x900D</code> success signature.
     </p>
-    <div style="text-align: center; margin-top: 30px; color: #64748b;">v</div>
+    <div style="text-align: center; margin-top: 15px; color: #64748b;">v</div>
 </div>
 
 <!-- ========================================================================= -->
 <!-- 6. TABLE OF CONTENTS                                                      -->
 <!-- ========================================================================= -->
 <div class="page-break">
-    <div class="prelim-heading">TABLE OF CONTENTS</div>
+    <div class="prelim-heading" style="margin-bottom: 8px;">TABLE OF CONTENTS</div>
 
     <div class="toc-row"><span class="toc-title">Certificate</span><span class="toc-dots"></span><span class="toc-page">ii</span></div>
     <div class="toc-row"><span class="toc-title">Declaration</span><span class="toc-dots"></span><span class="toc-page">iii</span></div>
     <div class="toc-row"><span class="toc-title">Acknowledgements</span><span class="toc-dots"></span><span class="toc-page">iv</span></div>
     <div class="toc-row"><span class="toc-title">Abstract</span><span class="toc-dots"></span><span class="toc-page">v</span></div>
 
-    <div class="toc-row" style="margin-top: 15px;"><span class="toc-title">1. Project Proposal</span><span class="toc-dots"></span><span class="toc-page">1</span></div>
+    <div class="toc-row" style="margin-top: 6px;"><span class="toc-title">1. Project Proposal</span><span class="toc-dots"></span><span class="toc-page">1</span></div>
     <div class="toc-row toc-sub"><span>1.1 Project Title and Classification</span><span class="toc-dots"></span><span>1</span></div>
     <div class="toc-row toc-sub"><span>1.2 Industrial Context & Background</span><span class="toc-dots"></span><span>1</span></div>
     <div class="toc-row toc-sub"><span>1.3 Problem Statement</span><span class="toc-dots"></span><span>2</span></div>
     <div class="toc-row toc-sub"><span>1.4 Proposed Solution & Architectural Innovation</span><span class="toc-dots"></span><span>2</span></div>
     <div class="toc-row toc-sub"><span>1.5 Project Objectives & Key Deliverables</span><span class="toc-dots"></span><span>3</span></div>
-    <div class="toc-row toc-sub"><span>1.6 Project Milestones & Work Breakdown Schedule</span><span class="toc-dots"></span><span>4</span></div>
+    <div class="toc-row toc-sub"><span>1.6 Project Milestones & Work Breakdown Schedule</span><span class="toc-dots"></span><span>3</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">2. Architecture Specification</span><span class="toc-dots"></span><span class="toc-page">5</span></div>
-    <div class="toc-row toc-sub"><span>2.1 System Architecture Overview</span><span class="toc-dots"></span><span>5</span></div>
-    <div class="toc-row toc-sub"><span>2.2 Top-Level SoC Block Diagram & Bus Topology</span><span class="toc-dots"></span><span>5</span></div>
-    <div class="toc-row toc-sub"><span>2.3 Complete IP Inventory & Detailed Block Specifications</span><span class="toc-dots"></span><span>6</span></div>
-    <div class="toc-row toc-sub"><span>2.4 Interfacing Signals & Pinout Specification</span><span class="toc-dots"></span><span>9</span></div>
-    <div class="toc-row toc-sub"><span>2.5 Control Path Specification</span><span class="toc-dots"></span><span>10</span></div>
-    <div class="toc-row toc-sub"><span>2.6 Data Path Specification: Autonomous Peripheral Pipelining</span><span class="toc-dots"></span><span>11</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">2. Architecture Specification</span><span class="toc-dots"></span><span class="toc-page">4</span></div>
+    <div class="toc-row toc-sub"><span>2.1 System Architecture Overview</span><span class="toc-dots"></span><span>4</span></div>
+    <div class="toc-row toc-sub"><span>2.2 Top-Level SoC Block Diagram & Bus Topology</span><span class="toc-dots"></span><span>4</span></div>
+    <div class="toc-row toc-sub"><span>2.3 Complete IP Inventory & Detailed Block Specifications</span><span class="toc-dots"></span><span>5</span></div>
+    <div class="toc-row toc-sub"><span>2.4 Interfacing Signals & Pinout Specification</span><span class="toc-dots"></span><span>6</span></div>
+    <div class="toc-row toc-sub"><span>2.5 Control Path Specification</span><span class="toc-dots"></span><span>7</span></div>
+    <div class="toc-row toc-sub"><span>2.6 Data Path Specification: Autonomous Peripheral Pipelining</span><span class="toc-dots"></span><span>7</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">3. GitHub Account Steps</span><span class="toc-dots"></span><span class="toc-page">12</span></div>
-    <div class="toc-row toc-sub"><span>3.1 Version Control in Advanced SoC Verification Projects</span><span class="toc-dots"></span><span>12</span></div>
-    <div class="toc-row toc-sub"><span>3.2 GitHub Account Creation & Secure Authentication Setup</span><span class="toc-dots"></span><span>12</span></div>
-    <div class="toc-row toc-sub"><span>3.3 Repository Initialization & Remote Configuration</span><span class="toc-dots"></span><span>13</span></div>
-    <div class="toc-row toc-sub"><span>3.4 EDA-Specific .gitignore Configuration</span><span class="toc-dots"></span><span>14</span></div>
-    <div class="toc-row toc-sub"><span>3.5 Day-to-Day Development & Collaboration Workflow</span><span class="toc-dots"></span><span>15</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">3. GitHub Account Steps</span><span class="toc-dots"></span><span class="toc-page">8</span></div>
+    <div class="toc-row toc-sub"><span>3.1 Version Control in Advanced SoC Verification Projects</span><span class="toc-dots"></span><span>8</span></div>
+    <div class="toc-row toc-sub"><span>3.2 GitHub Account Creation & Secure Authentication Setup</span><span class="toc-dots"></span><span>8</span></div>
+    <div class="toc-row toc-sub"><span>3.3 Repository Initialization & Remote Configuration</span><span class="toc-dots"></span><span>8</span></div>
+    <div class="toc-row toc-sub"><span>3.4 EDA-Specific .gitignore Configuration</span><span class="toc-dots"></span><span>9</span></div>
+    <div class="toc-row toc-sub"><span>3.5 Day-to-Day Development & Collaboration Workflow</span><span class="toc-dots"></span><span>9</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">4. RISC-V Toolchain Setup Steps</span><span class="toc-dots"></span><span class="toc-page">16</span></div>
-    <div class="toc-row toc-sub"><span>4.1 Overview of the RISC-V GNU Compiler Toolchain</span><span class="toc-dots"></span><span>16</span></div>
-    <div class="toc-row toc-sub"><span>4.2 Host System Prerequisites & Dependency Installation</span><span class="toc-dots"></span><span>16</span></div>
-    <div class="toc-row toc-sub"><span>4.3 Sourcing & Cloning the Toolchain Repository</span><span class="toc-dots"></span><span>17</span></div>
-    <div class="toc-row toc-sub"><span>4.4 Toolchain Configuration for VeeR EL2 (RV32IMC / ILP32)</span><span class="toc-dots"></span><span>17</span></div>
-    <div class="toc-row toc-sub"><span>4.5 Compilation, Installation & Environment Configuration</span><span class="toc-dots"></span><span>18</span></div>
-    <div class="toc-row toc-sub"><span>4.6 Bare-Metal Firmware Build Flow & Toolchain Flags</span><span class="toc-dots"></span><span>18</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">4. RISC-V Toolchain Setup Steps</span><span class="toc-dots"></span><span class="toc-page">10</span></div>
+    <div class="toc-row toc-sub"><span>4.1 Overview of the RISC-V GNU Compiler Toolchain</span><span class="toc-dots"></span><span>10</span></div>
+    <div class="toc-row toc-sub"><span>4.2 Host System Prerequisites & Dependency Installation</span><span class="toc-dots"></span><span>10</span></div>
+    <div class="toc-row toc-sub"><span>4.3 Sourcing & Cloning the Toolchain Repository</span><span class="toc-dots"></span><span>10</span></div>
+    <div class="toc-row toc-sub"><span>4.4 Toolchain Configuration for VeeR EL2 (RV32IMC / ILP32)</span><span class="toc-dots"></span><span>11</span></div>
+    <div class="toc-row toc-sub"><span>4.5 Compilation, Installation & Environment Configuration</span><span class="toc-dots"></span><span>11</span></div>
+    <div class="toc-row toc-sub"><span>4.6 Bare-Metal Firmware Build Flow & Toolchain Flags</span><span class="toc-dots"></span><span>11</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">5. Address Map</span><span class="toc-dots"></span><span class="toc-page">20</span></div>
-    <div class="toc-row toc-sub"><span>5.1 System-Wide Memory Map Overview</span><span class="toc-dots"></span><span>20</span></div>
-    <div class="toc-row toc-sub"><span>5.2 Master Memory Aperture Summary Table</span><span class="toc-dots"></span><span>20</span></div>
-    <div class="toc-row toc-sub"><span>5.3 Detailed Peripheral Register Maps</span><span class="toc-dots"></span><span>21</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">5. Address Map</span><span class="toc-dots"></span><span class="toc-page">12</span></div>
+    <div class="toc-row toc-sub"><span>5.1 System-Wide Memory Map Overview</span><span class="toc-dots"></span><span>12</span></div>
+    <div class="toc-row toc-sub"><span>5.2 Master Memory Aperture Summary Table</span><span class="toc-dots"></span><span>12</span></div>
+    <div class="toc-row toc-sub"><span>5.3 Detailed Peripheral Register Maps</span><span class="toc-dots"></span><span>13</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">6. Testplan with External / Internal Test Column</span><span class="toc-dots"></span><span class="toc-page">25</span></div>
-    <div class="toc-row toc-sub"><span>6.1 Verification Methodology & Testplan Architecture</span><span class="toc-dots"></span><span>25</span></div>
-    <div class="toc-row toc-sub"><span>6.2 Complete SoC Verification Matrix (26 Test Cases)</span><span class="toc-dots"></span><span>25</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">6. Testplan with External / Internal Test Column</span><span class="toc-dots"></span><span class="toc-page">14</span></div>
+    <div class="toc-row toc-sub"><span>6.1 Verification Methodology & Testplan Architecture</span><span class="toc-dots"></span><span>14</span></div>
+    <div class="toc-row toc-sub"><span>6.2 Complete SoC Verification Matrix (26 Test Cases)</span><span class="toc-dots"></span><span>14</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">7. All VIPs CSV Files and Interface Files</span><span class="toc-dots"></span><span class="toc-page">31</span></div>
-    <div class="toc-row toc-sub"><span>7.1 UVM Verification IP (VIP) Signal Boundary Architecture</span><span class="toc-dots"></span><span>31</span></div>
-    <div class="toc-row toc-sub"><span>7.2 Automated VIP Generation Tool Flow</span><span class="toc-dots"></span><span>31</span></div>
-    <div class="toc-row toc-sub"><span>7.3–7.9 VIP CSV Definitions and Interface Listings</span><span class="toc-dots"></span><span>31</span></div>
-    <div class="toc-row toc-sub"><span>7.10 Master VIP Compilation Filelist (all_drv_run.f)</span><span class="toc-dots"></span><span>36</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">7. All VIPs CSV Files and Interface Files</span><span class="toc-dots"></span><span class="toc-page">17</span></div>
+    <div class="toc-row toc-sub"><span>7.1 UVM Verification IP (VIP) Signal Boundary Architecture</span><span class="toc-dots"></span><span>17</span></div>
+    <div class="toc-row toc-sub"><span>7.2 Automated VIP Generation Tool Flow</span><span class="toc-dots"></span><span>17</span></div>
+    <div class="toc-row toc-sub"><span>7.3–7.9 VIP CSV Definitions and Interface Listings</span><span class="toc-dots"></span><span>17</span></div>
+    <div class="toc-row toc-sub"><span>7.10 Master VIP Compilation Filelist (all_drv_run.f)</span><span class="toc-dots"></span><span>19</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">8. UVM Testbench Block Diagram along with All UVM VIPs</span><span class="toc-dots"></span><span class="toc-page">37</span></div>
-    <div class="toc-row toc-sub"><span>8.1 UVM 1.2 Verification Architecture Overview</span><span class="toc-dots"></span><span>37</span></div>
-    <div class="toc-row toc-sub"><span>8.2 Detailed Breakdown of UVM Environment Components</span><span class="toc-dots"></span><span>38</span></div>
-    <div class="toc-row toc-sub"><span>8.3 Virtual Sequencer & Multi-Agent Coordination (tc_pipe_01_seq)</span><span class="toc-dots"></span><span>39</span></div>
-    <div class="toc-row toc-sub"><span>8.4 Multi-VIP Simulation Execution Script (run_all_vips.sh)</span><span class="toc-dots"></span><span>40</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">8. UVM Testbench Block Diagram along with All UVM VIPs</span><span class="toc-dots"></span><span class="toc-page">20</span></div>
+    <div class="toc-row toc-sub"><span>8.1 UVM 1.2 Verification Architecture Overview</span><span class="toc-dots"></span><span>20</span></div>
+    <div class="toc-row toc-sub"><span>8.2 Detailed Breakdown of UVM Environment Components</span><span class="toc-dots"></span><span>20</span></div>
+    <div class="toc-row toc-sub"><span>8.3 Virtual Sequencer & Multi-Agent Coordination (tc_pipe_01_seq)</span><span class="toc-dots"></span><span>21</span></div>
+    <div class="toc-row toc-sub"><span>8.4 Multi-VIP Simulation Execution Script (run_all_vips.sh)</span><span class="toc-dots"></span><span>21</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">9. C Test Case, UVM Test Case with Wave Snippet</span><span class="toc-dots"></span><span class="toc-page">41</span></div>
-    <div class="toc-row toc-sub"><span>9.1 Bare-Metal C Verification Test Suite (Internal Firmware Tests)</span><span class="toc-dots"></span><span>41</span></div>
-    <div class="toc-row toc-sub"><span>9.2 UVM Testcases (External Testbench Verification)</span><span class="toc-dots"></span><span>42</span></div>
-    <div class="toc-row toc-sub"><span>9.3 Cycle-Accurate Waveform Snippets & Signal Analysis</span><span class="toc-dots"></span><span>43</span></div>
-    <div class="toc-row toc-sub"><span>9.4 Verification Debugging Log & Root Cause Analysis</span><span class="toc-dots"></span><span>46</span></div>
+    <div class="toc-row" style="margin-top: 5px;"><span class="toc-title">9. C Test Case, UVM Test Case with Wave Snippet</span><span class="toc-dots"></span><span class="toc-page">22</span></div>
+    <div class="toc-row toc-sub"><span>9.1 Bare-Metal C Verification Test Suite (Internal Firmware Tests)</span><span class="toc-dots"></span><span>22</span></div>
+    <div class="toc-row toc-sub"><span>9.2 Cycle-Accurate Waveform Snippets & Signal Analysis</span><span class="toc-dots"></span><span>24</span></div>
+    <div class="toc-row toc-sub"><span>9.3 Verification Debugging Log & Root Cause Analysis</span><span class="toc-dots"></span><span>27</span></div>
 
-    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">References & Technical Standards</span><span class="toc-dots"></span><span class="toc-page">48</span></div>
-    <div style="text-align: center; margin-top: 25px; color: #64748b;">vi</div>
+    <div class="toc-row" style="margin-top: 4px;"><span class="toc-title">References & Technical Standards</span><span class="toc-dots"></span><span class="toc-page">28</span></div>
+    <div style="text-align: center; margin-top: 6px; color: #64748b;">vi</div>
 </div>
 
 <!-- ========================================================================= -->
-<!-- 7. LIST OF FIGURES                                                        -->
+<!-- 7. LIST OF FIGURES & LIST OF TABLES                                       -->
 <!-- ========================================================================= -->
 <div class="page-break">
     <div class="prelim-heading">LIST OF FIGURES</div>
 
-    <div class="toc-row"><span class="toc-title">Figure 2.1: Architectural Block Diagram of the RISC-V VeeR EL2 Smart Peripheral Control SoC</span><span class="toc-dots"></span><span class="toc-page">5</span></div>
-    <div class="toc-row"><span class="toc-title">Figure 8.1: Top-Level UVM 1.2 Verification Environment with Seven Custom Verification IPs</span><span class="toc-dots"></span><span class="toc-page">37</span></div>
-    <div class="toc-row"><span class="toc-title">Figure 9.1: Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion</span><span class="toc-dots"></span><span class="toc-page">43</span></div>
-    <div class="toc-row"><span class="toc-title">Figure 9.2: Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification</span><span class="toc-dots"></span><span class="toc-page">44</span></div>
-    <div class="toc-row"><span class="toc-title">Figure 9.3: Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification</span><span class="toc-dots"></span><span class="toc-page">45</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 2.1: Architectural Block Diagram of the RISC-V VeeR EL2 Smart Peripheral Control SoC</span><span class="toc-dots"></span><span class="toc-page">4</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 8.1: Top-Level UVM 1.2 Verification Environment with Seven Custom Verification IPs</span><span class="toc-dots"></span><span class="toc-page">20</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 9.1: Verdi Waveform: AXI-Lite Write/Read Transactions, Serial TX/RX Framing, and Interrupt Assertion</span><span class="toc-dots"></span><span class="toc-page">24</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 9.2: Verdi Waveform: 64-to-32 Bit Width Conversion, AXI Crossbar Handshaking, and 0xDEADBEEF Verification</span><span class="toc-dots"></span><span class="toc-page">25</span></div>
+    <div class="toc-row"><span class="toc-title">Figure 9.3: Verdi Waveform: Multi-Transaction AXI Handshaking and Interrupt Clear Verification</span><span class="toc-dots"></span><span class="toc-page">26</span></div>
 
-    <div style="text-align: center; margin-top: 50px; color: #64748b;">vii</div>
-</div>
+    <div class="prelim-heading" style="margin-top: 26px;">LIST OF TABLES</div>
 
-<!-- ========================================================================= -->
-<!-- 8. LIST OF TABLES                                                         -->
-<!-- ========================================================================= -->
-<div class="page-break">
-    <div class="prelim-heading">LIST OF TABLES</div>
+    <div class="toc-row"><span class="toc-title">Table 1.1: Project Milestones and Work Breakdown Schedule</span><span class="toc-dots"></span><span class="toc-page">3</span></div>
+    <div class="toc-row"><span class="toc-title">Table 2.1: Complete IP Inventory and Functional Specifications</span><span class="toc-dots"></span><span class="toc-page">5</span></div>
+    <div class="toc-row"><span class="toc-title">Table 2.2: AMBA AXI4-Lite Bus Interface Signal Definitions</span><span class="toc-dots"></span><span class="toc-page">6</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.1: Master System Memory Map and Peripheral Address Apertures</span><span class="toc-dots"></span><span class="toc-page">12</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.2: UART Controller Register Map (0x4000_0000)</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.3: System Timer Register Map (0x4000_4000)</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.4: GPIO Subsystem Register Map (0x4000_2000)</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.5: SPI Master Register Map (0x4000_6000)</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.6: I2C Master Register Map (0x4000_8000)</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.7: PWM Generator Register Map (0x4000_A000)</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+    <div class="toc-row"><span class="toc-title">Table 5.8: Autonomous DMA Controller Register Map (0x4000_C000)</span><span class="toc-dots"></span><span class="toc-page">14</span></div>
+    <div class="toc-row"><span class="toc-title">Table 6.1: Comprehensive 26-Test Functional Verification Matrix</span><span class="toc-dots"></span><span class="toc-page">15</span></div>
+    <div class="toc-row"><span class="toc-title">Table 9.1: Verification Debugging Log and Root Cause Resolutions</span><span class="toc-dots"></span><span class="toc-page">27</span></div>
 
-    <div class="toc-row"><span class="toc-title">Table 1.1: Project Milestones and Work Breakdown Schedule</span><span class="toc-dots"></span><span class="toc-page">4</span></div>
-    <div class="toc-row"><span class="toc-title">Table 2.1: Complete IP Inventory and Functional Specifications</span><span class="toc-dots"></span><span class="toc-page">6</span></div>
-    <div class="toc-row"><span class="toc-title">Table 2.2: AMBA AXI4-Lite Bus Interface Signal Definitions</span><span class="toc-dots"></span><span class="toc-page">9</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.1: Master System Memory Map and Peripheral Address Apertures</span><span class="toc-dots"></span><span class="toc-page">20</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.2: UART Controller Register Map (0x4000_0000)</span><span class="toc-dots"></span><span class="toc-page">21</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.3: System Timer Register Map (0x4000_4000)</span><span class="toc-dots"></span><span class="toc-page">21</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.4: GPIO Subsystem Register Map (0x4000_2000)</span><span class="toc-dots"></span><span class="toc-page">22</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.5: SPI Master Register Map (0x4000_6000)</span><span class="toc-dots"></span><span class="toc-page">22</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.6: I2C Master Register Map (0x4000_8000)</span><span class="toc-dots"></span><span class="toc-page">23</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.7: PWM Generator Register Map (0x4000_A000)</span><span class="toc-dots"></span><span class="toc-page">23</span></div>
-    <div class="toc-row"><span class="toc-title">Table 5.8: Autonomous DMA Controller Register Map (0x4000_C000)</span><span class="toc-dots"></span><span class="toc-page">24</span></div>
-    <div class="toc-row"><span class="toc-title">Table 6.1: Comprehensive 26-Test Functional Verification Matrix</span><span class="toc-dots"></span><span class="toc-page">26</span></div>
-    <div class="toc-row"><span class="toc-title">Table 9.1: Verification Debugging Log and Root Cause Resolutions</span><span class="toc-dots"></span><span class="toc-page">46</span></div>
-
-    <div style="text-align: center; margin-top: 50px; color: #64748b;">viii</div>
+    <div style="text-align: center; margin-top: 24px; color: #64748b;">vii</div>
 </div>
 
 <!-- ========================================================================= -->
@@ -2162,6 +2185,9 @@ int main(void) {
 }
     </pre>
 
+    <div class="page-break"></div>
+    <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
+
     <h2>9.2 Cycle-Accurate Waveform Snippets & Signal Analysis</h2>
     <p>
         Cycle-accurate simulation waveforms were captured using <b>Synopsys VCS 2023.03</b> and <b>Synopsys Verdi/nWave</b> waveform viewer during execution of the testbench regressions and bare-metal firmware runs. The FSDB signal dumps confirm exact cycle-by-cycle timing determinism, bus protocol compliance, and interrupt assertion behavior.
@@ -2180,7 +2206,7 @@ int main(void) {
     </div>
 
     <h4>Detailed Signal-by-Signal Waveform Walkthrough:</h4>
-    <ol>
+    <ol class="walkthrough-list">
         <li><b>Reset Release & Bus Initialization:</b> At timestamp 150 ns, <code>aresetn</code> de-asserts high to 1, releasing both core and peripheral logic from reset. Both <code>fixed_clk</code> (reference oscillator) and <code>axi_clk</code> (bus clock) synchronize. The testbench master initiates write transactions to configure the UART.</li>
         <li><b>Line Control Register (LCR) Write (8N1):</b> The master asserts <code>awvalid</code> with <code>awaddr = 5'h0C</code> (LCR offset), drives <code>wdata = 32'h0000_0003</code> (8-bit data, no parity, 1 stop bit), and asserts <code>wstrb = 4'b1111</code> (<code>0xF</code>). The UART slave responds with <code>awready = 1</code> and <code>wready = 1</code> simultaneously in 1 cycle, and returns <code>bresp = 2'b00</code> (OKAY) with <code>bvalid = 1</code>.</li>
         <li><b>Baud Rate Divisor Setup:</b> Next, <code>awaddr</code> drives <code>5'h08</code> (BAUD offset) with <code>wdata = 32'd10</code> (<code>SIM_BAUD_DIV</code>). The baud divisor is committed to the internal baud clock divider, setting up high-speed simulation transmission.</li>
@@ -2205,7 +2231,7 @@ int main(void) {
     </div>
 
     <h4>Detailed Analysis of 64-to-32 Bit Width Conversion & Bus Response:</h4>
-    <ol>
+    <ol class="walkthrough-list">
         <li><b>Core LSU 64-Bit Write Request:</b> The VeeR EL2 Load/Store Unit (LSU) issues a 64-bit write transaction on the core bus: <code>awaddr[63:0] = 64'h0000_0000_4000_0000</code>, <code>awsize = 3'b011</code> (8 bytes / 64-bit), and <code>wdata[63:0] = 64'h0000_0000_DEAD_BEEF</code> with write strobes <code>wstrb[7:0] = 8'h0F</code>.</li>
         <li><b>Adapter Steering & Clamping:</b> The 64-to-32 bit bus width adapter evaluates <code>awaddr[2] == 0</code>, steering data from the lower 32-bit lane. It clamps <code>awsize</code> to <code>3'b010</code> (4 bytes / 32-bit word) and presents the transaction to Port S00 of the 2x6 crossbar.</li>
         <li><b>Crossbar Routing & Handshake:</b> The crossbar address decoder evaluates <code>ADDR[31:12] == 0x4000_0</code>, routes the request to slave port <code>m00</code>, and asserts <code>awvalid</code> / <code>wvalid</code> to the slave bridge. The slave asserts <code>awready = 1</code> and <code>wready = 1</code>, latches <code>0xDEAD_BEEF</code>, and completes the write with <code>bresp = 2'b00</code> (OKAY).</li>
@@ -2228,7 +2254,7 @@ int main(void) {
     </div>
 
     <h4>Verification Highlights:</h4>
-    <ul>
+    <ul class="walkthrough-list">
         <li><b>Back-to-Back Burst Resolution:</b> The 2x6 crossbar handles back-to-back single-cycle transfers with zero dead cycles inserted between valid transactions.</li>
         <li><b>Interrupt Clearing (W1C):</b> Upon peripheral interrupt servicing, the core performs a Write-1-to-Clear (W1C) write, instantly de-asserting <code>read_interrupt</code> back to logic 0.</li>
         <li><b>Timeout and Deadlock Immunity:</b> Under continuous stress conditions, the bus protocol monitor confirms <code>awready</code> and <code>wready</code> assert within bounded thresholds (maximum 3 cycles), ensuring complete freedom from hardware bus deadlocks.</li>
@@ -2236,9 +2262,9 @@ int main(void) {
 
     <div class="page-break"></div>
     <div class="page-header"><span class="page-header-title">Smart Peripheral Control SoC Based on RISC-V VeeR EL2 Core</span><span class="page-header-tag">Honours CBP Report</span></div>
-<h2>9.3 Verification Debugging Log & Root Cause Analysis</h2>
+    <h2>9.3 Verification Debugging Log & Root Cause Analysis</h2>
     <div class="table-caption">Table 9.1: Verification Debugging Log and Root Cause Resolutions</div>
-    <table class="academic-table">
+    <table class="academic-table compact-table">
         <tr>
             <th>Issue ID</th>
             <th>Error Category</th>
