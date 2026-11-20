@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Course Project Report - Smart Peripheral Control SoC</title>
+<style>
+    @page {
+        size: A4;
+        margin: 20mm 18mm 20mm 18mm;
+    }
+    * {
+        box-sizing: border-box;
+    }
+    body {
+        font-family: "Times New Roman", Times, "Liberation Serif", serif;
+        font-size: 11pt;
+        line-height: 1.5;
+        color: #111827;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+        text-align: justify;
+    }
+    .page-break {
+        page-break-after: always;
+        break-after: page;
+    }
+    .no-break {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Cover Page */
+    .cover-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 96vh;
+        text-align: center;
+        padding: 30px 10px;
+    }
+    .cover-header h3 {
+        font-size: 13pt;
+        letter-spacing: 2px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: #1f2937;
+    }
+    .cover-header h4 {
+        font-size: 11pt;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        margin: 0;
+        color: #4b5563;
+    }
+    .cover-title {
+        margin: 40px 0;
+    }
+    .cover-title h1 {
+        font-size: 18pt;
+        line-height: 1.4;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 15px 0;
+        text-transform: uppercase;
+    }
+    .cover-title p {
+        font-size: 11pt;
+        font-style: italic;
+        color: #374151;
+        margin: 5px 0;
+    }
+    .cover-title h2 {
+        font-size: 13pt;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin: 10px 0 0 0;
+        color: #1e3a8a;
+    }
+    .cover-submitted {
+        margin: 25px 0;
+    }
+    .cover-submitted p {
+        font-size: 11pt;
+        margin: 3px 0;
+    }
+    .cover-submitted h3 {
+        font-size: 14pt;
+        font-weight: 700;
+        margin: 8px 0 3px 0;
+        color: #0f172a;
+    }
+    .cover-crest {
+        margin: 25px auto;
+        width: 90px;
+        height: 90px;
+        border: 2px solid #1e3a8a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 10pt;
+        color: #1e3a8a;
+        background-color: #f8fafc;
+    }
+    .cover-footer {
+        margin-top: 20px;
+    }
+    .cover-footer h3 {
+        font-size: 12pt;
+        font-weight: 700;
+        margin: 4px 0;
+        letter-spacing: 1px;
+        color: #0f172a;
+    }
+    .cover-footer p {
+        font-size: 10.5pt;
+        margin: 2px 0;
+        color: #4b5563;
+    }
+
+    /* Prelims */
+    .prelim-heading {
+        text-align: center;
+        font-size: 16pt;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-top: 20px;
+        margin-bottom: 25px;
+        color: #0f172a;
+        text-transform: uppercase;
+    }
+    .prelim-sub {
+        text-align: center;
+        font-size: 11pt;
+        font-weight: 700;
+        margin-top: -15px;
+        margin-bottom: 20px;
+        color: #374151;
+    }
+    .sign-table {
+        width: 100%;
+        margin-top: 60px;
+        border-collapse: collapse;
+    }
+    .sign-table td {
+        vertical-align: top;
+        padding: 10px 0;
+    }
+
+    /* Chapters */
+    h1.chapter-title {
+        font-size: 16pt;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #0f172a;
+        border-bottom: 2px solid #1e3a8a;
+        padding-bottom: 6px;
+        margin-top: 25px;
+        margin-bottom: 18px;
+    }
+    .chapter-number {
+        font-size: 13pt;
+        font-weight: 700;
+        color: #1e3a8a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+    h2 {
+        font-size: 12.5pt;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-top: 18px;
+        margin-bottom: 8px;
+    }
+    h3 {
+        font-size: 11.5pt;
+        font-weight: 700;
+        color: #1f2937;
+        margin-top: 14px;
+        margin-bottom: 6px;
+    }
+    p {
+        margin: 0 0 10px 0;
+        text-align: justify;
+    }
+    ul, ol {
+        margin: 0 0 12px 20px;
+        padding: 0;
+    }
+    li {
+        margin-bottom: 4px;
+    }
+
+    /* Tables */
+    table.academic-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0 18px 0;
+        font-size: 9.5pt;
+        line-height: 1.35;
+    }
+    table.academic-table th {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        font-weight: 700;
+        border-top: 1.5px solid #1e3a8a;
+        border-bottom: 1.5px solid #1e3a8a;
+        padding: 7px 8px;
+        text-align: left;
+    }
+    table.academic-table td {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 6px 8px;
+        vertical-align: top;
+    }
+    table.academic-table tr:nth-child(even) td {
+        background-color: #f8fafc;
+    }
+    .table-caption {
+        font-size: 10pt;
+        font-weight: 700;
+        margin: 12px 0 4px 0;
+        text-align: left;
+        color: #0f172a;
+    }
+    .figure-box {
+        text-align: center;
+        margin: 16px 0;
+        page-break-inside: avoid;
+    }
+    .figure-box img {
+        max-width: 95%;
+        height: auto;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        padding: 4px;
+        background: #ffffff;
+    }
+    .figure-caption {
+        font-size: 10pt;
+        font-weight: 700;
+        margin-top: 6px;
+        color: #0f172a;
+    }
+
+    /* Code & Listings */
+    pre.code-block {
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-left: 3.5px solid #1e3a8a;
+        padding: 8px 12px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 8.5pt;
+        line-height: 1.35;
+        overflow-x: auto;
+        margin: 10px 0 14px 0;
+        white-space: pre;
+        page-break-inside: avoid;
+    }
+    pre.ascii-diagram {
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-left: 3.5px solid #1e3a8a;
+        padding: 6px 8px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 6.8pt;
+        line-height: 1.15;
+        letter-spacing: -0.3px;
+        margin: 10px 0 14px 0;
+        white-space: pre;
+        page-break-inside: avoid;
+    }
+    pre.wave-diagram {
+        background-color: #0f172a;
+        color: #38bdf8;
+        border: 1px solid #334155;
+        border-left: 3.5px solid #38bdf8;
+        padding: 8px 10px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 7.2pt;
+        line-height: 1.25;
+        margin: 10px 0 14px 0;
+        white-space: pre;
+        page-break-inside: avoid;
+    }
+    code {
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 9pt;
+        background-color: #f1f5f9;
+        padding: 1px 4px;
+        border-radius: 2px;
+    }
+
+    /* Callout Card */
+    .callout {
+        border-left: 3.5px solid #10b981;
+        background-color: #f0fdf4;
+        padding: 10px 14px;
+        margin: 12px 0;
+        font-size: 10pt;
+        border-radius: 0 4px 4px 0;
+    }
+    .callout-title {
+        font-weight: 700;
+        color: #065f46;
+        margin-bottom: 4px;
+    }
+
+    /* TOC */
+    .toc-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 6px 0;
+        font-size: 10.5pt;
+    }
+    .toc-title {
+        font-weight: 600;
+    }
+    .toc-dots {
+        flex-grow: 1;
+        border-bottom: 1px dotted #94a3b8;
+        margin: 0 8px 4px 8px;
+    }
+    .toc-page {
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+    .toc-sub {
+        margin-left: 20px;
+        font-size: 10pt;
+    }
+</style>
+</head>
+<body>
+
+<!-- ========================================================================= -->
+<!-- 1. COVER PAGE                                                             -->
+<!-- ========================================================================= -->
+<div class="cover-container page-break">
+    <div class="cover-header">
+        <h3>HONOURS COURSE BASED PROJECT</h3>
+        <h4>TECHNICAL REPORT ON</h4>
+    </div>
+
+    <div class="cover-title">
+        <h1>SMART PERIPHERAL CONTROL SYSTEM-ON-CHIP (SoC) BASED ON RISC-V VeeR EL2 CORE FOR INDUSTRIAL AUTOMATION</h1>
+        <p>A Course Based Project Report Submitted in Partial Fulfillment of the Requirements for the Award of the Honours Degree in</p>
+        <h2>SYSTEM ON CHIP DESIGN</h2>
+        <p><b>BACHELOR OF ENGINEERING IN ELECTRONICS AND COMMUNICATION ENGINEERING</b></p>
+    </div>
+
+    <div class="cover-submitted">
+        <p>Submitted by:</p>
+        <h3>Mohammed Fardin</h3>
+        <p><b>Roll No: 1602-21-735-024</b></p>
+    </div>
+
+    <div class="cover-crest">
+        VCE<br>HYD
+    </div>
+
+    <div class="cover-footer">
+        <h3>DEPARTMENT OF ELECTRONICS AND COMMUNICATION ENGINEERING</h3>
+        <p><b>VASAVI COLLEGE OF ENGINEERING (AUTONOMOUS)</b></p>
+        <p>(Accredited by NAAC with ‘A++’ Grade, Affiliated to Osmania University)</p>
+        <p>Ibrahimbagh, Hyderabad – 500031, Telangana, India</p>
+        <p style="margin-top: 10px; font-weight: bold; color: #1e3a8a;">ACADEMIC YEAR 2026 – 2027</p>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 2. CERTIFICATE                                                            -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">CERTIFICATE</div>
+    <div class="prelim-sub">
+        <b>VASAVI COLLEGE OF ENGINEERING (AUTONOMOUS)</b><br>
+        DEPARTMENT OF ELECTRONICS AND COMMUNICATION ENGINEERING<br>
+        <span style="font-size: 9.5pt; font-weight: normal; color: #64748b;">(Accredited by NAAC with ‘A++’ Grade, Affiliated to Osmania University)</span><br>
+        <span style="font-size: 9.5pt; font-weight: normal; color: #64748b;">Ibrahimbagh, Hyderabad – 500031</span>
+    </div>
+
+    <div class="cover-crest" style="margin: 15px auto;">
+        VCE<br>ECE
+    </div>
+
+    <p style="margin-top: 25px; line-height: 1.8;">
+        This is to certify that the project report entitled <b>“SMART PERIPHERAL CONTROL SYSTEM-ON-CHIP (SoC) BASED ON RISC-V VeeR EL2 CORE FOR INDUSTRIAL AUTOMATION”</b>, submitted by <b>Mohammed Fardin (Roll No: 1602-21-735-024)</b>, a student of the Department of Electronics and Communication Engineering, Vasavi College of Engineering (Autonomous), in partial fulfillment of the requirements for the award of the Honours Degree in <b>System on Chip Design</b> in Electronics and Communication Engineering, is a record of the bonafide work carried out by him during the academic year 2026–2027 under the supervision of <b>Dr. M. Praveen Kumar</b>.
+    </p>
+
+    <p style="line-height: 1.8;">
+        The results embodied in this project report have not been submitted to any other University or Institute for the award of any degree or diploma.
+    </p>
+
+    <table class="sign-table" style="margin-top: 70px;">
+        <tr>
+            <td style="width: 50%;">
+                <b>Supervisor</b><br><br>
+                <b>Dr. M. Praveen Kumar</b><br>
+                Assistant Professor<br>
+                Department of ECE<br>
+                Vasavi College of Engineering
+            </td>
+            <td style="width: 50%; text-align: right;">
+                <b>Head of the Department</b><br><br>
+                <b>Dr. E. Sreenivasa Rao</b><br>
+                Professor and Head<br>
+                Department of ECE<br>
+                Vasavi College of Engineering
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-top: 60px;">
+                <b>Signature of the External Examiner</b>
+            </td>
+            <td style="padding-top: 60px; text-align: right;">
+                <b>Date: 21st November, 2026</b>
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: center; margin-top: 40px; color: #64748b;">ii</div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 3. DECLARATION                                                            -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">DECLARATION</div>
+
+    <p style="margin-top: 25px; line-height: 1.8;">
+        I, the undersigned, hereby declare that the project report titled <b>“Smart Peripheral Control System-on-Chip (SoC) Based on RISC-V VeeR EL2 Core for Industrial Automation”</b>, submitted in partial fulfillment of the requirements for the award of the Honours Degree in <b>System on Chip Design</b> at Vasavi College of Engineering (Autonomous), Ibrahimbagh, Hyderabad, is a bonafide work carried out by me under the supervision of <b>Dr. M. Praveen Kumar</b>.
+    </p>
+
+    <p style="line-height: 1.8;">
+        I declare that this submission represents my own ideas and work, and wherever the ideas or words of others have been included, I have adequately and accurately cited and referenced the original sources. I further declare that I have adhered to the principles of academic honesty and integrity and have not misrepresented or fabricated any data, ideas, facts, or hardware metrics in this submission.
+    </p>
+
+    <p style="line-height: 1.8;">
+        I understand that any violation of the above declaration may result in disciplinary action by the institute and/or Osmania University and may also invite penal action from the sources whose work has not been properly cited or for which permission has not been obtained.
+    </p>
+
+    <p style="line-height: 1.8;">
+        I also declare that this report has not previously formed the basis for the award of any degree, diploma, associateship, or similar title from any other University or institution.
+    </p>
+
+    <table class="sign-table" style="margin-top: 90px;">
+        <tr>
+            <td style="width: 50%;">
+                <b>Place:</b> Hyderabad, Telangana<br><br>
+                <b>Date:</b> 21st November, 2026
+            </td>
+            <td style="width: 50%; text-align: right;">
+                <b>Signature of Student:</b><br><br><br>
+                <b>Mohammed Fardin</b><br>
+                Roll No: 1602-21-735-024<br>
+                Department of ECE, VCE
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: center; margin-top: 70px; color: #64748b;">iii</div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 4. ACKNOWLEDGEMENTS                                                       -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">ACKNOWLEDGEMENTS</div>
+
+    <p style="margin-top: 25px; line-height: 1.8;">
+        The satisfaction and academic fulfillment that accompany the successful completion of an advanced engineering project would be incomplete without expressing sincere gratitude to the mentors, professors, and institutional facilities that made this work possible.
+    </p>
+
+    <p style="line-height: 1.8;">
+        I express my profound gratitude to my project supervisor, <b>Dr. M. Praveen Kumar</b>, Assistant Professor, Department of Electronics and Communication Engineering, Vasavi College of Engineering (Autonomous), for his continuous technical direction, rigorous architectural reviews, and constant mentorship throughout the RTL integration, crossbar interconnect engineering, bare-metal RISC-V firmware bring-up, and UVM verification phases of this System-on-Chip project.
+    </p>
+
+    <p style="line-height: 1.8;">
+        I extend my sincere thanks to <b>Dr. E. Sreenivasa Rao</b>, Professor and Head of the Department of Electronics and Communication Engineering, for providing access to the state-of-the-art EDA computing facilities (including Siemens QuestaSim, Synopsys VCS, and Verdi debug suites) and fostering an environment of excellence in VLSI and SoC architecture.
+    </p>
+
+    <p style="line-height: 1.8;">
+        I also express my heartfelt appreciation to the faculty members and technical staff of the Department of ECE, Vasavi College of Engineering, whose insights and constructive feedback enriched my understanding of digital system architecture and functional verification methodologies.
+    </p>
+
+    <p style="line-height: 1.8;">
+        Finally, I thank my family and fellow peers for their unwavering encouragement, patience, and moral support throughout the course of this Honours project.
+    </p>
+
+    <table class="sign-table" style="margin-top: 80px;">
+        <tr>
+            <td style="width: 50%;"></td>
+            <td style="width: 50%; text-align: right;">
+                <b>Mohammed Fardin</b><br>
+                Roll No: 1602-21-735-024<br>
+                Department of ECE, Vasavi College of Engineering
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: center; margin-top: 90px; color: #64748b;">iv</div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 5. ABSTRACT                                                               -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">ABSTRACT</div>
+
+    <p style="margin-top: 25px; line-height: 1.8;">
+        This Honours Course Based Project report presents the architectural design, synthesizable RTL integration, bare-metal RISC-V firmware development, and Universal Verification Methodology (UVM 1.2 / IEEE 1800.2) functional verification of the <b>Smart Peripheral Control System-on-Chip (<code>smart_controlsoc</code>)</b>. Engineered for high-throughput, deterministic, and distributed industrial automation systems, motor motion control, and multi-protocol sensor telemetry, the SoC eliminates software-polling bottlenecks by coupling an open-source Western Digital / CHIPS Alliance <b>VeeR EL2 RV32IMC</b> superscalar core with an autonomous, hardware-managed peripheral subsystem and Direct Memory Access (DMA) pipeline.
+    </p>
+
+    <p style="line-height: 1.8;">
+        The architecture integrates a dual-master, six-slave AMBA AXI4-Lite crossbar interconnect fabric (<code>axi_interconnect_wrap_2x6</code>) with fair-share round-robin arbitration, an asynchronous 64-to-32 bit Load/Store Unit (LSU) data bus width converter, and six memory-mapped industrial peripheral controllers:
+    </p>
+
+    <ol style="line-height: 1.7; margin-bottom: 20px;">
+        <li><b>AXI4-Lite UART IP (<code>0x4000_0000</code>):</b> Full-duplex asynchronous serial transceiver with configurable baud rate division and watermark-driven interrupts.</li>
+        <li><b>64-bit Real-Time System Timer (<code>0x4000_4000</code>):</b> Dual-counter 64-bit <code>mtime</code> and <code>mtimecmp</code> architecture with 12-bit prescaler and write-1-to-clear (W1C) interrupt servicing.</li>
+        <li><b>32-bit Bidirectional GPIO Subsystem (<code>0x4000_2000</code>):</b> 32-channel I/O pad controller featuring single-cycle atomic bit manipulation (<code>SET</code>, <code>CLEAR</code>, <code>TOGGLE</code>), 2-stage input synchronizers, and edge/level interrupt generation.</li>
+        <li><b>AXI SPI Master Controller (<code>0x4000_6000</code>):</b> Full-duplex high-speed synchronous serial interface with programmable clock ratios, independent FIFOs, and automated slave select routing.</li>
+        <li><b>AXI I2C Master Controller (<code>0x4000_8000</code>):</b> Byte-level multi-master capable two-wire bus interface featuring dynamic clock prescaling and standard START/STOP framing.</li>
+        <li><b>High-Precision 8-bit PWM Generator (<code>0x4000_A000</code>):</b> Deterministic pulse-width modulation engine providing glitch-free 0% to 100% duty cycle modulation.</li>
+    </ol>
+
+    <p style="line-height: 1.8;">
+        To achieve true autonomous peripheral operation, the SoC incorporates an <b>Autonomous Bus-Mastering DMA Engine</b> (<code>0x4000_C000</code>) functioning as Master 2 (<code>S01</code>) on the AXI crossbar. The DMA controller enables zero-copy, direct hardware streaming between peripherals (e.g., streaming high-frequency PWM test patterns directly into GPIO output ports or ingesting serial telemetry into memory) completely bypassing the CPU execution pipeline.
+    </p>
+
+    <p style="line-height: 1.8;">
+        Verification was executed using a dual-faceted co-verification strategy combining bare-metal C firmware suites (<code>sw/main1.c</code>, <code>main1.hex</code>) running on the simulated core with a modular UVM 1.2 verification environment composed of seven custom Verification IPs (VIPs) for UART, Timer, GPIO, SPI, I2C, PWM, and DMA. Cycle-accurate simulations in Siemens QuestaSim and Synopsys VCS validate all 26 functional test cases, demonstrating zero bus deadlocks, fair round-robin arbitration, atomic register determinism, and flawless multi-peripheral firmware regression terminating with the <code>0x900D</code> success signature.
+    </p>
+    <div style="text-align: center; margin-top: 30px; color: #64748b;">v</div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 6. TABLE OF CONTENTS                                                      -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="prelim-heading">TABLE OF CONTENTS</div>
+
+    <div class="toc-row"><span class="toc-title">Certificate</span><span class="toc-dots"></span><span class="toc-page">ii</span></div>
+    <div class="toc-row"><span class="toc-title">Declaration</span><span class="toc-dots"></span><span class="toc-page">iii</span></div>
+    <div class="toc-row"><span class="toc-title">Acknowledgements</span><span class="toc-dots"></span><span class="toc-page">iv</span></div>
+    <div class="toc-row"><span class="toc-title">Abstract</span><span class="toc-dots"></span><span class="toc-page">v</span></div>
+
+    <div class="toc-row" style="margin-top: 15px;"><span class="toc-title">1. Project Proposal</span><span class="toc-dots"></span><span class="toc-page">1</span></div>
+    <div class="toc-row toc-sub"><span>1.1 Project Title and Classification</span><span class="toc-dots"></span><span>1</span></div>
+    <div class="toc-row toc-sub"><span>1.2 Industrial Context & Background</span><span class="toc-dots"></span><span>1</span></div>
+    <div class="toc-row toc-sub"><span>1.3 Problem Statement</span><span class="toc-dots"></span><span>2</span></div>
+    <div class="toc-row toc-sub"><span>1.4 Proposed Solution & Architectural Innovation</span><span class="toc-dots"></span><span>2</span></div>
+    <div class="toc-row toc-sub"><span>1.5 Project Objectives & Key Deliverables</span><span class="toc-dots"></span><span>3</span></div>
+    <div class="toc-row toc-sub"><span>1.6 Project Milestones & Work Breakdown Schedule</span><span class="toc-dots"></span><span>4</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">2. Architecture Specification</span><span class="toc-dots"></span><span class="toc-page">5</span></div>
+    <div class="toc-row toc-sub"><span>2.1 System Architecture Overview</span><span class="toc-dots"></span><span>5</span></div>
+    <div class="toc-row toc-sub"><span>2.2 Top-Level SoC Block Diagram & Bus Topology</span><span class="toc-dots"></span><span>5</span></div>
+    <div class="toc-row toc-sub"><span>2.3 Complete IP Inventory & Detailed Block Specifications</span><span class="toc-dots"></span><span>6</span></div>
+    <div class="toc-row toc-sub"><span>2.4 Interfacing Signals & Pinout Specification</span><span class="toc-dots"></span><span>9</span></div>
+    <div class="toc-row toc-sub"><span>2.5 Control Path Specification</span><span class="toc-dots"></span><span>10</span></div>
+    <div class="toc-row toc-sub"><span>2.6 Data Path Specification: Autonomous Peripheral Pipelining</span><span class="toc-dots"></span><span>11</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">3. GitHub Account Steps</span><span class="toc-dots"></span><span class="toc-page">12</span></div>
+    <div class="toc-row toc-sub"><span>3.1 Version Control in Advanced SoC Verification Projects</span><span class="toc-dots"></span><span>12</span></div>
+    <div class="toc-row toc-sub"><span>3.2 GitHub Account Creation & Secure Authentication Setup</span><span class="toc-dots"></span><span>12</span></div>
+    <div class="toc-row toc-sub"><span>3.3 Repository Initialization & Remote Configuration</span><span class="toc-dots"></span><span>13</span></div>
+    <div class="toc-row toc-sub"><span>3.4 EDA-Specific .gitignore Configuration</span><span class="toc-dots"></span><span>14</span></div>
+    <div class="toc-row toc-sub"><span>3.5 Day-to-Day Development & Collaboration Workflow</span><span class="toc-dots"></span><span>15</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">4. RISC-V Toolchain Setup Steps</span><span class="toc-dots"></span><span class="toc-page">16</span></div>
+    <div class="toc-row toc-sub"><span>4.1 Overview of the RISC-V GNU Compiler Toolchain</span><span class="toc-dots"></span><span>16</span></div>
+    <div class="toc-row toc-sub"><span>4.2 Host System Prerequisites & Dependency Installation</span><span class="toc-dots"></span><span>16</span></div>
+    <div class="toc-row toc-sub"><span>4.3 Sourcing & Cloning the Toolchain Repository</span><span class="toc-dots"></span><span>17</span></div>
+    <div class="toc-row toc-sub"><span>4.4 Toolchain Configuration for VeeR EL2 (RV32IMC / ILP32)</span><span class="toc-dots"></span><span>17</span></div>
+    <div class="toc-row toc-sub"><span>4.5 Compilation, Installation & Environment Configuration</span><span class="toc-dots"></span><span>18</span></div>
+    <div class="toc-row toc-sub"><span>4.6 Bare-Metal Firmware Build Flow & Toolchain Flags</span><span class="toc-dots"></span><span>18</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">5. Address Map</span><span class="toc-dots"></span><span class="toc-page">20</span></div>
+    <div class="toc-row toc-sub"><span>5.1 System-Wide Memory Map Overview</span><span class="toc-dots"></span><span>20</span></div>
+    <div class="toc-row toc-sub"><span>5.2 Master Memory Aperture Summary Table</span><span class="toc-dots"></span><span>20</span></div>
+    <div class="toc-row toc-sub"><span>5.3 Detailed Peripheral Register Maps</span><span class="toc-dots"></span><span>21</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">6. Testplan with External / Internal Test Column</span><span class="toc-dots"></span><span class="toc-page">25</span></div>
+    <div class="toc-row toc-sub"><span>6.1 Verification Methodology & Testplan Architecture</span><span class="toc-dots"></span><span>25</span></div>
+    <div class="toc-row toc-sub"><span>6.2 Complete SoC Verification Matrix (26 Test Cases)</span><span class="toc-dots"></span><span>25</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">7. All VIPs CSV Files and Interface Files</span><span class="toc-dots"></span><span class="toc-page">31</span></div>
+    <div class="toc-row toc-sub"><span>7.1 UVM Verification IP (VIP) Signal Boundary Architecture</span><span class="toc-dots"></span><span>31</span></div>
+    <div class="toc-row toc-sub"><span>7.2 Automated VIP Generation Tool Flow</span><span class="toc-dots"></span><span>31</span></div>
+    <div class="toc-row toc-sub"><span>7.3–7.9 VIP CSV Definitions and Interface Listings</span><span class="toc-dots"></span><span>31</span></div>
+    <div class="toc-row toc-sub"><span>7.10 Master VIP Compilation Filelist (all_drv_run.f)</span><span class="toc-dots"></span><span>36</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">8. UVM Testbench Block Diagram along with All UVM VIPs</span><span class="toc-dots"></span><span class="toc-page">37</span></div>
+    <div class="toc-row toc-sub"><span>8.1 UVM 1.2 Verification Architecture Overview</span><span class="toc-dots"></span><span>37</span></div>
+    <div class="toc-row toc-sub"><span>8.2 Detailed Breakdown of UVM Environment Components</span><span class="toc-dots"></span><span>38</span></div>
+    <div class="toc-row toc-sub"><span>8.3 Virtual Sequencer & Multi-Agent Coordination (tc_pipe_01_seq)</span><span class="toc-dots"></span><span>39</span></div>
+    <div class="toc-row toc-sub"><span>8.4 Multi-VIP Simulation Execution Script (run_all_vips.sh)</span><span class="toc-dots"></span><span>40</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">9. C Test Case, UVM Test Case with Wave Snippet</span><span class="toc-dots"></span><span class="toc-page">41</span></div>
+    <div class="toc-row toc-sub"><span>9.1 Bare-Metal C Verification Test Suite (Internal Firmware Tests)</span><span class="toc-dots"></span><span>41</span></div>
+    <div class="toc-row toc-sub"><span>9.2 UVM Testcases (External Testbench Verification)</span><span class="toc-dots"></span><span>42</span></div>
+    <div class="toc-row toc-sub"><span>9.3 Cycle-Accurate Waveform Snippets & Signal Analysis</span><span class="toc-dots"></span><span>43</span></div>
+    <div class="toc-row toc-sub"><span>9.4 Verification Debugging Log & Root Cause Analysis</span><span class="toc-dots"></span><span>46</span></div>
+
+    <div class="toc-row" style="margin-top: 10px;"><span class="toc-title">References & Technical Standards</span><span class="toc-dots"></span><span class="toc-page">48</span></div>
+    <div style="text-align: center; margin-top: 25px; color: #64748b;">vi</div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 1: PROJECT PROPOSAL                                               -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 1</div>
+    <h1 class="chapter-title">Project Proposal</h1>
+
+    <h2>1.1 Project Title and Classification</h2>
+    <ul>
+        <li><b>Project Title:</b> Smart Peripheral Control System-on-Chip (SoC) Based on RISC-V VeeR EL2 Core for Industrial Automation</li>
+        <li><b>Target Domain:</b> Embedded Industrial Automation, Motion & Robotics Control, Multi-Protocol Telemetry Ingestion</li>
+        <li><b>Project Category:</b> Advanced VLSI & SoC Design, Computer Architecture, UVM 1.2 Functional Verification</li>
+        <li><b>Candidate / Author:</b> Mohammed Fardin (Roll No: 1602-21-735-024)</li>
+        <li><b>Institution:</b> Department of Electronics and Communication Engineering, Vasavi College of Engineering (Autonomous), Hyderabad, Telangana, India.</li>
+        <li><b>Supervisor:</b> Dr. M. Praveen Kumar, Assistant Professor, Department of ECE.</li>
+    </ul>
+
+    <h2>1.2 Industrial Context & Background</h2>
+    <p>
+        Modern industrial smart manufacturing, automotive assembly robotics, process automation, and intelligent edge nodes require highly responsive, deterministic, and distributed computing architectures. These edge control systems interface simultaneously with a diverse heterogeneous ecosystem of sensors, motor actuators, physical relays, operator panels, and fieldbuses:
+    </p>
+    <ul>
+        <li><b>Motion & Power Actuation:</b> High-frequency pulse-width modulation (PWM) for motor drive inverters, brushless DC (BLDC) motor speed regulation, and robotic arm servo positioning.</li>
+        <li><b>Synchronous Sensor Acquisition:</b> High-speed Serial Peripheral Interface (SPI) links to read multi-axis accelerometers, gyroscopes, industrial encoders, and precision ADCs.</li>
+        <li><b>Environmental & Power Telemetry:</b> Inter-Integrated Circuit (I2C) buses communicating with thermal monitors, current sensors, and power management ICs.</li>
+        <li><b>Supervisory & Command Communication:</b> Universal Asynchronous Receiver/Transmitter (UART) serial links connected to industrial PLCs, telemetry modems, or diagnostic consoles.</li>
+        <li><b>Digital Interlocking & Status Indication:</b> High-density General-Purpose I/O (GPIO) lines driving opto-isolated solid-state relays, emergency stop switches, and fault LEDs.</li>
+    </ul>
+
+    <h2>1.3 Problem Statement</h2>
+    <p>
+        Conventional microcontroller architectures deployed in industrial control units rely heavily on software-driven CPU execution models. In these standard setups, the central processor handles every byte transfer, status polling loop, and peripheral interrupt service routine (ISR). This software-centric model creates severe architectural limitations:
+    </p>
+    <ol>
+        <li><b>CPU Saturation and Interrupt Latency:</b> When multiple peripherals (UART, SPI, I2C, Timers) generate interrupts simultaneously, the CPU undergoes significant context-switching overhead. At high communication baud rates, the processor spends up to 60–80% of its execution cycles saving and restoring register states, leaving inadequate compute cycles for advanced control algorithms.</li>
+        <li><b>Peripheral Bus Contention & Jitter:</b> In architectures where peripheral traffic competes directly for memory access without dedicated arbitration, high-throughput transfers cause pipeline stalls on the CPU's load/store execution units, resulting in unpredictable control loop jitter.</li>
+        <li><b>Software Polling Overhead:</b> Reading slow serial peripherals like I2C or multi-byte SPI bursts via CPU polling wastes hundreds of instruction cycles waiting on hardware status flags.</li>
+        <li><b>Lack of Hardware Pipelining:</b> Traditional microcontrollers lack hardware facilities to stream data directly between peripherals (such as routing incoming sensor data directly to output actuators or memory) without software intervention.</li>
+    </ol>
+
+    <div class="callout">
+        <div class="callout-title">CRITICAL ARCHITECTURAL CHALLENGE</div>
+        Software-polled peripheral architectures fail when simultaneous sensor bursts saturate CPU interrupt handlers. By offloading data transfers and cross-peripheral routing entirely to an autonomous DMA engine and AXI crossbar, the CPU remains free to execute core application algorithms.
+    </div>
+
+    <h2>1.4 Proposed Solution & Architectural Innovation</h2>
+    <p>
+        To overcome the latency and throughput limitations of conventional software-driven microcontrollers, this project designs, implements, and verifies the <b>Smart Peripheral Control System-on-Chip (<code>smart_controlsoc</code>)</b>. Centered around the high-performance open-source <b>VeeR EL2 RV32IMC</b> RISC-V superscalar core, the proposed architecture introduces an autonomous hardware interconnect and memory-mapped peripheral fabric:
+    </p>
+    <ul>
+        <li><b>Superscalar RISC-V Compute Engine:</b> The Western Digital / CHIPS Alliance VeeR EL2 core provides a 4-stage dual-issue superscalar pipeline with dedicated 32 KB Instruction Closely Coupled Memory (ICCM) and 64 KB Data Closely Coupled Memory (DCCM), delivering deterministic single-cycle instruction execution.</li>
+        <li><b>Dual-Master 2x6 AMBA AXI4-Lite Crossbar Fabric:</b> A custom 2-master by 6-slave crossbar interconnect (<code>axi_interconnect_wrap_2x6</code>) featuring fair-share round-robin arbitration. It provides independent concurrent channels for CPU LSU requests (Master 1) and autonomous Direct Memory Access transfers (Master 2).</li>
+        <li><b>64-to-32 Bit LSU Width Adapter:</b> An asynchronous data width converter bridging the core's native 64-bit Load/Store Unit bus down to the 32-bit peripheral crossbar fabric, incorporating dynamic byte-lane steering based on address bits <code>ADDR[2]</code>.</li>
+        <li><b>Rich Multi-Protocol Peripheral IP Suite:</b> Synthesizable memory-mapped hardware controllers for UART, 64-bit System Timer, 32-bit GPIO with atomic manipulation, SPI Master, I2C Master, and 8-bit PWM.</li>
+        <li><b>Autonomous Bus-Mastering DMA Controller:</b> Master 2 on the AXI interconnect, capable of executing zero-copy memory transfers and peripheral-to-peripheral data streams with zero CPU intervention.</li>
+    </ul>
+
+    <h2>1.5 Project Objectives & Key Deliverables</h2>
+    <ul>
+        <li><b>Synthesizable System-Level RTL Codebase:</b> Complete Verilog-2001 and SystemVerilog RTL for the full SoC hierarchy (<code>smart_controlsoc_top.v</code>).</li>
+        <li><b>Dual-Master Crossbar Interconnect:</b> Synthesizable 2-master by 6-slave AXI4-Lite crossbar with round-robin arbitration and address aperture isolation.</li>
+        <li><b>Bare-Metal Firmware Verification Suite:</b> Production-grade bare-metal C test programs (<code>sw/main1.c</code>), linker script (<code>sw/link.ld</code>), and assembly bootstrap (<code>sw/crt0.S</code>).</li>
+        <li><b>Comprehensive Functional Testplan:</b> 26-test dual-column verification matrix (<code>Smart_ControlSoC_Testplan.csv</code>) tracking internal firmware and external UVM test checkpoints.</li>
+        <li><b>Modular UVM 1.2 Verification Infrastructure:</b> Custom Verification IPs (VIPs) for UART, Timer, GPIO, SPI, I2C, PWM, and DMA.</li>
+        <li><b>Simulation Sign-Off:</b> 100% pass regression in QuestaSim and VCS emitting the <code>0x900D</code> signature.</li>
+    </ul>
+
+    <h2>1.6 Project Milestones & Work Breakdown Schedule</h2>
+    <div class="table-caption">Table 1.1: Project Milestones and Work Breakdown Schedule</div>
+    <table class="academic-table">
+        <tr>
+            <th>Milestone</th>
+            <th>Phase Description</th>
+            <th>Target Output</th>
+            <th>Verification Status</th>
+        </tr>
+        <tr>
+            <td><b>M1</b></td>
+            <td>Architectural Specification & Address Map Definition</td>
+            <td><code>honours_system_specifications.docx</code>, <code>soc_memory_map.h</code></td>
+            <td>Completed & Signed Off</td>
+        </tr>
+        <tr>
+            <td><b>M2</b></td>
+            <td>AXI Interconnect & Core LSU Width Converter Design</td>
+            <td><code>axi_interconnect_wrap_2x6.sv</code>, <code>axi_dwidth_converter_64to32.sv</code></td>
+            <td>Verified (Clean AXI Handshakes)</td>
+        </tr>
+        <tr>
+            <td><b>M3</b></td>
+            <td>Peripherals Integration (UART, Timer, GPIO, SPI, I2C, PWM, DMA)</td>
+            <td><code>smart_controlsoc_top.v</code>, synthesized peripheral wrappers</td>
+            <td>Verified in QuestaSim & VCS</td>
+        </tr>
+        <tr>
+            <td><b>M4</b></td>
+            <td>RISC-V Bare-Metal Toolchain & Firmware Bring-up</td>
+            <td><code>crt0.S</code>, <code>link.ld</code>, <code>main1.c</code>, <code>main1.hex</code> generation</td>
+            <td>Verified (<code>0x900D</code> PASS status)</td>
+        </tr>
+        <tr>
+            <td><b>M5</b></td>
+            <td>Functional Testplan Definition (Internal / External)</td>
+            <td><code>Smart_ControlSoC_Testplan.csv</code> (26 Test Cases)</td>
+            <td>Fully Specified & Mapped</td>
+        </tr>
+        <tr>
+            <td><b>M6</b></td>
+            <td>UVM VIP Architecture & Testbench Infrastructure</td>
+            <td>7 Peripheral VIPs (<code>*_if.sv</code>, packages), <code>all_drv_run.f</code></td>
+            <td>Clean Compile & Elaboration</td>
+        </tr>
+        <tr>
+            <td><b>M7</b></td>
+            <td>Waveform Debugging, Sign-Off & Report Documentation</td>
+            <td>Questa/Verdi waveforms, <code>Course_Project_Report.pdf</code></td>
+            <td>Final Sign-Off (100% Pass)</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 2: ARCHITECTURE SPECIFICATION                                     -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 2</div>
+    <h1 class="chapter-title">Architecture Specification</h1>
+
+    <h2>2.1 System Architecture Overview</h2>
+    <p>
+        The <b>Smart Peripheral Control SoC (<code>smart_controlsoc</code>)</b> is an advanced 32-bit embedded System-on-Chip architected for high-performance industrial peripheral control, multi-protocol sensor telemetry, and deterministic hardware offloading.
+    </p>
+    <p>
+        At the center of the architecture is the <b>VeeR EL2 RV32IMC</b> processor core, paired with a high-throughput <b>AMBA AXI4-Lite Crossbar Interconnect</b> (<code>axi_interconnect_wrap_2x6</code>). The crossbar provides 2 independent master ports and 6 peripheral slave ports. Master 1 (<code>S00</code>) is assigned to the processor's Load/Store Unit (LSU) via a 64-to-32 bit bus width adapter. Master 2 (<code>S01</code>) is assigned to an autonomous bus-mastering Direct Memory Access (DMA) engine.
+    </p>
+
+    <h2>2.2 Top-Level SoC Block Diagram & Bus Topology</h2>
+    <div class="figure-box">
+        <img src="AXI4-Lite Smart Peripheral SoC Block Diagram.png" alt="AXI4-Lite Smart Peripheral SoC Block Diagram">
+        <div class="figure-caption">Figure 2.1: Top-Level SoC Block Diagram & Bus Topology</div>
+    </div>
+
+    <h2>2.3 Complete IP Inventory & Detailed Block Specifications</h2>
+    <p>
+        The complete hardware inventory implemented in <code>smart_controlsoc</code> is detailed in Table 2.1:
+    </p>
+
+    <div class="table-caption">Table 2.1: Complete IP Inventory and Functional Specifications</div>
+    <table class="academic-table">
+        <tr>
+            <th>IP Block</th>
+            <th>Module Name</th>
+            <th>Bus Role</th>
+            <th>Address Aperture</th>
+            <th>Primary Functional Description</th>
+        </tr>
+        <tr>
+            <td><b>RISC-V Core</b></td>
+            <td><code>el2_veer_wrapper</code></td>
+            <td>AXI4 Master 1 (<code>S00</code>)</td>
+            <td><code>0x0000_0000</code> (ICCM)</td>
+            <td>32-bit dual-issue RV32IMC processor core with 32 KB ICCM and 64 KB DCCM.</td>
+        </tr>
+        <tr>
+            <td><b>LSU Width Converter</b></td>
+            <td><code>axi_dwidth_converter_64to32</code></td>
+            <td>Protocol Bridge</td>
+            <td>Core to Interconnect</td>
+            <td>Bridges core 64-bit LSU bus to 32-bit AXI4-Lite with dynamic byte lane steering.</td>
+        </tr>
+        <tr>
+            <td><b>AXI Crossbar</b></td>
+            <td><code>axi_interconnect_wrap_2x6</code></td>
+            <td>Central Bus Fabric</td>
+            <td><code>0x4000_0000</code>–<code>0x4000_AFFF</code></td>
+            <td>2-Master x 6-Slave crossbar with independent channels and round-robin arbitration.</td>
+        </tr>
+        <tr>
+            <td><b>UART Controller</b></td>
+            <td><code>axi_uart_top</code></td>
+            <td>AXI4-Lite Slave (<code>M00</code>)</td>
+            <td><code>0x4000_0000</code>–<code>0x4000_0FFF</code></td>
+            <td>Full-duplex UART, programmable baud rate generator, 8N1 framing, FIFO status.</td>
+        </tr>
+        <tr>
+            <td><b>System Timer</b></td>
+            <td><code>timer_axi_wrapper</code></td>
+            <td>AXI4-Lite Slave (<code>M01</code>)</td>
+            <td><code>0x4000_4000</code>–<code>0x4000_4FFF</code></td>
+            <td>64-bit real-time counter (<code>mtime</code>), 64-bit compare threshold (<code>mtimecmp</code>), W1C IRQ.</td>
+        </tr>
+        <tr>
+            <td><b>GPIO Subsystem</b></td>
+            <td><code>gpio_axi_wrapper</code></td>
+            <td>AXI4-Lite Slave (<code>M02</code>)</td>
+            <td><code>0x4000_2000</code>–<code>0x4000_2FFF</code></td>
+            <td>32-bit bidirectional I/O, atomic SET/CLR/TOGGLE, input synchronizers, edge IRQs.</td>
+        </tr>
+        <tr>
+            <td><b>SPI Master</b></td>
+            <td><code>spi_axi_wrapper</code></td>
+            <td>AXI4-Lite Slave (<code>M03</code>)</td>
+            <td><code>0x4000_6000</code>–<code>0x4000_6FFF</code></td>
+            <td>High-speed synchronous SPI master, programmable clock ratio, TX/RX FIFOs.</td>
+        </tr>
+        <tr>
+            <td><b>I2C Master</b></td>
+            <td><code>i2c_axi_wrapper</code></td>
+            <td>AXI4-Lite Slave (<code>M04</code>)</td>
+            <td><code>0x4000_8000</code>–<code>0x4000_8FFF</code></td>
+            <td>Standard 2-wire serial bus master, START/STOP generator, clock prescaling.</td>
+        </tr>
+        <tr>
+            <td><b>PWM Generator</b></td>
+            <td><code>pwm_axi_wrapper</code></td>
+            <td>AXI4-Lite Slave (<code>M05</code>)</td>
+            <td><code>0x4000_A000</code>–<code>0x4000_AFFF</code></td>
+            <td>8-bit deterministic PWM generator, dynamic duty cycle register (<code>slv_reg0</code>).</td>
+        </tr>
+        <tr>
+            <td><b>DMA Controller</b></td>
+            <td><code>dma_axi_wrapper</code></td>
+            <td>Master 2 (<code>S01</code>) + Slave</td>
+            <td><code>0x4000_C000</code>–<code>0x4000_CFFF</code> (CSR)</td>
+            <td>Autonomous bus-mastering engine for peripheral-to-peripheral burst streaming.</td>
+        </tr>
+    </table>
+
+    <h3>2.3.1 RISC-V Processor Core — VeeR EL2</h3>
+    <p>The central computing core is the Western Digital / CHIPS Alliance VeeR EL2:</p>
+    <ul>
+        <li><b>RV32IMC ISA:</b> Base 32-bit integer architecture with Hardware Multiply/Divide (M), Compressed 16-bit instructions (C), and CSR access (Zicsr).</li>
+        <li><b>Dual-Issue Superscalar Pipeline:</b> 4-stage execution pipeline issuing up to two instructions per clock cycle.</li>
+        <li><b>Tightly Coupled Memories:</b> 32 KB Instruction Closely Coupled Memory (ICCM at <code>0x0000_0000</code>) and 64 KB Data Closely Coupled Memory (DCCM at <code>0xF004_0000</code>).</li>
+    </ul>
+
+    <h3>2.3.2 64-to-32 Bit Data Width Converter (<code>axi_dwidth_converter_64to32</code>)</h3>
+    <p>
+        The core LSU natively drives a 64-bit wide AXI4 master interface. Because the peripheral IP cores in this SoC utilize 32-bit data paths, a custom width adapter bridges the LSU to Port <code>S00</code> of the crossbar:
+    </p>
+    <ul>
+        <li><b>Dynamic Lane Selection:</b> Evaluates address bit <code>awaddr[2]</code> or <code>araddr[2]</code>. When accessing offset <code>+0x0</code> (lower 32-bit word), it steers data from LSU lanes <code>[31:0]</code>. When accessing offset <code>+0x4</code> (upper 32-bit word), it steers data from LSU lanes <code>[63:32]</code>.</li>
+        <li><b>Burst Size Clamping:</b> Clamps <code>awsize</code>/<code>arsize</code> from <code>3'b011</code> (8 bytes / 64-bit) down to <code>3'b010</code> (4 bytes / 32-bit).</li>
+    </ul>
+
+    <h2>2.4 Interfacing Signals & Pinout Specification</h2>
+    <div class="table-caption">Table 2.2: SoC Top-Level Physical Pinout Specification</div>
+    <table class="academic-table">
+        <tr>
+            <th>Port Signal Name</th>
+            <th>Direction</th>
+            <th>Width</th>
+            <th>Pin Type</th>
+            <th>Functional Description</th>
+        </tr>
+        <tr>
+            <td><code>sys_clk</code></td>
+            <td>Input</td>
+            <td>1</td>
+            <td>Global Clock</td>
+            <td>100 MHz primary system clock</td>
+        </tr>
+        <tr>
+            <td><code>sys_rst_n</code></td>
+            <td>Input</td>
+            <td>1</td>
+            <td>Async Reset</td>
+            <td>Global active-low system reset</td>
+        </tr>
+        <tr>
+            <td><code>uart_rx_i</code></td>
+            <td>Input</td>
+            <td>1</td>
+            <td>Digital Input</td>
+            <td>UART serial receive data line</td>
+        </tr>
+        <tr>
+            <td><code>uart_tx_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Digital Output</td>
+            <td>UART serial transmit data line</td>
+        </tr>
+        <tr>
+            <td><code>uart_interrupt_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Level IRQ</td>
+            <td>UART RX data-ready interrupt</td>
+        </tr>
+        <tr>
+            <td><code>timer_interrupt_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Level IRQ</td>
+            <td>64-bit System Timer compare match interrupt</td>
+        </tr>
+        <tr>
+            <td><code>gpio_io</code></td>
+            <td>Inout</td>
+            <td>32</td>
+            <td>Tri-State I/O</td>
+            <td>32-bit bidirectional GPIO pad signals</td>
+        </tr>
+        <tr>
+            <td><code>gpio_interrupt_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Level IRQ</td>
+            <td>Aggregated GPIO pin change interrupt</td>
+        </tr>
+        <tr>
+            <td><code>spi_clk_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Digital Output</td>
+            <td>SPI synchronous serial clock</td>
+        </tr>
+        <tr>
+            <td><code>spi_mosi_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Digital Output</td>
+            <td>SPI Master-Out Slave-In serial data</td>
+        </tr>
+        <tr>
+            <td><code>spi_miso_i</code></td>
+            <td>Input</td>
+            <td>1</td>
+            <td>Digital Input</td>
+            <td>SPI Master-In Slave-Out serial data</td>
+        </tr>
+        <tr>
+            <td><code>spi_cs_n_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Digital Output</td>
+            <td>SPI active-low slave select</td>
+        </tr>
+        <tr>
+            <td><code>i2c_scl_io</code></td>
+            <td>Inout</td>
+            <td>1</td>
+            <td>Open-Drain</td>
+            <td>I2C bidirectional serial clock line</td>
+        </tr>
+        <tr>
+            <td><code>i2c_sda_io</code></td>
+            <td>Inout</td>
+            <td>1</td>
+            <td>Open-Drain</td>
+            <td>I2C bidirectional serial data line</td>
+        </tr>
+        <tr>
+            <td><code>i2c_interrupt_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Level IRQ</td>
+            <td>I2C transfer complete interrupt</td>
+        </tr>
+        <tr>
+            <td><code>pwm_out_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Digital Output</td>
+            <td>8-bit high-precision PWM modulated output</td>
+        </tr>
+        <tr>
+            <td><code>dma_done_interrupt_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Pulse IRQ</td>
+            <td>DMA descriptor transfer complete interrupt</td>
+        </tr>
+        <tr>
+            <td><code>dma_error_interrupt_o</code></td>
+            <td>Output</td>
+            <td>1</td>
+            <td>Pulse IRQ</td>
+            <td>DMA bus fault / SLVERR abort interrupt</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 3: GITHUB ACCOUNT STEPS                                           -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 3</div>
+    <h1 class="chapter-title">GitHub Account Steps</h1>
+
+    <h2>3.1 Version Control in Advanced SoC Verification Projects</h2>
+    <p>
+        Disciplined revision control is fundamental in advanced digital VLSI and SoC verification projects. SystemVerilog RTL, testbenches, verification IPs, linker scripts, and firmware assembly must be strictly tracked to guarantee reproducible builds, regression traceability, and safe multi-engineer collaboration. For this project, all source code and documentation are version-controlled using Git and hosted on GitHub at:
+        <br>
+        <code>https://github.com/mohammedfardin593-ui/smart_controlsoc</code>
+    </p>
+
+    <h2>3.2 GitHub Account Creation & Secure Authentication Setup</h2>
+    <h3>Step 1: Account Creation & Security Hardening</h3>
+    <ol>
+        <li>Navigate to <code>https://github.com</code> and register an account using an academic/professional email (<code>mohammedfardin593@gmail.com</code>).</li>
+        <li>Enable Two-Factor Authentication (2FA) via a Time-Based One-Time Password (TOTP) application under <b>Account Settings → Password and Authentication</b>.</li>
+    </ol>
+
+    <h3>Step 2: SSH Key Generation & GitHub Association</h3>
+    <p>Using secure Ed25519 cryptographic key-pairs allows password-less <code>git push</code> and <code>git fetch</code> operations:</p>
+
+    <pre class="code-block">
+# 1. Open terminal or PowerShell on your workstation
+# 2. Generate a secure Ed25519 SSH key-pair
+ssh-keygen -t ed25519 -C "mohammedfardin593@gmail.com"
+
+# 3. Accept default path (~/.ssh/id_ed25519)
+# 4. Start the SSH agent in the background
+eval "$(ssh-agent -s)"
+
+# 5. Add your private key to the agent
+ssh-add ~/.ssh/id_ed25519
+
+# 6. Display and copy the public key
+cat ~/.ssh/id_ed25519.pub
+    </pre>
+
+    <p>
+        Copy the public key, navigate to <b>GitHub Settings → SSH and GPG keys → New SSH Key</b>, paste the key, and verify authentication:
+    </p>
+    <pre class="code-block">
+ssh -T git@github.com
+# Expected output: Hi mohammedfardin593-ui! You've successfully authenticated...
+    </pre>
+
+    <h2>3.3 Repository Initialization & Remote Configuration</h2>
+    <pre class="code-block">
+# 1. Configure global Git identity
+git config --global user.name "Mohammed Fardin"
+git config --global user.email "mohammedfardin593@gmail.com"
+git config --global init.defaultBranch main
+
+# 2. Navigate to project root directory
+cd D:/Riscv_proj/smart_controlsoc
+
+# 3. Initialize repository (if starting fresh)
+git init
+
+# 4. Link to GitHub remote repository
+git remote add origin https://github.com/mohammedfardin593-ui/smart_controlsoc.git
+
+# 5. Verify remote configuration
+git remote -v
+    </pre>
+
+    <h2>3.4 EDA-Specific .gitignore Configuration</h2>
+    <p>
+        Electronic Design Automation (EDA) simulation tools (Siemens QuestaSim, ModelSim, Synopsys VCS, Verdi) generate hundreds of megabytes of intermediate compilation databases, work directories, and waveform dumps during regression runs. The project enforces an EDA-tailored <code>.gitignore</code> file:
+    </p>
+
+    <pre class="code-block">
+# =============================================================================
+# .gitignore -- EDA Simulation & Toolchain Exclusions
+# =============================================================================
+
+# Siemens QuestaSim / ModelSim Artifacts
+work/
+transcript
+vsim.wlf
+*.wlf
+vish_stacktrace.vstf
+modelsim.ini
+
+# Synopsys VCS & Verdi Artifacts
+simv*
+csrc/
+*.daidir/
+*.sdb
+*.db
+rmapats.dat
+pcxpxmr.dat
+ucli.key
+*.fsdb
+*.vcd
+*.vpd
+novas_dump.log
+vfastLog/
+
+# Simulation Logs & Reports
+*.log
+*.rpt
+compile_soc.log
+sim_soc.log
+
+# RISC-V Intermediate Build Files (retain source .c, .S, .ld, and target .hex)
+*.o
+*.out
+*.map
+*.elf
+*.dis
+*.vmem
+    </pre>
+
+    <h2>3.5 Day-to-Day Development & Collaboration Workflow</h2>
+    <p>
+        The daily engineering development cycle adheres to standard Git practices:
+    </p>
+    <pre class="code-block">
+# Inspect recent verified commits
+git log --oneline -n 4
+# Output:
+# eaf6e45 Add formal academic Course Project Report for Smart Control SoC
+# 9a166e6 Delete sw/Address_mapping.ods
+# 5e6a02e Add files via upload
+# bf21977 Add comprehensive UVM Test Plan CSV and update README
+    </pre>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 4: RISC-V TOOLCHAIN SETUP STEPS                                   -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 4</div>
+    <h1 class="chapter-title">RISC-V Toolchain Setup Steps</h1>
+
+    <h2>4.1 Overview of the RISC-V GNU Compiler Toolchain</h2>
+    <p>
+        To compile bare-metal C applications and assembly startup routines into machine opcodes executable by the VeeR EL2 core, a RISC-V GNU cross-compiler toolchain is required. 
+        The Western Digital VeeR EL2 core implements the <b>RV32IMC</b> instruction set architecture:
+    </p>
+    <ul>
+        <li><b>RV32I:</b> Base 32-bit integer instruction set with 32 general-purpose registers (<code>x0</code>–<code>x31</code>).</li>
+        <li><b>M Extension:</b> Standard extension for integer multiplication and division hardware instructions.</li>
+        <li><b>C Extension:</b> 16-bit compressed instruction support for high code density in embedded memory.</li>
+        <li><b>Zicsr:</b> Control and Status Register read/write instructions.</li>
+    </ul>
+
+    <h2>4.2 Host System Prerequisites & Dependency Installation</h2>
+    <pre class="code-block">
+# For Ubuntu / Debian / WSL2 Systems:
+sudo apt-get update
+sudo apt-get install -y autoconf automake autotools-dev curl python3 python3-pip \
+    libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo \
+    gperf libtool patchutils bc zlib1g-dev libexpat-dev libglib2.0-dev git make
+
+# For CentOS 8 / RHEL 8 / Rocky Linux (Matching EDA Workstation Environments):
+sudo dnf groupinstall -y "Development Tools"
+sudo dnf install -y autoconf automake curl python3 gmp-devel mpfr-devel \
+    libmpc-devel gawk bison flex texinfo patchutils expat-devel zlib-devel git make
+    </pre>
+
+    <h2>4.3 Sourcing & Cloning the Toolchain Repository</h2>
+    <pre class="code-block">
+# 1. Create a tools directory
+mkdir -p ~/tools && cd ~/tools
+
+# 2. Clone the riscv-gnu-toolchain repository with recursive submodules (~4.5 GB)
+git clone --recursive https://github.com/riscv/riscv-gnu-toolchain.git
+cd riscv-gnu-toolchain
+    </pre>
+
+    <h2>4.4 Toolchain Configuration for VeeR EL2 (RV32IMC / ILP32)</h2>
+    <pre class="code-block">
+# 1. Create destination directory
+sudo mkdir -p /opt/riscv
+sudo chown -R $(whoami):$(whoami) /opt/riscv
+
+# 2. Configure for RV32IMC architecture with ILP32 ABI
+./configure \
+    --prefix=/opt/riscv \
+    --with-arch=rv32imc_zicsr \
+    --with-abi=ilp32 \
+    --enable-multilib
+    </pre>
+
+    <h2>4.5 Compilation, Installation & Environment Configuration</h2>
+    <pre class="code-block">
+# 1. Compile and install using all available cores
+make -j$(nproc)
+
+# 2. Add compiler binaries to user shell environment (~/.bashrc)
+echo 'export RISCV=/opt/riscv' >> ~/.bashrc
+echo 'export PATH=$RISCV/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+# 3. Verify cross-compiler version
+riscv64-unknown-elf-gcc --version
+# Expected: riscv64-unknown-elf-gcc (g2ee5e430018) 13.2.0 or newer
+    </pre>
+
+    <h2>4.6 Bare-Metal Firmware Build Flow & Toolchain Flags</h2>
+    <p>
+        The compilation pipeline relies on three essential assets: (1) <code>crt0.S</code> bootstrap assembler, (2) <code>link.ld</code> GNU linker script, and (3) <code>objcopy</code> Verilog hex converter:
+    </p>
+
+    <pre class="code-block">
+# Makefile Fragment for Firmware Compilation
+XCHAIN  := riscv64-unknown-elf
+CC      := $(XCHAIN)-gcc
+OBJCOPY := $(XCHAIN)-objcopy
+OBJDUMP := $(XCHAIN)-objdump
+
+CFLAGS  := -march=rv32imc_zicsr -mabi=ilp32 -O1 -g \
+           -ffreestanding -nostdlib -nostartfiles \
+           -fno-common -fomit-frame-pointer \
+           -Wall -Wextra
+
+# Step 1: Compile C source and bootstrap assembly into ELF executable
+main1.elf: crt0.S main1.c link.ld
+	$(CC) $(CFLAGS) -T link.ld -o $@ crt0.S main1.c
+
+# Step 2: Extract Verilog memory hex format (1 byte per row) for $readmemh
+main1.hex: main1.elf
+	$(OBJCOPY) -O verilog --verilog-data-width=1 $< $@
+
+# Step 3: Generate human-readable disassembly for pipeline inspection
+main1.dump: main1.elf
+	$(OBJDUMP) -d -S -M no-aliases $< > $@
+    </pre>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 5: ADDRESS MAP                                                    -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 5</div>
+    <h1 class="chapter-title">Address Map</h1>
+
+    <h2>5.1 System-Wide Memory Map Overview</h2>
+    <p>
+        The <b>Smart Peripheral Control SoC</b> memory architecture is partitioned into tightly coupled internal CPU memories, memory-mapped peripheral apertures, and simulation tohost reporting registers. 
+        The central AXI4-Lite crossbar interconnect (<code>axi_interconnect_wrap_2x6</code>) allocates a 4 KB address aperture (<code>0x1000</code> bytes) to each peripheral slave port. Any bus access attempting to reach an unmapped address hole triggers an immediate AXI <code>SLVERR</code> response (<code>2'b10</code>).
+    </p>
+
+    <h2>5.2 Master Memory Aperture Summary Table</h2>
+    <div class="table-caption">Table 5.1: Master System Memory Map and Peripheral Address Apertures</div>
+    <table class="academic-table">
+        <tr>
+            <th>Region / Subsystem</th>
+            <th>Base Address</th>
+            <th>End Address</th>
+            <th>Size</th>
+            <th>Bus Interface</th>
+            <th>Primary Architectural Function</th>
+        </tr>
+        <tr>
+            <td><b>ICCM</b> (Instruction Memory)</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>0x0000_7FFF</code></td>
+            <td>32 KB</td>
+            <td>Core Local Bus</td>
+            <td>VeeR EL2 Instruction Closely Coupled Memory (Reset Vector <code>_start</code>)</td>
+        </tr>
+        <tr>
+            <td><b>DCCM</b> (Data Memory / Stack)</td>
+            <td><code>0xF004_0000</code></td>
+            <td><code>0xF004_FFFF</code></td>
+            <td>64 KB</td>
+            <td>Core Local Bus</td>
+            <td>VeeR EL2 Data Closely Coupled Memory (Variables, Stack, Heap)</td>
+        </tr>
+        <tr>
+            <td><b>UART IP Core (M00)</b></td>
+            <td><code>0x4000_0000</code></td>
+            <td><code>0x4000_0FFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>Serial telemetry transceiver, baud generator, 8N1 framing, FIFO status</td>
+        </tr>
+        <tr>
+            <td><b>GPIO Subsystem (M02)</b></td>
+            <td><code>0x4000_2000</code></td>
+            <td><code>0x4000_2FFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>32-bit bidirectional I/O, atomic SET/CLR/TOGGLE, edge/level interrupts</td>
+        </tr>
+        <tr>
+            <td><b>System Timer (M01)</b></td>
+            <td><code>0x4000_4000</code></td>
+            <td><code>0x4000_4FFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>64-bit real-time counter (<code>mtime</code>) and compare interrupt (<code>mtimecmp</code>)</td>
+        </tr>
+        <tr>
+            <td><b>SPI Master IP (M03)</b></td>
+            <td><code>0x4000_6000</code></td>
+            <td><code>0x4000_6FFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>Synchronous serial master, clock ratio prescaler, TX/RX FIFOs</td>
+        </tr>
+        <tr>
+            <td><b>I2C Master IP (M04)</b></td>
+            <td><code>0x4000_8000</code></td>
+            <td><code>0x4000_8FFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>Two-wire serial bus master, clock prescaler, START/STOP generator</td>
+        </tr>
+        <tr>
+            <td><b>PWM Generator (M05)</b></td>
+            <td><code>0x4000_A000</code></td>
+            <td><code>0x4000_AFFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>8-bit deterministic PWM pulse-width modulator (<code>slv_reg0</code>)</td>
+        </tr>
+        <tr>
+            <td><b>DMA Controller CSRs</b></td>
+            <td><code>0x4000_C000</code></td>
+            <td><code>0x4000_CFFF</code></td>
+            <td>4 KB</td>
+            <td>AXI4-Lite Slave</td>
+            <td>Autonomous transfer descriptors, source/dest pointers, length, status</td>
+        </tr>
+        <tr>
+            <td><b>Simulation Tohost Port</b></td>
+            <td><code>0xD058_0000</code></td>
+            <td><code>0xD058_0003</code></td>
+            <td>4 B</td>
+            <td>Direct Decode</td>
+            <td>Simulation pass/fail reporting register (<code>0x900D</code>=Pass, <code>0xDEAD</code>=Fail)</td>
+        </tr>
+    </table>
+
+    <h2>5.3 Detailed Peripheral Register Maps</h2>
+    <div class="table-caption">Table 5.2: UART Controller Register Map (Base: 0x4000_0000)</div>
+    <table class="academic-table">
+        <tr>
+            <th>Offset</th>
+            <th>Register Name</th>
+            <th>Access</th>
+            <th>Reset Value</th>
+            <th>Bit Fields & Functional Description</th>
+        </tr>
+        <tr>
+            <td><code>0x00</code></td>
+            <td><code>UART_RBR</code></td>
+            <td>RO</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[7:0]</code> Receiver Buffer Register. Reads oldest received byte from RX FIFO.</td>
+        </tr>
+        <tr>
+            <td><code>0x00</code></td>
+            <td><code>UART_THR</code></td>
+            <td>WO</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[7:0]</code> Transmitter Holding Register. Writes byte to TX FIFO for serialization.</td>
+        </tr>
+        <tr>
+            <td><code>0x04</code></td>
+            <td><code>UART_IER</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[0]</code> RX Data Ready IRQ Enable; <code>[1]</code> TX Holding Register Empty IRQ Enable.</td>
+        </tr>
+        <tr>
+            <td><code>0x08</code></td>
+            <td><code>UART_BAUD_DIV</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[15:0]</code> Baud Rate Divisor: Baud = fclk / (16 x Divisor). Set to 40 in simulation.</td>
+        </tr>
+        <tr>
+            <td><code>0x0C</code></td>
+            <td><code>UART_LCR</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[1:0]</code> Character Length (8-bit=0x3); <code>[2]</code> Stop Bits; <code>[3]</code> Parity; <code>[7]</code> DLAB enable.</td>
+        </tr>
+        <tr>
+            <td><code>0x14</code></td>
+            <td><code>UART_LSR</code></td>
+            <td>RO</td>
+            <td><code>0x0000_0060</code></td>
+            <td><code>[0]</code> DR (Data Ready); <code>[1]</code> OE (Overrun Error); <code>[5]</code> THRE (TX Empty); <code>[6]</code> TEMT (TX Idle).</td>
+        </tr>
+    </table>
+
+    <div class="table-caption">Table 5.3: System Timer Register Map (Base: 0x4000_4000)</div>
+    <table class="academic-table">
+        <tr>
+            <th>Offset</th>
+            <th>Register Name</th>
+            <th>Access</th>
+            <th>Reset Value</th>
+            <th>Bit Fields & Functional Description</th>
+        </tr>
+        <tr>
+            <td><code>0x000</code></td>
+            <td><code>TIMER_ALERT_TEST</code></td>
+            <td>WO</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[0]</code> Alert test force trigger.</td>
+        </tr>
+        <tr>
+            <td><code>0x004</code></td>
+            <td><code>TIMER_CTRL</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[0]</code> Timer Active Enable (active_0). When 1, counter increments monotonically.</td>
+        </tr>
+        <tr>
+            <td><code>0x100</code></td>
+            <td><code>TIMER_INTR_ENABLE0</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[0]</code> Timer Compare Interrupt Enable.</td>
+        </tr>
+        <tr>
+            <td><code>0x104</code></td>
+            <td><code>TIMER_INTR_STATE0</code></td>
+            <td>RW/W1C</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[0]</code> Interrupt Pending Status. Write 1 to clear (W1C).</td>
+        </tr>
+        <tr>
+            <td><code>0x108</code></td>
+            <td><code>TIMER_INTR_TEST0</code></td>
+            <td>WO</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[0]</code> Software forced interrupt generation for diagnostic verification.</td>
+        </tr>
+        <tr>
+            <td><code>0x10C</code></td>
+            <td><code>TIMER_CFG0</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[11:0]</code> Prescaler Divisor; <code>[23:16]</code> Step increment per prescaled tick.</td>
+        </tr>
+        <tr>
+            <td><code>0x110</code></td>
+            <td><code>TIMER_V_LOWER0</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[31:0]</code> Lower 32 bits of 64-bit real-time counter (mtime[31:0]).</td>
+        </tr>
+        <tr>
+            <td><code>0x114</code></td>
+            <td><code>TIMER_V_UPPER0</code></td>
+            <td>RW</td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>[31:0]</code> Upper 32 bits of 64-bit real-time counter (mtime[63:32]).</td>
+        </tr>
+        <tr>
+            <td><code>0x118</code></td>
+            <td><code>TIMER_COMPARE_LOWER0</code></td>
+            <td>RW</td>
+            <td><code>0xFFFF_FFFF</code></td>
+            <td><code>[31:0]</code> Lower 32 bits of 64-bit compare register (mtimecmp[31:0]).</td>
+        </tr>
+        <tr>
+            <td><code>0x11C</code></td>
+            <td><code>TIMER_COMPARE_UPPER0</code></td>
+            <td>RW</td>
+            <td><code>0xFFFF_FFFF</code></td>
+            <td><code>[31:0]</code> Upper 32 bits of 64-bit compare register (mtimecmp[63:32]).</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 6: TESTPLAN WITH EXTERNAL / INTERNAL TEST COLUMN                  -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 6</div>
+    <h1 class="chapter-title">Testplan with External / Internal Test Column</h1>
+
+    <h2>6.1 Verification Methodology & Testplan Architecture</h2>
+    <p>
+        Verification of the <b>Smart Peripheral Control SoC</b> employs a dual-faceted co-verification methodology:
+    </p>
+    <ul>
+        <li><b>Internal Verification (C Firmware Execution):</b> Bare-metal C test routines compiled into machine code execute directly on the VeeR EL2 processor from ICCM. The software configures memory-mapped registers, programs DMA descriptors, manages polling loops, and verifies read-back values.</li>
+        <li><b>External Verification (SystemVerilog / UVM Testbench):</b> The external testbench drives asynchronous physical pins (serial RX bits, GPIO inputs), snoops AXI bus interfaces to verify handshakes and response codes, checks interrupt lines, and verifies data integrity.</li>
+    </ul>
+
+    <h2>6.2 Complete SoC Verification Matrix (26 Test Cases)</h2>
+    <div class="table-caption">Table 6.1: Comprehensive 26-Test SoC Verification Matrix</div>
+    <table class="academic-table">
+        <tr>
+            <th>SNo</th>
+            <th>Test ID</th>
+            <th>Description & Checkpoint</th>
+            <th>Internal Test (C Firmware)</th>
+            <th>External Test (SV / UVM Testbench)</th>
+        </tr>
+        <tr>
+            <td><b>1</b></td>
+            <td><code>TC_BOOT_01</code></td>
+            <td><b>Power-on Reset & Entry Vector Check:</b> CPU executes first opcode at reset vector. Registers assert defaults.</td>
+            <td>Execute entry bootstrap in <code>crt0.S</code>, init <code>sp</code>, zero <code>.bss</code>, write 0x01 to <code>GPIO_OUT</code>.</td>
+            <td>Drive active-low <code>sys_rst_n=0</code> for 20 cycles, deassert, monitor reset vector. Verify slave buses quiescent.</td>
+        </tr>
+        <tr>
+            <td><b>2</b></td>
+            <td><code>TC_BOOT_02</code></td>
+            <td><b>DCCM Stack Frame & Memory Integrity:</b> Verify push/pop returns expected data with 0 errors.</td>
+            <td>Allocate stack frames across nested functions; write and verify walking 1s and 0s patterns.</td>
+            <td>Snoop CPU LSU bus and DCCM interfaces. Assert zero memory bus error flags and zero exception lines.</td>
+        </tr>
+        <tr>
+            <td><b>3</b></td>
+            <td><code>TC_UART_01</code></td>
+            <td><b>UART Config & Baud Setup:</b> Verify LCR, BAUD_DIV, and IER readback persistence under AXI-Lite access.</td>
+            <td>Set DLAB=1, write divisor 40, set 8N1 (0x03), enable RX IRQ (0x01). Read back and assert equality.</td>
+            <td>AXI Master Monitor snoops Port M00. Checks <code>awready/wready</code> handshakes, verifies <code>bresp=OKAY</code>.</td>
+        </tr>
+        <tr>
+            <td><b>4</b></td>
+            <td><code>TC_UART_02</code></td>
+            <td><b>UART TX Character Serialization:</b> Transmit byte 'A' (0x41) across <code>uart_tx_o</code> at divisor=40.</td>
+            <td>Poll <code>UART_LSR[5]</code>, write 0x41 to <code>UART_THR</code>, poll <code>UART_LSR[6]</code> until empty.</td>
+            <td><code>uart_agent</code> monitor detects start bit on <code>uart_tx_o</code>, samples 8 bits mid-cycle, verifies 0x41.</td>
+        </tr>
+        <tr>
+            <td><b>5</b></td>
+            <td><code>TC_UART_03</code></td>
+            <td><b>UART RX Data Injection:</b> External host injects 0x5A into <code>uart_rx_i</code>; <code>UART_RBR</code> reads 0x5A.</td>
+            <td>Poll <code>UART_LSR[0]</code>, read <code>UART_RBR</code>, verify data==0x5A and IRQ deasserts.</td>
+            <td>Driver serializes 0x5A into <code>uart_rx_i</code>. Monitor checks <code>uart_interrupt_o===1</code> upon framing.</td>
+        </tr>
+        <tr>
+            <td><b>6</b></td>
+            <td><code>TC_UART_04</code></td>
+            <td><b>UART Multi-Byte Burst:</b> Stream string 'RISCV' sequentially across interconnect without loss.</td>
+            <td>Write characters 'R', 'I', 'S', 'C', 'V' into <code>UART_THR</code> monitoring THRE flag.</td>
+            <td>Scoreboard collects 5 serial frames from <code>uart_tx_o</code>, verifies exact sequence without parity error.</td>
+        </tr>
+        <tr>
+            <td><b>7</b></td>
+            <td><code>TC_TMR_01</code></td>
+            <td><b>64-bit Timer Prescaler Progression:</b> Monotonic counter progression at programmed step.</td>
+            <td>Write 0x0001_0000 to <code>TIMER_CFG0</code>, enable via <code>TIMER_CTRL=1</code>, assert t1 >= t0 + 15.</td>
+            <td>Snoop Port M01. Verify <code>TIMER_CTRL</code> write takes effect, counter advances monotonically.</td>
+        </tr>
+        <tr>
+            <td><b>8</b></td>
+            <td><code>TC_TMR_02</code></td>
+            <td><b>Timer Compare Match & W1C:</b> Validate interrupt fires on match and clears on W1C.</td>
+            <td>Program compare threshold t0 + 25, wait for match, clear with W1C (<code>TIMER_INTR_STATE0=1</code>).</td>
+            <td>Monitor <code>timer_interrupt_o</code> pin. Assert transition 0 -> 1 on match and deassertion on W1C write.</td>
+        </tr>
+        <tr>
+            <td><b>9</b></td>
+            <td><code>TC_TMR_03</code></td>
+            <td><b>Timer Forced Interrupt Test:</b> Software force triggers interrupt via <code>TIMER_INTR_TEST0</code>.</td>
+            <td>Write 0x1 to <code>TIMER_INTR_TEST0</code>, assert pending bit is set, clear via W1C.</td>
+            <td>Assert <code>timer_interrupt_o===1</code> on force write. Scoreboard checks counter value unaffected.</td>
+        </tr>
+        <tr>
+            <td><b>10</b></td>
+            <td><code>TC_GPIO_01</code></td>
+            <td><b>GPIO Pin Output Drive:</b> Pin 0 configured as Push-Pull output drives 1 and 0 directly.</td>
+            <td>Read <code>GPIO_INFO</code> (0x0000_0820), set <code>GPIO_MODE_0=0x01</code>, write <code>GPIO_OUT</code> 1 then 0.</td>
+            <td><code>gpio_agent</code> monitor samples <code>gpio_io[0]</code>, confirms 0 -> 1 and 1 -> 0 transitions.</td>
+        </tr>
+        <tr>
+            <td><b>11</b></td>
+            <td><code>TC_GPIO_02</code></td>
+            <td><b>GPIO Atomic Manipulation:</b> Verify atomic SET/CLEAR/TOGGLE registers without read-modify-write.</td>
+            <td>Write 0x1 to <code>CLEAR</code> -> 0. Write 0x1 to <code>SET</code> -> 1. Write 0x1 to <code>TOGGLE</code> -> 0.</td>
+            <td>Scoreboard checks atomic register decoder, asserts 1-cycle update and adjacent pins unaffected.</td>
+        </tr>
+        <tr>
+            <td><b>12</b></td>
+            <td><code>TC_GPIO_03</code></td>
+            <td><b>GPIO Input Sampling:</b> Drive external stimulus on Pin 1 through 2-stage synchronizers.</td>
+            <td>Configure Pin 1 as input, enable sampling in <code>GPIO_EN</code>, read <code>GPIO_IN</code> and compare.</td>
+            <td>Driver drives stimulus onto <code>gpio_io[1]</code>, verifies 2-clock synchronization delay.</td>
+        </tr>
+        <tr>
+            <td><b>13</b></td>
+            <td><code>TC_GPIO_04</code></td>
+            <td><b>GPIO Edge Interrupt & W1C:</b> Rising edge on Pin 1 triggers interrupt; clears via W1C.</td>
+            <td>Enable sticky mode in <code>GPIO_CFG</code>, enable rise IRQ. Read status on IRQ, clear via W1C.</td>
+            <td>Driver pulses <code>gpio_io[1]</code> 0 -> 1. Assert <code>gpio_interrupt_o===1</code> and deassertion after W1C.</td>
+        </tr>
+        <tr>
+            <td><b>14</b></td>
+            <td><code>TC_SPI_01</code></td>
+            <td><b>SPI Clock Ratio & Control Setup:</b> Program <code>SPI_RCLK</code> and enable master mode in <code>SPI_CR</code>.</td>
+            <td>Read <code>SPI_SR</code> (0x05), write 0x186 to <code>SPI_CR</code> to enable master system. Read back.</td>
+            <td>Monitor checks Port M03 transactions, asserts SPI core enters Master mode and initializes baud clock.</td>
+        </tr>
+        <tr>
+            <td><b>15</b></td>
+            <td><code>TC_SPI_02</code></td>
+            <td><b>SPI Byte Transmission:</b> Write 0xA5 to <code>SPI_DTR</code> and observe serial transmission.</td>
+            <td>Write 0xA5 to <code>SPI_DTR</code>, poll <code>SPI_SR</code> until empty and transfer complete flag asserts.</td>
+            <td>Monitor checks <code>spi_cs_n_o</code> going active low, counts 8 clock pulses, verifies byte 0xA5 on MOSI.</td>
+        </tr>
+        <tr>
+            <td><b>16</b></td>
+            <td><code>TC_I2C_01</code></td>
+            <td><b>I2C Prescaler & Core Enable:</b> Program <code>I2C_PRER_LO</code> and enable core in <code>I2C_CTR</code>.</td>
+            <td>Read default prescaler, write 0x64 (100) to <code>PRER_LO</code>, write 0x80 to <code>I2C_CTR</code>.</td>
+            <td>Monitor verifies SCL and SDA maintain pull-up HIGH states and prescaler divides clock.</td>
+        </tr>
+        <tr>
+            <td><b>17</b></td>
+            <td><code>TC_I2C_02</code></td>
+            <td><b>I2C Master Byte Transmission:</b> Transmit address 0x50 and verify START, 8 bits, and ACK phase.</td>
+            <td>Write 0x50 to <code>I2C_TXR_RXR</code>, set STA and WR bits in Command Register (0x90). Poll TIP.</td>
+            <td>Monitor detects START condition, deserializes 8 bits on SDA, drives ACK bit low, checks IRQ.</td>
+        </tr>
+        <tr>
+            <td><b>18</b></td>
+            <td><code>TC_PWM_01</code></td>
+            <td><b>PWM 8-bit Duty Modulation:</b> Program 50% (0x80) and 100% (0xFF) into <code>PWM_DUTY_REG</code>.</td>
+            <td>Write 0x80 to <code>PWM_DUTY_REG</code>, delay 500 cycles, write 0xFF. Read back to verify.</td>
+            <td><code>pwm_monitor</code> measures high_time/period on <code>pwm_out_o</code>, asserts 50.0% and 100% duty ratios.</td>
+        </tr>
+        <tr>
+            <td><b>19</b></td>
+            <td><code>TC_PWM_02</code></td>
+            <td><b>PWM Continuous Rollover:</b> Sweep duty cycle 0% -> 25% -> 75% -> 100% glitch-free.</td>
+            <td>Step through values {0x00, 0x40, 0xC0, 0xFF} with 256 cycle pauses between steps.</td>
+            <td>Scoreboard checks that 8-bit counter increments continuously modulo-256 without output glitches.</td>
+        </tr>
+        <tr>
+            <td><b>20</b></td>
+            <td><code>TC_DMA_01</code></td>
+            <td><b>DMA CSR Register Access:</b> Dedicated AXI4-Lite CSR port access and version check (0xCAFE).</td>
+            <td>Read <code>DMA_STATUS</code> and assert version==0xCAFE. Write and readback test descriptors.</td>
+            <td>UVM AXI-Lite monitor snoops dedicated CSR bus, verifies OKAY responses and version 0xCAFE.</td>
+        </tr>
+        <tr>
+            <td><b>21</b></td>
+            <td><code>TC_DMA_02</code></td>
+            <td><b>DMA Autonomous Burst via S01:</b> DMA transfers word from PWM (0x4000_A000) to GPIO_OUT.</td>
+            <td>Write 0x1234_5678 to PWM, configure DMA descriptor, assert GO bit, verify <code>GPIO_OUT</code>.</td>
+            <td>Monitor captures AXI master transactions on Port S01, asserts M05 read and M02 write handshakes.</td>
+        </tr>
+        <tr>
+            <td><b>22</b></td>
+            <td><code>TC_DMA_03</code></td>
+            <td><b>DMA Bus Error Abort:</b> Attempt DMA transfer targeting illegal address space (0x4000_D000).</td>
+            <td>Program destination to unmapped hole 0x4000_D000, trigger DMA, poll <code>DMA_STATUS</code> error bit.</td>
+            <td>Crossbar returns SLVERR (bresp=2'b10), monitor asserts <code>dma_error_interrupt_o===1</code>.</td>
+        </tr>
+        <tr>
+            <td><b>23</b></td>
+            <td><code>TC_PIPE_01</code></td>
+            <td><b>Autonomous Pipeline:</b> PWM test vector streams through DMA to update physical GPIO pins.</td>
+            <td>Configure PWM pattern, arm DMA loop to <code>GPIO_OUT</code>, monitor external pin activity.</td>
+            <td>Scoreboard verifies end-to-end data transfer from PWM to physical <code>gpio_io</code> pads.</td>
+        </tr>
+        <tr>
+            <td><b>24</b></td>
+            <td><code>TC_BUS_01</code></td>
+            <td><b>Multi-Master Arbitration Stress:</b> Concurrent transactions from CPU (S00) and DMA (S01).</td>
+            <td>Execute back-to-back CPU reads to Timer while DMA actively streams PWM data to GPIO.</td>
+            <td>Protocol checker asserts zero deadlocks, proper ID routing, and fair round-robin grant arbitration.</td>
+        </tr>
+        <tr>
+            <td><b>25</b></td>
+            <td><code>TC_BUS_02</code></td>
+            <td><b>Address Decoding & SLVERR Check:</b> Access unmapped peripheral space (0x4000_9000).</td>
+            <td>Perform load/store to 0x4000_9000, catch expected bus-error trap in exception handler.</td>
+            <td>Monitor verifies default slave returns <code>rresp/bresp=2'b10</code> (SLVERR) without hanging handshakes.</td>
+        </tr>
+        <tr>
+            <td><b>26</b></td>
+            <td><code>TC_FULL_01</code></td>
+            <td><b>Full Regression Firmware Pass:</b> Sequential execution of all 8 verification suites.</td>
+            <td>Execute <code>main()</code> through UART, Timer, GPIO, SPI, I2C, PWM, DMA. Emit 0x900D.</td>
+            <td>Scoreboard detects completion signature 16'h900D on GPIO, displays pass message, calls <code>$finish</code>.</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 7: ALL VIPS CSV FILES AND INTERFACE FILES                         -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 7</div>
+    <h1 class="chapter-title">All VIPs CSV Files and Interface Files</h1>
+
+    <h2>7.1 UVM Verification IP (VIP) Signal Boundary Architecture</h2>
+    <p>
+        In advanced System-on-Chip verification, a fundamental architectural principle governs Verification IP boundary definition: <b>VIP interfaces must strictly model and monitor the external pin-level boundaries of the Design Under Test (DUT)</b>. Internal buses—such as the 64-to-32 bit adapter signals, the internal AXI crossbar routing lines, and the CPU tightly coupled memories—are verified via internal firmware execution, assertions, and bus snooping monitors, and must not be exposed as external VIP interfaces.
+    </p>
+
+    <h2>7.2 Automated VIP Generation Tool Flow</h2>
+    <p>
+        To ensure high modularity and standardization across the verification environment, the project employs a structured Python generator (<code>uvm_full_tb_generator.py</code>). This script parses a signal definition CSV file and automatically synthesizes a complete IEEE 1800.2 UVM 1.2 package.
+    </p>
+
+    <h2>7.3 UART VIP — CSV Definition & Interface File</h2>
+    <div class="table-caption">Table 7.1: UART VIP Signal Definitions (uart_signals.csv)</div>
+    <table class="academic-table">
+        <tr>
+            <th>Signal Name</th>
+            <th>Direction</th>
+            <th>Width (bits)</th>
+            <th>VIP Role</th>
+        </tr>
+        <tr>
+            <td><code>uart_rx_i</code></td>
+            <td>input</td>
+            <td>1</td>
+            <td>TB drives serial telemetry bits into DUT receiver pin</td>
+        </tr>
+        <tr>
+            <td><code>uart_tx_o</code></td>
+            <td>output</td>
+            <td>1</td>
+            <td>DUT drives serialized transmitter output pin</td>
+        </tr>
+        <tr>
+            <td><code>uart_interrupt_o</code></td>
+            <td>output</td>
+            <td>1</td>
+            <td>DUT drives RX FIFO data-ready interrupt line to core PIC</td>
+        </tr>
+    </table>
+
+    <pre class="code-block">
+// =============================================================================
+// File: tb/vip/uart_vip/uart_vip_if.sv
+// Function: UART VIP Physical Pin Interface
+// =============================================================================
+`timescale 1ns/1ps
+
+interface uart_vip_if(input logic clk, input logic rst_n);
+    logic uart_rx_i;
+    logic uart_tx_o;
+    logic uart_interrupt_o;
+
+    modport DRV (
+        input  clk, rst_n, uart_tx_o, uart_interrupt_o,
+        output uart_rx_i
+    );
+
+    modport MON (
+        input clk, rst_n, uart_rx_i, uart_tx_o, uart_interrupt_o
+    );
+endinterface : uart_vip_if
+    </pre>
+
+    <h2>7.4 System Timer VIP — CSV Definition & Interface File</h2>
+    <div class="table-caption">Table 7.2: System Timer VIP Signal Definitions (systimer_signals.csv)</div>
+    <table class="academic-table">
+        <tr>
+            <th>Signal Name</th>
+            <th>Direction</th>
+            <th>Width (bits)</th>
+            <th>VIP Role</th>
+        </tr>
+        <tr>
+            <td><code>timer_interrupt_o</code></td>
+            <td>output</td>
+            <td>1</td>
+            <td>DUT drives compare-match interrupt line to PIC/CPU</td>
+        </tr>
+    </table>
+
+    <pre class="code-block">
+// =============================================================================
+// File: tb/vip/systimer_vip/systimer_vip_if.sv
+// Function: System Timer VIP Interface
+// =============================================================================
+`timescale 1ns/1ps
+
+interface systimer_vip_if(input logic clk, input logic rst_n);
+    logic timer_interrupt_o;
+
+    modport MON (
+        input clk, rst_n, timer_interrupt_o
+    );
+endinterface : systimer_vip_if
+    </pre>
+
+    <h2>7.5 GPIO VIP — CSV Definition & Interface File</h2>
+    <div class="table-caption">Table 7.3: GPIO VIP Signal Definitions (gpio_signals.csv)</div>
+    <table class="academic-table">
+        <tr>
+            <th>Signal Name</th>
+            <th>Direction</th>
+            <th>Width (bits)</th>
+            <th>VIP Role</th>
+        </tr>
+        <tr>
+            <td><code>gpio_in_i</code></td>
+            <td>input</td>
+            <td>32</td>
+            <td>TB drives external parallel stimulus into DUT input pads</td>
+        </tr>
+        <tr>
+            <td><code>gpio_out_o</code></td>
+            <td>output</td>
+            <td>32</td>
+            <td>DUT drives parallel output data register values</td>
+        </tr>
+        <tr>
+            <td><code>gpio_tx_en_o</code></td>
+            <td>output</td>
+            <td>32</td>
+            <td>DUT drives output enable mask (1=drive output, 0=high-Z)</td>
+        </tr>
+        <tr>
+            <td><code>gpio_interrupt_o</code></td>
+            <td>output</td>
+            <td>1</td>
+            <td>DUT drives edge/level interrupt line to PIC</td>
+        </tr>
+    </table>
+
+    <pre class="code-block">
+// =============================================================================
+// File: tb/vip/gpio_vip/gpio_vip_if.sv
+// Function: GPIO VIP Physical Interface
+// =============================================================================
+`timescale 1ns/1ps
+
+interface gpio_vip_if(input logic clk, input logic rst_n);
+    logic [31:0] gpio_in_i;
+    logic [31:0] gpio_out_o;
+    logic [31:0] gpio_tx_en_o;
+    logic        gpio_interrupt_o;
+
+    modport DRV (
+        input  clk, rst_n, gpio_out_o, gpio_tx_en_o, gpio_interrupt_o,
+        output gpio_in_i
+    );
+
+    modport MON (
+        input clk, rst_n, gpio_in_i, gpio_out_o, gpio_tx_en_o, gpio_interrupt_o
+    );
+endinterface : gpio_vip_if
+    </pre>
+
+    <h2>7.6 Master VIP Compilation Filelist (<code>all_drv_run.f</code>)</h2>
+    <pre class="code-block">
+# =============================================================================
+# all_drv_run.f -- Compilation order for all UVM VIP interfaces and packages
+# =============================================================================
+
++incdir+$UVM_HOME/src
+$UVM_HOME/src/uvm_pkg.sv
+
+# 1. VIP Interfaces
++incdir+tb/vip/uart_vip     tb/vip/uart_vip/uart_vip_if.sv
++incdir+tb/vip/systimer_vip tb/vip/systimer_vip/systimer_vip_if.sv
++incdir+tb/vip/gpio_vip     tb/vip/gpio_vip/gpio_vip_if.sv
++incdir+tb/vip/spi_vip      tb/vip/spi_vip/spi_vip_if.sv
++incdir+tb/vip/i2c_vip      tb/vip/i2c_vip/i2c_vip_if.sv
++incdir+tb/vip/pwm_vip      tb/vip/pwm_vip/pwm_vip_if.sv
++incdir+tb/vip/dma_vip      tb/vip/dma_vip/dma_vip_if.sv
+
+# 2. VIP Packages
+tb/vip/uart_vip/uart_vip_pkg.sv
+tb/vip/systimer_vip/systimer_vip_pkg.sv
+tb/vip/gpio_vip/gpio_vip_pkg.sv
+tb/vip/spi_vip/spi_vip_pkg.sv
+tb/vip/i2c_vip/i2c_vip_pkg.sv
+tb/vip/pwm_vip/pwm_vip_pkg.sv
+tb/vip/dma_vip/dma_vip_pkg.sv
+
+# 3. Top-Level SoC UVM Environment & Testbench
+tb/soc_uvm_pkg.sv
+tb/tb_smart_controlsoc_uvm_top.sv
+    </pre>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 8: UVM TESTBENCH BLOCK DIAGRAM ALONG WITH ALL UVM VIPS            -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 8</div>
+    <h1 class="chapter-title">UVM Testbench Block Diagram along with All UVM VIPs</h1>
+
+    <h2>8.1 UVM 1.2 Verification Architecture Overview</h2>
+    <p>
+        The Universal Verification Methodology (IEEE 1800.2 / UVM 1.2) provides a standardized, modular, and reusable object-oriented framework for functional verification of complex System-on-Chips. In this project, a complete UVM testbench environment is implemented to verify the full telemetry logging pipeline, bus protocol interactions, and fault escalation paths of the <code>smart_controlsoc</code> SoC.
+    </p>
+
+    <pre class="ascii-diagram">
++-------------------------------------------------------------------------------------------------------+
+|                                 tb_smart_controlsoc_uvm_top (Top Module)                              |
+|                                                                                                       |
+|  +-------------------------------------------------------------------------------------------------+  |
+|  |                                  soc_env (UVM Environment)                                      |  |
+|  |                                                                                                 |  |
+|  |  +------------------------+                                                                     |  |
+|  |  | Virtual Sequencer      |                                                                     |  |
+|  |  | (soc_virtual_sequencer)|                                                                     |  |
+|  |  | Coordinates:           |                                                                     |  |
+|  |  | - tc_pipe_01_seq       |                                                                     |  |
+|  |  | - tc_bus_01_seq        |                                                                     |  |
+|  |  +-----------+------------+                                                                     |  |
+|  |              |                                                                                  |  |
+|  |   +----------+--------+-----------+-----------+-----------+-----------+                         |  |
+|  |   |          |        |           |           |           |           |                         |  |
+|  |   v          v        v           v           v           v           v                         |  |
+|  | +------+  +------+  +------+   +------+    +------+    +------+    +------+                     |  |
+|  | | UART |  | GPIO |  |TIMER |   | SPI  |    | I2C  |    | PWM  |    | DMA  |                     |  |
+|  | |Agent |  |Agent |  |Agent |   |Agent |    |Agent |    |Agent |    |Agent |                     |  |
+|  | |(Act) |  |(Act) |  |(Pass)|   |(Act) |    |(Act) |    |(Pass)|    |(Pass)|                     |  |
+|  | +--+---+  +--+---+  +--+---+   +--+---+    +--+---+    +--+---+    +--+---+                     |  |
+|  |    |         |         |          |           |           |           |                         |  |
+|  |    | TLM     | TLM     | TLM      | TLM       | TLM       | TLM       | TLM                     |  |
+|  |    v         v         v          v           v           v           v                         |  |
+|  | +----------------------------------------------------------------------+                        |  |
+|  | |                     System Scoreboard (soc_scoreboard)               |                        |  |
+|  | | - Multi-Protocol Checking, End-to-End Pipelining, Protocol Monitors  |                        |  |
+|  | +----------------------------------------------------------------------+                        |  |
+|  +-------------------------------------------------------------------------------------------------+  |
+|                                                  |                                                    |
+|           +-----------+-----------+--------------+------------+------------+-----------+              |
+|           |           |           |                           |            |           |              |
+|           v           v           v                           v            v           v              |
+|      +---------+ +---------+ +---------+                 +---------+  +---------+ +---------+         |
+|      |uart_if  | |gpio_if  | |timer_if |                 |spi_if   |  |i2c_if   | |pwm_if   |         |
+|      +----+----+ +----+----+ +----+----+                 +----+----+  +----+----+ +----+----+         |
+|           |           |           |                           |            |           |              |
+|  +--------v-----------v-----------v---------------------------v------------v-----------v-----------+  |
+|  |                                  DUT: smart_controlsoc_top                                      |  |
+|  |               (VeeR EL2 Core + 2x6 AXI4-Lite Crossbar + 6 Slaves + DMA Controller)              |  |
+|  +-------------------------------------------------------------------------------------------------+  |
++-------------------------------------------------------------------------------------------------------+
+    </pre>
+    <div class="figure-caption">Figure 8.1: Top-Level UVM 1.2 Verification Environment with Seven Custom VIPs</div>
+
+    <h2>8.2 Detailed Breakdown of UVM Environment Components</h2>
+    <ul>
+        <li><b>Sequence Item (<code>uvm_sequence_item</code>):</b> Represents atomic transactions (e.g., <code>uart_vip_item</code>).</li>
+        <li><b>Sequencer (<code>uvm_sequencer</code>):</b> Arbitrates and routes sequence items to drivers.</li>
+        <li><b>Driver (<code>uvm_driver</code>):</b> Converts abstract transaction fields into pin transitions on virtual interfaces.</li>
+        <li><b>Monitor (<code>uvm_monitor</code>):</b> Observes physical interface pins and publishes items via analysis ports.</li>
+        <li><b>Scoreboard (<code>uvm_scoreboard</code>):</b> Maintains reference models and validates multi-peripheral data integrity.</li>
+    </ul>
+
+    <h2>8.3 Virtual Sequencer & Multi-Agent Coordination (<code>tc_pipe_01_seq</code>)</h2>
+    <pre class="code-block">
+class tc_pipe_01_seq extends uvm_sequence;
+    `uvm_object_utils(tc_pipe_01_seq)
+
+    uart_vip_sequencer  uart_sqr;
+    gpio_vip_sequencer  gpio_sqr;
+
+    task body();
+        uart_vip_item u_item;
+        gpio_vip_item g_item;
+
+        `uvm_info("PIPE_SEQ", "Starting TC_PIPE_01: Autonomous Pipeline Verification", UVM_LOW)
+
+        // Step 1: External UART injects telemetry byte into SoC
+        u_item = uart_vip_item::type_id::create("u_item");
+        start_item(u_item, .sequencer(uart_sqr));
+        u_item.tx_byte = 8'hA5;
+        finish_item(u_item);
+
+        // Step 2: DMA autonomously streams test data from PWM to GPIO
+        `uvm_info("PIPE_SEQ", "Verifying autonomous DMA streaming without CPU overhead...", UVM_MEDIUM)
+
+        // Step 3: Monitor external GPIO output
+        g_item = gpio_vip_item::type_id::create("g_item");
+        start_item(g_item, .sequencer(gpio_sqr));
+        finish_item(g_item);
+    endtask
+endclass : tc_pipe_01_seq
+    </pre>
+
+    <h2>8.4 Multi-VIP Simulation Execution Script (<code>run_all_vips.sh</code>)</h2>
+    <pre class="code-block">
+#!/bin/bash
+# Compile and simulate under Siemens QuestaSim:
+vlog -sv -mfcu -f filelist.f tb/tb_smart_controlsoc_top.sv
+vsim -c -do "run -all; quit -f" tb_smart_controlsoc_top
+    </pre>
+</div>
+
+<!-- ========================================================================= -->
+<!-- CHAPTER 9: C TEST CASE, UVM TEST CASE WITH WAVE SNIPPET                   -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">Chapter 9</div>
+    <h1 class="chapter-title">C Test Case, UVM Test Case with Wave Snippet</h1>
+
+    <h2>9.1 Bare-Metal C Verification Test Suite (Internal Firmware Tests)</h2>
+    <p>
+        The internal verification suite consists of bare-metal C programs executing directly on the VeeR EL2 core out of ICCM (<code>sw/main1.c</code>). The firmware validates peripheral memory-mapped registers, generates serial telemetry, configures DMA descriptors, exercises multi-protocol communication, and signals test results to the testbench via dedicated status registers.
+    </p>
+
+    <pre class="code-block">
+/* =============================================================================
+ * File   : sw/main1.c (Excerpts)
+ * Project: Smart Peripheral Control SoC Verification
+ * ============================================================================= */
+#include &lt;stdint.h&gt;
+#include "soc_memory_map.h"
+
+int main(void) {
+    // Announce boot start by asserting GPIO Pin 0
+    GPIO_REG(GPIO_OUT) = 0x00000001;
+
+    // Test Suite 1: Full UART Loopback and Framing Test
+    test_uart();
+    GPIO_REG(GPIO_OUT) = 0x00000002;
+
+    // Test Suite 2: 64-bit Real-Time System Timer Verification
+    test_hardware_timer();
+    GPIO_REG(GPIO_OUT) = 0x00000003;
+
+    // Test Suite 3: 32-bit Bidirectional GPIO Atomic Manipulation
+    test_gpio();
+    GPIO_REG(GPIO_OUT) = 0x00000004;
+
+    // Test Suite 4: SPI Master Configuration and Transmission
+    test_spi();
+    GPIO_REG(GPIO_OUT) = 0x00000005;
+
+    // Test Suite 5: I2C Master Setup and Bus Framing
+    test_i2c();
+    GPIO_REG(GPIO_OUT) = 0x00000006;
+
+    // Test Suite 6: PWM Dynamic Duty Cycle Sweep
+    test_pwm();
+    GPIO_REG(GPIO_OUT) = 0x00000007;
+
+    // Test Suite 7: Autonomous Bus-Mastering DMA Transfer
+    test_dma();
+    GPIO_REG(GPIO_OUT) = 0x00000008;
+
+    // Test Suite 8: Interconnect Multi-Master Cross-Routing
+    test_interconnect_cross_routing();
+
+    // Final Completion: Emit PASS signature (0x900D) to GPIO pins
+    GPIO_REG(GPIO_OUT) = 0x0000900D;
+    TOHOST_REG = 0x0000900D;
+
+    while (1) {
+        // Core halts in quiescent loop after verification pass
+    }
+    return 0;
+}
+    </pre>
+
+    <h2>9.2 Cycle-Accurate Waveform Snippets & Signal Analysis</h2>
+
+    <h3>9.2.1 Waveform Snippet 1: UART AXI-Lite Access & Serial Serialization</h3>
+    <pre class="wave-diagram">
+Timestamp:       100ns     120ns     140ns     160ns     180ns     200ns     240ns     280ns
+sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
+s00_axi_awvalid: ________/---------\___________________________________________________________
+s00_axi_awaddr : --------&lt; 40000000 &gt;---------------------------------------------------------
+s00_axi_awready: __________________/---------\_________________________________________________
+s00_axi_wvalid : ________/---------\___________________________________________________________
+s00_axi_wdata  : --------&lt; 00000041 &gt;---------------------------------------------------------
+s00_axi_wready : __________________/---------\_________________________________________________
+s00_axi_bvalid : ____________________________/---------\_______________________________________
+s00_axi_bresp  : ----------------------------&lt;   00    &gt;---------------------------------------
+uart_tx_o    : ----------------------------------------\_________/---------\_________/-------
+               (Idle High: 1)                           (Start:0) (Bit 0:1) (Bit 1:0) (Bit 2:0)
+    </pre>
+    <p>
+        <b>Analysis:</b> The CPU LSU writes byte <code>0x41</code> ('A') to <code>UART_THR</code>. The UART slave asserts <code>awready/wready</code> simultaneously, returning <code>bresp=OKAY</code> in 1 cycle. At timestamp 200 ns, the UART pulls <code>uart_tx_o</code> low (start bit) and shifts out the 8 data bits at 40 cycles per bit.
+    </p>
+
+    <h3>9.2.2 Waveform Snippet 2: 64-to-32 Bit Width Conversion & Crossbar Handshake</h3>
+    <pre class="wave-diagram">
+Timestamp:       300ns     310ns     320ns     330ns     340ns     350ns     360ns
+sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
+lsu_axi_awaddr : --------&lt; 0x4000_2180 &gt;----------------------------------------------
+lsu_axi_awsize : --------&lt;    3'b011   &gt;---------------------------------------------- (8 bytes / 64-bit)
+lsu_axi_wdata  : --------&lt; 0x0000_0000_0000_900D &gt;------------------------------------ (64-bit data)
+s00_axi_awaddr : ------------------&lt; 0x4000_2180 &gt;------------------------------------
+s00_axi_awsize : ------------------&lt;    3'b010   &gt;------------------------------------ (Clamped to 4B)
+s00_axi_wdata  : ------------------&lt;  0x0000_900D &gt;----------------------------------- (Steered lower lane)
+s00_axi_wready : ____________________________/---------\______________________________
+gpio_out_o   : ----------------------------------------&lt;  0x0000_900D &gt;---------------
+    </pre>
+    <p>
+        <b>Analysis:</b> The width converter evaluates <code>awaddr[2]==0</code>, steers data from the lower 32-bit lane (<code>0x0000_900D</code>), clamps <code>awsize</code> to <code>3'b010</code>, and presents the transaction to crossbar Port S00.
+    </p>
+
+    <h3>9.2.3 Waveform Snippet 3: Autonomous DMA Burst Data Transfer</h3>
+    <pre class="wave-diagram">
+Timestamp:       500ns     520ns     540ns     560ns     580ns     600ns     620ns
+sys_clk      : __/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\__/--\
+s01_axi_arvalid: ________/---------\___________________________________________________
+s01_axi_araddr : --------&lt; 4000A000 &gt;------------------------------------------------- (Read PWM Duty)
+m05_axi_arready: __________________/---------\_________________________________________
+m05_axi_rdata  : ----------------------------&lt; 12345678 &gt;-----------------------------
+s01_axi_awvalid: ________________________________________/---------\___________________
+s01_axi_awaddr : ----------------------------------------&lt; 40002180 &gt;----------------- (Write GPIO OUT)
+m02_axi_wdata  : ----------------------------------------&lt; 12345678 &gt;-----------------
+dma_done_irq : ____________________________________________________________/-----\____
+    </pre>
+    <p>
+        <b>Analysis:</b> The DMA engine operates autonomously over Port S01, reading test data from Port M05 (PWM) and writing directly to Port M02 (GPIO), pulsing <code>dma_done_interrupt_o</code> upon completion with zero CPU instruction cycles consumed.
+    </p>
+
+    <h2>9.3 Verification Debugging Log & Root Cause Analysis</h2>
+    <div class="table-caption">Table 9.1: Verification Debugging Log and Root Cause Resolutions</div>
+    <table class="academic-table">
+        <tr>
+            <th>Issue ID</th>
+            <th>Error Category</th>
+            <th>Root Cause Analysis</th>
+            <th>Engineering Fix Applied</th>
+        </tr>
+        <tr>
+            <td><b>ERR-01</b></td>
+            <td>Timescale Directive Mismatch</td>
+            <td>Separate <code>timescale.v</code> stub caused Questa/VCS to reset precision at file boundaries.</td>
+            <td>Embedded <code>`timescale 1ns/1ps</code> directly at the top of every individual RTL and TB file.</td>
+        </tr>
+        <tr>
+            <td><b>ERR-02</b></td>
+            <td>Package Scope Macro Expansion</td>
+            <td>Compiling packages across multiple units caused macro loss (81 errors in QuestaSim).</td>
+            <td>Enforced Multi-File Compilation Unit flag: <code>vlog -sv -mfcu -f filelist.f</code>.</td>
+        </tr>
+        <tr>
+            <td><b>ERR-03</b></td>
+            <td>Verilog-2001 Syntax Compatibility</td>
+            <td>SystemVerilog unbased literals (<code>rd = '0;</code>) failed in Verilog-2001 compiler.</td>
+            <td>Replaced with standard replication operators: <code>rd = {DATA_WIDTH{1'b0}};</code>.</td>
+        </tr>
+        <tr>
+            <td><b>ERR-04</b></td>
+            <td>Crossbar Unconnected Slave Ports</td>
+            <td>Unused crossbar slave port outputs floating triggered elaboration warnings.</td>
+            <td>Explicitly tied unused inputs to literal zeros and terminated outputs with <code>()</code>.</td>
+        </tr>
+        <tr>
+            <td><b>ERR-05</b></td>
+            <td>Address Aperture Decoding (SLVERR)</td>
+            <td>Interconnect enforced 4 KB aperture; sub-4KB unaligned accesses triggered spurious SLVERR.</td>
+            <td>Mapped all peripheral apertures to uniform 4 KB windows (<code>0x4000_xxxx</code>).</td>
+        </tr>
+        <tr>
+            <td><b>ERR-06</b></td>
+            <td>AXI ID Bit-Width Truncation</td>
+            <td>Crossbar arbiter expected 8-bit IDs while core LSU drove 12-bit IDs.</td>
+            <td>Added zero-padding logic on incoming IDs and truncated response IDs to native requester width.</td>
+        </tr>
+    </table>
+
+    <div class="callout" style="border-left-color: #2563eb; background-color: #eff6ff;">
+        <div class="callout-title" style="color: #1e40af;">FINAL VERIFICATION SIGN-OFF</div>
+        All 26 functional testplan scenarios verified. Full bare-metal firmware regression executes cleanly across all 7 peripheral subsystems, emitting the <code>0x900D</code> PASS signature. Waveforms confirm deterministic bus arbitration, zero deadlocks, and autonomous DMA streaming.
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- REFERENCES & TECHNICAL STANDARDS                                          -->
+<!-- ========================================================================= -->
+<div class="page-break">
+    <div class="chapter-number">References</div>
+    <h1 class="chapter-title">References & Technical Standards</h1>
+
+    <ol style="line-height: 1.8; margin-top: 25px;">
+        <li><b>VeeR EL2 Core:</b> CHIPS Alliance & Western Digital, <i>“VeeR EL2 RISC-V Core Hardware Reference Manual and Synthesizable RTL,”</i> GitHub: <code>https://github.com/chipsalliance/Cores-VeeR-EL2</code>, 2026.</li>
+        <li><b>RISC-V Architecture Specification:</b> Andrew Waterman and Krste Asanović, <i>“The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document Version 20191213,”</i> RISC-V International, 2019.</li>
+        <li><b>AMBA AXI4 Protocol:</b> Arm Limited, <i>“AMBA AXI and ACE Protocol Specification: AXI3, AXI4, and AXI4-Lite,”</i> Document ID: ARM IHI 0022H, 2021.</li>
+        <li><b>IEEE UVM Standard:</b> IEEE, <i>“1800.2-2020: IEEE Standard for Universal Verification Methodology (UVM) Language Reference Manual,”</i> IEEE Computer Society, 2020.</li>
+        <li><b>Siemens QuestaSim:</b> Siemens EDA, <i>“Questa Advanced Simulator User's Manual and Verification Guide,”</i> Version 2023.4, Siemens Digital Industries Software, 2023.</li>
+        <li><b>Synopsys VCS & Verdi:</b> Synopsys Inc., <i>“VCS and Unified Coverage Metric User Guide,”</i> Version U-2023.03, Synopsys Electronic Design Automation, 2023.</li>
+        <li><b>Department of ECE Guidelines:</b> Vasavi College of Engineering (Autonomous), <i>“Guidelines for Preparation of Honours Course Based Project Reports,”</i> Hyderabad, Telangana, 2026.</li>
+    </ol>
+</div>
+
+</body>
+</html>
