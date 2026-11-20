@@ -12,7 +12,7 @@
 
 **Submitted by:**
 ### **Mohammed Fardin**
-**Roll No: 1602-21-735-024**
+**Roll No: 1602-23-735-153**
 
 <br>
 
@@ -41,7 +41,7 @@
 
 <br>
 
-This is to certify that the project report entitled **“SMART PERIPHERAL CONTROL SYSTEM-ON-CHIP (SoC) BASED ON RISC-V VeeR EL2 CORE FOR INDUSTRIAL AUTOMATION”**, submitted by **Mohammed Fardin (Roll No: 1602-21-735-024)**, a student of the Department of Electronics and Communication Engineering, Vasavi College of Engineering (Autonomous), in partial fulfillment of the requirements for the award of the Honours Degree in **System on Chip Design** in Electronics and Communication Engineering, is a record of the bonafide work carried out by him during the academic year 2026–2027 under the supervision of **Dr. M. Praveen Kumar**.
+This is to certify that the project report entitled **“SMART PERIPHERAL CONTROL SYSTEM-ON-CHIP (SoC) BASED ON RISC-V VeeR EL2 CORE FOR INDUSTRIAL AUTOMATION”**, submitted by **Mohammed Fardin (Roll No: 1602-23-735-153)**, a student of the Department of Electronics and Communication Engineering, Vasavi College of Engineering (Autonomous), in partial fulfillment of the requirements for the award of the Honours Degree in **System on Chip Design** in Electronics and Communication Engineering, is a record of the bonafide work carried out by him during the academic year 2026–2027 under the supervision of **Dr. M. Praveen Kumar**.
 
 The results embodied in this project report have not been submitted to any other University or Institute for the award of any degree or diploma.
 
@@ -83,7 +83,7 @@ I also declare that this report has not previously formed the basis for the awar
 
 **Signature of Student:**  
 **Mohammed Fardin**  
-Roll No: 1602-21-735-024  
+Roll No: 1602-23-735-153  
 Department of ECE, Vasavi College of Engineering  
 
 ---
@@ -105,7 +105,7 @@ Finally, I thank my family and fellow peers for their unwavering encouragement, 
 <br>
 
 **Mohammed Fardin**  
-Roll No: 1602-21-735-024  
+Roll No: 1602-23-735-153  
 Department of ECE, Vasavi College of Engineering  
 
 ---
@@ -227,7 +227,7 @@ Verification was executed using a dual-faceted co-verification strategy combinin
 - **Project Title:** Smart Peripheral Control System-on-Chip (SoC) Based on RISC-V VeeR EL2 Core for Industrial Automation
 - **Target Domain:** Embedded Industrial Automation, Motion & Robotics Control, Multi-Protocol Telemetry Ingestion
 - **Project Category:** Advanced VLSI & SoC Design, Computer Architecture, UVM 1.2 Functional Verification
-- **Candidate / Author:** Mohammed Fardin (Roll No: 1602-21-735-024)
+- **Candidate / Author:** Mohammed Fardin (Roll No: 1602-23-735-153)
 - **Institution:** Department of Electronics and Communication Engineering, Vasavi College of Engineering (Autonomous), Hyderabad, Telangana, India.
 - **Supervisor:** Dr. M. Praveen Kumar, Assistant Professor, Department of ECE.
 
